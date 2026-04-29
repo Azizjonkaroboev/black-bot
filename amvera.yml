@@ -1,0 +1,13 @@
+meta:
+  environment: nodejs
+  toolchain:
+    name: node
+    version: 20.x
+
+build:
+  nixPackages:
+    - nodejs_20
+
+run:
+  persistenceMount: /data
+  command: node bot.js
