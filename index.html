@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BLACK</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    background: #0a0a0a;
+    color: #fff;
+    font-family: 'SF Pro Display', -apple-system, sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* ЗОЛОТОЙ ГРАДИЕНТ */
+  .gold { color: #c9a84c; }
+  .gold-gradient {
+    background: linear-gradient(135deg, #f5d060, #c9a84c, #a67c2e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ХЕДЕР */
+  .header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .username {
+    font-size: 14px;
+    color: #c9a84c;
+    font-weight: 600;
+  }
+  .lang-btn {
+    background: #1a1a1a;
+    border: 1px solid #c9a84c44;
+    color: #c9a84c;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  /* КАРТОЧКА БАЛАНСА */
+  .balance-card {
+    margin: 16px;
+    background: linear-gradient(135deg, #111 0%, #1a1500 100%);
+    border: 1px solid #c9a84c33;
+    border-radius: 20px;
+    padding: 20px;
+  }
+  .platform-name {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #c9a84c88;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .platform-slogan {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .balance-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .balance-item {
+    flex: 1;
+    background: #0a0a0a;
+    border: 1px solid #c9a84c22;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+  }
+  .balance-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #c9a84c;
+  }
+  .balance-label {
+    font-size: 10px;
+    color: #666;
+    margin-top: 2px;
+  }
+  .wallet {
+    font-size: 12px;
+    color: #444;
+    text-align: center;
+  }
+   .multiplier-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #c9a84c, #a67c2e);
+    color: #000;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-top: 8px;
+  }
+
+  /* СЕКЦИИ */
+  .section {
+    margin: 16px;
+  }
+  .section-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #c9a84c66;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* РЕКЛАМА */
+  .ad-item {
+    background: #111;
+    border: 1px solid #1a1a1a;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+  }
+  .ad-item:active { border-color: #c9a84c44; }
+  .ad-left { display: flex; align-items: center; gap: 12px; }
+  .ad-icon {
+    width: 36px; height: 36px;
+    background: #1a1500;
+    border: 1px solid #c9a84c33;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .ad-name { font-size: 14px; font-weight: 600; }
+  .ad-limit { font-size: 11px; color: #555; margin-top: 2px; }
+  .ad-right { display: flex; align-items: center; gap: 10px; }
+  .ad-progress {
+    font-size: 12px;
+    color: #c9a84c;
+    font-weight: 600;
+  }
+  .play-btn {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #c9a84c, #a67c2e);
+    border: none;
+    border-radius: 50%;
+    color: #000;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* НИЖНЯЯ НАВИГАЦИЯ */
+  .nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #0d0d0d;
+    border-top: 1px solid #1a1a1a;
+    display: flex;
+    padding: 8px 0 20px;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 6px 0;
+  }
+  .nav-icon { font-size: 20px; }
+  .nav-label {
+    font-size: 10px;
+    color: #444;
+  }
+  .nav-item.active .nav-label { color: #c9a84c; }
+  .nav-item.active .nav-icon { filter: drop-shadow(0 0 4px #c9a84c); }
+
+  /* СТРАНИЦЫ */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ЗАДАНИЯ */
+  .checkin-card {
+    background: linear-gradient(135deg, #111 0%, #1a1500 100%);
+    border: 1px solid #c9a84c33;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 16px;
+  }
+  .checkin-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #c9a84c66;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .checkin-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .checkin-stat {
+    flex: 1;
+    background: #0a0a0a;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .checkin-stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #c9a84c;
+  }
+  .checkin-stat-label {
+    font-size: 10px;
+    color: #555;
+    margin-top: 2px;
+  }
+  .days-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .day-btn {
+    flex: 1;
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 8px 4px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .day-btn.active {
+    background: linear-gradient(135deg, #c9a84c, #a67c2e);
+    border-color: transparent;
+  }
+  .day-btn.active .day-label,
+  .day-btn.active .day-mult { color: #000; }
+  .day-label { font-size: 9px; color: #555; }
+  .day-mult { font-size: 11px; font-weight: 700; color: #c9a84c; }
+  .checkin-btn {
+    width: 100%;
+    background: #1a1a1a;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    color: #555;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .promo-card {
+    background: #111;
+    border: 1px solid #1a1a1a;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 0 16px 16px;
+    }
+    .promo-input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 10px;
+    outline: none;
+  }
+  .promo-input:focus { border-color: #c9a84c44; }
+  .promo-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #c9a84c, #a67c2e);
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    color: #000;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* PvP */
+  .pvp-header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pvp-title {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .round-badge {
+    background: #1a1500;
+    border: 1px solid #c9a84c44;
+    color: #c9a84c;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .pvp-stats {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px;
+    margin-bottom: 16px;
+  }
+  .pvp-stat-label { font-size: 11px; color: #555; }
+  .pvp-stat-value { font-size: 22px; font-weight: 700; color: #c9a84c; }
+  .wheel-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .wheel {
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: conic-gradient(
+      #1a1500 0deg 72deg,
+      #111 72deg 144deg,
+      #1a1500 144deg 216deg,
+      #111 216deg 288deg,
+      #1a1500 288deg 360deg
+    );
+    border: 2px solid #c9a84c33;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .wheel-center {
+    width: 80px; height: 80px;
+    background: #0a0a0a;
+    border-radius: 50%;
+    border: 1px solid #c9a84c33;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #555;
+    text-align: center;
+  }
+  .bet-card {
+    margin: 0 16px;
+    background: #111;
+    border: 1px solid #1a1a1a;
+    border-radius: 20px;
+    padding: 16px;
+  }
+  .bet-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .bet-input {
+    flex: 1;
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #c9a84c;
+    font-size: 16px;
+    font-weight: 700;
+    outline: none;
+  }
+  .bet-btn {
+    background: linear-gradient(135deg, #c9a84c, #a67c2e);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: #000;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .quick-bets {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .quick-bet {
+    flex: 1;
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 8px;
+    text-align: center;
+    color: #c9a84c;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .participants {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #555;
+    font-size: 13px;
+  }
+
+  /* ДРУЗЬЯ */
+  .friends-card {
+    margin: 16px;
+    background: linear-gradient(135deg, #111 0%, #1a1500 100%);
+    border: 1px solid #c9a84c33;
+    border-radius: 20px;
+    padding: 20px;
+  }
+  .friends-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    }
+    .friends-sub {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 16px;
+  }
+  .friends-stats {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .friends-stat {
+    flex: 1;
+    background: #0a0a0a;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .copy-btn {
+    width: 100%;
+    background: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    color: #000;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .share-btn {
+    width: 100%;
+    background: #1a1500;
+    border: 1px solid #c9a84c44;
+    border-radius: 12px;
+    padding: 14px;
+    color: #c9a84c;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .friends-list {
+    margin: 0 16px 16px;
+    background: #111;
+    border: 1px solid #1a1a1a;
+    border-radius: 20px;
+    padding: 20px;
+  }
+  .friends-list-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #555;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .no-friends {
+    text-align: center;
+    color: #333;
+    padding: 20px 0;
+    font-size: 14px;
+  }
+
+  /* ПРОФИЛЬ */
+  .profile-card {
+    margin: 16px;
+    background: linear-gradient(135deg, #111 0%, #1a1500 100%);
+    border: 1px solid #c9a84c33;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+  }
+  .avatar {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, #c9a84c, #a67c2e);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: #000;
+    margin: 0 auto 12px;
+  }
+  .profile-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #c9a84c;
+  }
+  .profile-stats {
+    display: flex;
+    gap: 8px;
+  }
+  .profile-stat {
+    flex: 1;
+    background: #0a0a0a;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+  }
+  .wallet-card {
+    margin: 0 16px 12px;
+    background: #111;
+    border: 1px solid #1a1a1a;
+    border-radius: 20px;
+    padding: 16px;
+  }
+  .wallet-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #ff4444;
+  }
+  .connect-wallet-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #c9a84c, #a67c2e);
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    color: #000;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  exchange-card {
+    margin: 0 16px 12px;
+    background: #111;
+    border: 1px solid #1a1a1a;
+    border-radius: 20px;
+    padding: 16px;
+  }
+  .exchange-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #555;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .exchange-toggle {
+    display: flex;
+    background: #0a0a0a;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 12px;
+    gap: 4px;
+  }
+  .toggle-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #555;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .toggle-btn.active {
+    background: linear-gradient(135deg, #c9a84c, #a67c2e);
+    color: #000;
+  }
+  .exchange-input {
+    width: 100%;
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 8px;
+    outline: none;
+  }
+  .exchange-rate {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 12px;
+  }
+  .exchange-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #c9a84c, #a67c2e);
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    color: #000;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .deposit-row {
+    display: flex;
+    gap: 8px;
+  }
+  .deposit-btn, .withdraw-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .deposit-btn {
+    background: #1a1500;
+    border: 1px solid #c9a84c44;
+    color: #c9a84c;
+  }
+  .withdraw-btn {
+    background: #1a1500;
+    border: 1px solid #c9a84c44;
+    color: #c9a84c;
+  }
+  .info-card {
+    margin: 0 16px 12px;
+    background: #111;
+    border: 1px solid #1a1a1a;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { font-size: 13px; color: #666; display: flex; align-items: center; gap: 8px; }
+  .info-value { font-size: 13px; color: #c9a84c; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <span class="username" id="username">@username</span>
+  <button class="lang-btn" onclick="toggleLang()">RU</button>
+</div>
+
+  <!-- СТРАНИЦА: ГЛАВНАЯ -->
+<div class="page active" id="page-home">
+  <div class="balance-card">
+    <div class="platform-name">PLATFORM</div>
+    <div class="platform-slogan gold-gradient">BLACK 🖤</div>
+    <div style="font-size:12px;color:#555;margin-bottom:16px">Зарабатывай ARC — получай TON</div>
+    <div class="balance-row">
+      <div class="balance-item">
+        <div class="balance-value">0</div>
+        <div class="balance-label">ARC</div>
+      </div>
+      <div class="balance-item">
+        <div class="balance-value">0.000</div>
+        <div class="balance-label">TON</div>
+      </div>
+    </div>
+    <div class="wallet">👛 Кошелёк не подключён</div>
+    <div style="text-align:center">
+      <span class="multiplier-badge">Множитель сегодня: ×1.0</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">— Реклама —</div>
+    <div class="ad-item">
+      <div class="ad-left">
+        <div class="ad-icon">📺</div>
+        <div>
+          <div class="ad-name">Реклама 1</div>
+          <div class="ad-limit">Лимит 50/день</div>
+        </div>
+      </div>
+      <div class="ad-right">
+        <span class="ad-progress">0/50</span>
+        <button class="play-btn">▶</button>
+      </div>
+    </div>
+    <div class="ad-item">
+      <div class="ad-left">
+        <div class="ad-icon">📺</div>
+        <div>
+          <div class="ad-name">Реклама 2</div>
+          <div class="ad-limit">Лимит 50/день</div>
+        </div>
+      </div>
+      <div class="ad-right">
+        <span class="ad-progress">0/50</span>
+        <button class="play-btn">▶</button>
+      </div>
+    </div>
+    <div class="ad-item">
+      <div class="ad-left">
+        <div class="ad-icon">📺</div>
+        <div>
+          <div class="ad-name">Реклама 3</div>
+          <div class="ad-limit">Лимит 30/день</div>
+        </div>
+      </div>
+      <div class="ad-right">
+        <span class="ad-progress">0/30</span>
+        <button class="play-btn">▶</button>
+      </div>
+    </div>
+    <div class="ad-item">
+      <div class="ad-left">
+        <div class="ad-icon">📺</div>
+        <div>
+          <div class="ad-name">Реклама 4</div>
+          <div class="ad-limit">Лимит 30/день</div>
+        </div>
+      </div>
+      <div class="ad-right">
+        <span class="ad-progress">0/30</span>
+        <button class="play-btn">▶</button>
+      </div>
+    </div>
+    <div class="ad-item">
+      <div class="ad-left">
+        <div class="ad-icon">📺</div>
+        <div>
+          <div class="ad-name">Реклама 5</div>
+          <div class="ad-limit">Лимит 30/день</div>
+        </div>
+      </div>
+      <div class="ad-right">
+        <span class="ad-progress">0/30</span>
+        <button class="play-btn">▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- СТРАНИЦА: ЗАДАНИЯ -->
+<div class="page" id="page-tasks">
+  <div class="checkin-card">
+    <div class="checkin-title">— Ежедневный чек-ин —</div>
+    <div class="checkin-row">
+      <div class="checkin-stat">
+        <div class="checkin-stat-value">1</div>
+        <div class="checkin-stat-label">ДЕНЬ</div>
+      </div>
+      <div class="checkin-stat">
+        <div class="checkin-stat-value">×1.0</div>
+        <div class="checkin-stat-label">МОЙ МНОЖИТЕЛЬ</div>
+      </div>
+    </div>
+    <div class="days-row">
+      <div class="day-btn active">
+        <div class="day-label">Д1</div>
+        <div class="day-mult">×1.0</div>
+      </div>
+      <div class="day-btn">
+        <div class="day-label">Д2</div>
+        <div class="day-mult">×1.1</div>
+      </div>
+      <div class="day-btn">
+        <div class="day-label">Д3</div>
+        <div class="day-mult">×1.2</div>
+      </div>
+      <div class="day-btn">
+        <div class="day-label">Д4</div>
+        <div class="day-mult">×1.3</div>
+      </div>
+      <div class="day-btn">
+        <div class="day-label">Д5</div>
+        <div class="day-mult">×1.4</div>
+      </div>
+      <div class="day-btn">
+        <div class="day-label">Д6+</div>
+        <div class="day-mult">×1.5</div>
+      </div>
+    </div>
+    <button class="checkin-btn">✓ Множитель получен</button>
+  </div>
+
+  <div class="promo-card">
+    <div class="section-title">— Промо-код —</div>
+    <input class="promo-input" placeholder="Введи промо-код...">
+    <button class="promo-btn">Активировать</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">— Задания —</div>
+    <div style="text-align:center;color:#333;padding:30px;font-size:14px">
+      Заданий пока нет
+    </div>
+  </div>
+</div>
+
+<!-- СТРАНИЦА: PvP -->
+<div class="page" id="page-pvp">
+  <div class="pvp-header">
+    <div>
+      <div style="font-size:12px;color:#555;margin-bottom:4px">⚔️ PvP</div>
+      <div class="pvp-title gold-gradient">АРЕНА</div>
+    </div>
+    <div class="round-badge">ROUND #1</div>
+  </div>
+
+  <div class="pvp-stats">
+    <div>
+      <div class="pvp-stat-label">БАНК</div>
+      <div class="pvp-stat-value">0 ARC</div>
+    </div>
+    <div style="text-align:right">
+      <div class="pvp-stat-label">МОЙ БАЛАНС</div>
+      <div class="pvp-stat-value">0 ARC</div>
+    </div>
+  </div>
+
+  <div class="wheel-container">
+    <div style="position:relative">
+      <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);color:#c9a84c;font-size:20px">▼</div>
+      <div class="wheel">
+        <div class="wheel-center">Ставь<br>ARC</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bet-card">
+    <div class="bet-row">
+      <input class="bet-input" placeholder="0 ARC" type="number">
+      <button class="bet-btn">+ Ставить</button>
+    </div>
+    <div class="quick-bets">
+      <div class="quick-bet">10</div>
+      <div class="quick-bet">50</div>
+      <div class="quick-bet">100</div>
+      <div class="quick-bet">500</div>
+    </div>
+    <div class="participants">
+      <span>УЧАСТНИКИ</span>
+      <span>0</span>
+    </div>
+    <div style="text-align:center;color:#333;padding:16px;font-size:13px">
+      Будь первым — сделай ставку!
+    </div>
+  </div>
+</div>
+
+<!-- СТРАНИЦА: ДРУЗЬЯ -->
+<div class="page" id="page-friends">
+  <div class="friends-card">
+    <div class="friends-title gold-gradient">Пригласи и заработай</div>
+    <div class="friends-sub">20% с рекламы друга — навсегда</div>
+    <div class="friends-stats">
+      <div class="friends-stat">
+        <div class="balance-value">0</div>
+        <div class="balance-label">ПРИГЛАШЕНО</div>
+      </div>
+      <div class="friends-stat">
+        <div class="balance-value">0</div>
+        <div class="balance-label">ARC С РЕФЕРАЛОВ</div>
+      </div>
+    </div>
+    <button class="copy-btn">🔗 Скопировать ссылку</button>
+    <button class="share-btn">📤 Поделиться</button>
+  </div>
+
+  <div class="friends-list">
+    <div class="friends-list-title">Мои друзья</div>
+    <div class="no-friends">👥 Пока нет друзей.<br>Пригласи первого!</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">— Как работает —</div>
+    <div style="background:#111;border:1px solid #1a1a1a;border-radius:20px;padding:20px">
+      <div style="display:flex;gap:12px;margin-bottom:14px;align-items:flex-start">
+        <div style="width:28px;height:28px;background:linear-gradient(135deg,#c9a84c,#a67c2e);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:13px;flex-shrink:0">1</div>
+        <div style="font-size:13px;color:#888;padding-top:4px">Скопируй реферальную ссылку</div>
+      </div>
+      <div style="display:flex;gap:12px;margin-bottom:14px;align-items:flex-start">
+        <div style="width:28px;height:28px;background:linear-gradient(135deg,#c9a84c,#a67c2e);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:13px;flex-shrink:0">2</div>
+        <div style="font-size:13px;color:#888;padding-top:4px">Отправь другу в Telegram</div>
+      </div>
+      <div style="display:flex;gap:12px;margin-bottom:14px;align-items:flex-start">
+        <div style="width:28px;height:28px;background:linear-gradient(135deg,#c9a84c,#a67c2e);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:13px;flex-shrink:0">3</div>
+        <div style="font-size:13px;color:#888;padding-top:4px">Друг смотрит рекламу и зарабатывает ARC</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:28px;height:28px;background:linear-gradient(135deg,#c9a84c,#a67c2e);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:13px;flex-shrink:0">4</div>
+        <div style="font-size:13px;color:#c9a84c;font-weight:600;padding-top:4px">Ты получаешь 20% от его ARC автоматически!</div>
+      </div>
+    </div>
+  </div>
+      </div>
+
+  <!-- СТРАНИЦА: ПРОФИЛЬ -->
+<div class="page" id="page-profile">
+  <div class="profile-card">
+    <div class="avatar">A</div>
+    <div class="profile-name" id="profile-username">@username</div>
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <div class="balance-value">0</div>
+        <div class="balance-label">ARC</div>
+      </div>
+      <div class="profile-stat">
+        <div class="balance-value">0.000</div>
+        <div class="balance-label">TON</div>
+      </div>
+      <div class="profile-stat">
+        <div class="balance-value">×1.0</div>
+        <div class="balance-label">МНОЖИТЕЛЬ</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wallet-card">
+    <div style="font-size:11px;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">TON КОШЕЛЁК</div>
+    <div class="wallet-status">
+      <div class="status-dot"></div>
+      <span style="font-size:14px;font-weight:600">Не подключён</span>
+    </div>
+    <button class="connect-wallet-btn">💎 Подключить кошелёк</button>
+  </div>
+
+  <div class="exchange-card">
+    <div class="exchange-title">— Обмен —</div>
+    <div class="exchange-toggle">
+      <button class="toggle-btn active" id="btn-ton-arc" onclick="setExchange('ton-arc')">TON → ARC</button>
+      <button class="toggle-btn" id="btn-arc-ton" onclick="setExchange('arc-ton')">ARC → TON</button>
+    </div>
+    <div id="exchange-content">
+      <input class="exchange-input" placeholder="Введи TON..." type="number">
+      <div class="exchange-rate">Курс: 1 TON = 3,500 ARC</div>
+      <button class="exchange-btn">Обменять</button>
+    </div>
+    <div class="deposit-row">
+      <button class="deposit-btn">↓ Депозит</button>
+      <button class="withdraw-btn">↑ Вывод</button>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-row">
+      <span class="info-label">📅 Серия чек-ин</span>
+      <span class="info-value">День 1 · ×1.0</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">👥 Рефералов</span>
+      <span class="info-value">0</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">🌐 Язык</span>
+      <span class="info-value">Русский</span>
+    </div>
+  </div>
+</div>
+
+<!-- НАВИГАЦИЯ -->
+<nav class="nav">
+  <div class="nav-item" onclick="showPage('pvp')">
+    <span class="nav-icon">⚔️</span>
+    <span class="nav-label">PvP</span>
+  </div>
+  <div class="nav-item" onclick="showPage('tasks')">
+    <span class="nav-icon">✅</span>
+    <span class="nav-label" id="nav-tasks">Задание</span>
+  </div>
+  <div class="nav-item active" onclick="showPage('home')">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Главная</span>
+  </div>
+  <div class="nav-item" onclick="showPage('friends')">
+    <span class="nav-icon">👥</span>
+    <span class="nav-label">Друзья</span>
+  </div>
+  <div class="nav-item" onclick="showPage('profile')">
+    <span class="nav-icon">👤</span>
+    <span class="nav-label">Профиль</span>
+  </div>
+</nav>
+
+<script>
+const pages = ['home','tasks','pvp','friends','profile'];
+let currentLang = 'RU';
+
+function showPage(name) {
+  pages.forEach(p => {
+    document.getElementById('page-' + p).classList.remove('active');
+    document.querySelectorAll('.nav-item').forEach((item, i) => {
+      item.classList.remove('active');
+    });
+  });
+  document.getElementById('page-' + name).classList.add('active');
+  const idx = pages.indexOf(name);
+  document.querySelectorAll('.nav-item')[idx].classList.add('active');
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'RU' ? 'EN' : 'RU';
+  document.querySelector('.lang-btn').textContent = currentLang;
+}
+
+function setExchange(type) {
+  if (type === 'arc-ton') {
+    document.getElementById('exchange-content').innerHTML = `
+      <div style="background:#1a0a0a;border:1px solid #ff444433;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px">
+        <div style="font-size:13px;color:#ff4444">⚠️ Обмен ARC → TON недоступен</div>
+        <div style="font-size:11px;color:#555;margin-top:4px">Следи за обновлениями в канале</div>
+      </div>
+      <button class="exchange-btn" style="opacity:0.4;cursor:not-allowed" disabled>Обменять 🔒</button>
+    `;
+  } else {
+    document.getElementById('exchange-content').innerHTML = `
+      <input class="exchange-input" placeholder="Введи TON..." type="number">
+      <div class="exchange-rate">Курс: 1 TON = 3,500 ARC</div>
+      <button class="exchange-btn">Обменять</button>
+    `;
+  }
+  document.getElementById('btn-ton-arc').classList.toggle('active', type === 'ton-arc');
+  document.getElementById('btn-arc-ton').classList.toggle('active', type === 'arc-ton');
+}
+
+  // Telegram WebApp
+if (window.Telegram && window.Telegram.WebApp) {
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+  const user = tg.initDataUnsafe?.user;
+  if (user) {
+    const name = '@' + (user.username || user.first_name);
+    document.getElementById('username').textContent = name;
+    document.getElementById('profile-username').textContent = name;
+    const avatar = document.querySelector('.avatar');
+    avatar.textContent = (user.first_name || 'U')[0].toUpperCase();
+  }
+}
+</script>
+</body>
+</html>
