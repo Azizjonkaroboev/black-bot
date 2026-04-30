@@ -2,11 +2,7 @@ meta:
   environment: nodejs
   toolchain:
     name: node
-    version: "20"
-
-build:
-  nixPackages:
-    - nodejs_20
+    version: 20.x
 
 run:
   persistenceMount: /data
