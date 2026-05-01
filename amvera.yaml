@@ -1,8 +1,8 @@
 meta:
   environment: nodejs
   toolchain:
-    name: node
-    version: 20.x
+    node:
+      version: 20.x
 
 run:
   persistenceMount: /data
