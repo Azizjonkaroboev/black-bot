@@ -1,5 +1,6 @@
 const express = require('express');
 const crypto = require('crypto');
+const ws = require('ws');
 const { createClient } = require('@supabase/supabase-js');
 const { Bot } = require('grammy');
 const path = require('path');
@@ -17,7 +18,9 @@ const PLATFORM_WALLET = 'UQAG8cx9dXAWIfcoNUkdyki-Un9QzJxw3_xU8624H6OnZFMb';
 const CHANNEL = 'blackt_channel';
 
 const bot = new Bot(BOT_TOKEN);
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  realtime: { transport: ws }
+});
 
 // ══ TELEGRAM INIT DATA VALIDATION ══
 function validateTelegramData(initData) {
@@ -38,10 +41,8 @@ function validateTelegramData(initData) {
 }
 
 function authMiddleware(req, res, next) {
-  // Skip auth for admin and internal calls
   const initData = req.headers['x-telegram-init-data'];
   if (!initData) {
-    // Allow in dev mode
     if (process.env.NODE_ENV === 'development') return next();
     return res.status(401).json({ error: 'No auth' });
   }
@@ -69,7 +70,6 @@ function getArcPerTon() {
 
 // ══ ROUTES ══
 
-// Get user
 app.get('/api/user/:tgId', authMiddleware, async (req, res) => {
   try {
     const { tgId } = req.params;
@@ -79,39 +79,27 @@ app.get('/api/user/:tgId', authMiddleware, async (req, res) => {
       .eq('telegram_id', tgId)
       .single();
     if (error || !data) return res.json({ arc_balance: 0, ton_balance: 0, multiplier: 1.0 });
-    
-    // Get friends
     const { data: refs } = await supabase
       .from('referrals')
       .select('referred_id, earned_arc')
       .eq('referrer_id', tgId);
-    
-    // Get transactions
     const { data: txs } = await supabase
       .from('transactions')
       .select('*')
       .eq('telegram_id', tgId)
       .order('created_at', { ascending: false })
       .limit(50);
-
-    return res.json({
-      ...data,
-      friends: refs || [],
-      transactions: txs || [],
-    });
+    return res.json({ ...data, friends: refs || [], transactions: txs || [] });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-// Save user
 app.post('/api/user/save', authMiddleware, async (req, res) => {
   try {
     const { telegram_id, arc_balance, ton_balance, multiplier, checkin_day,
       checkin_done, exc_today, done_tasks, wallet_addr } = req.body;
-    
     if (!telegram_id) return res.status(400).json({ error: 'No telegram_id' });
-
     const { error } = await supabase.from('users').upsert({
       telegram_id: String(telegram_id),
       arc_balance: arc_balance || 0,
@@ -124,7 +112,6 @@ app.post('/api/user/save', authMiddleware, async (req, res) => {
       wallet_addr: wallet_addr || '',
       last_seen: new Date().toISOString(),
     }, { onConflict: 'telegram_id' });
-
     if (error) return res.status(500).json({ error: error.message });
     res.json({ ok: true });
   } catch (e) {
@@ -132,21 +119,16 @@ app.post('/api/user/save', authMiddleware, async (req, res) => {
   }
 });
 
-// Register user on first start
 app.post('/api/user/register', async (req, res) => {
   try {
     const { telegram_id, username, first_name, photo_url, ref_code } = req.body;
     if (!telegram_id) return res.status(400).json({ error: 'No telegram_id' });
-
-    // Check if exists
     const { data: existing } = await supabase
       .from('users')
       .select('telegram_id')
       .eq('telegram_id', String(telegram_id))
       .single();
-
     if (!existing) {
-      // Create new user
       await supabase.from('users').insert({
         telegram_id: String(telegram_id),
         username: username || '',
@@ -164,8 +146,6 @@ app.post('/api/user/register', async (req, res) => {
         created_at: new Date().toISOString(),
         last_seen: new Date().toISOString(),
       });
-
-      // Handle referral
       if (ref_code && ref_code !== String(telegram_id)) {
         const { data: referrer } = await supabase
           .from('users')
@@ -181,20 +161,17 @@ app.post('/api/user/register', async (req, res) => {
         }
       }
     } else {
-      // Update last seen
       await supabase.from('users').update({
         last_seen: new Date().toISOString(),
         username: username || '',
       }).eq('telegram_id', String(telegram_id));
     }
-
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-// Check Telegram subscription
 app.post('/api/check-subscription', authMiddleware, async (req, res) => {
   try {
     const { telegram_id, channel } = req.body;
@@ -206,33 +183,25 @@ app.post('/api/check-subscription', authMiddleware, async (req, res) => {
   }
 });
 
-// Exchange TON → ARC (from bot balance)
 app.post('/api/exchange', authMiddleware, async (req, res) => {
   try {
     const { telegram_id, ton_amount } = req.body;
     if (!telegram_id || !ton_amount) return res.status(400).json({ error: 'Missing fields' });
-
     const { data: user } = await supabase
       .from('users')
       .select('ton_balance, arc_balance, exc_today')
       .eq('telegram_id', String(telegram_id))
       .single();
-
     if (!user) return res.status(404).json({ error: 'User not found' });
     if (user.ton_balance < ton_amount) return res.status(400).json({ error: 'Insufficient TON' });
-    
     const today_used = user.exc_today || 0;
     if (today_used + ton_amount > 5) return res.status(400).json({ error: 'Daily limit reached' });
-
     const arc_amount = Math.floor(ton_amount * getArcPerTon());
-
     await supabase.from('users').update({
       ton_balance: user.ton_balance - ton_amount,
       arc_balance: user.arc_balance + arc_amount,
       exc_today: today_used + ton_amount,
     }).eq('telegram_id', String(telegram_id));
-
-    // Save transaction
     await supabase.from('transactions').insert({
       telegram_id: String(telegram_id),
       type: 'exchange',
@@ -241,60 +210,43 @@ app.post('/api/exchange', authMiddleware, async (req, res) => {
       description: `Обмен ${ton_amount} TON → ${arc_amount} ARC`,
       created_at: new Date().toISOString(),
     });
-
     res.json({ ok: true, arc_credited: arc_amount });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-// Check deposit (called every 30 sec from frontend)
 app.post('/api/check-deposit', authMiddleware, async (req, res) => {
   try {
     const { telegram_id, expected_ton } = req.body;
-    
-    // Check TON blockchain for incoming transactions
     const response = await fetch(
       `https://tonapi.io/v2/accounts/${PLATFORM_WALLET}/transactions?limit=10`
     );
     const data = await response.json();
-    
     if (!data.transactions) return res.json({ confirmed: false });
-
-    // Look for recent transaction matching expected amount
     const nowSec = Math.floor(Date.now() / 1000);
     const nanoAmount = Math.floor(expected_ton * 1e9);
-    
     const found = data.transactions.find(tx => {
-      const isRecent = (nowSec - tx.utime) < 600; // within 10 minutes
-      const amountMatch = Math.abs(tx.in_msg?.value - nanoAmount) < 1e7; // 0.01 TON tolerance
+      const isRecent = (nowSec - tx.utime) < 600;
+      const amountMatch = Math.abs(tx.in_msg?.value - nanoAmount) < 1e7;
       return isRecent && amountMatch && tx.in_msg?.value > 0;
     });
-
     if (found) {
-      // Check not already processed
       const { data: existing } = await supabase
         .from('transactions')
         .select('id')
         .eq('tx_hash', found.hash)
         .single();
-
       if (existing) return res.json({ confirmed: false, already_processed: true });
-
-      // Credit TON to user balance
       const { data: user } = await supabase
         .from('users')
         .select('ton_balance')
         .eq('telegram_id', String(telegram_id))
         .single();
-
       const newBalance = (user?.ton_balance || 0) + expected_ton;
-
       await supabase.from('users').update({
         ton_balance: newBalance,
       }).eq('telegram_id', String(telegram_id));
-
-      // Save transaction
       await supabase.from('transactions').insert({
         telegram_id: String(telegram_id),
         type: 'deposit',
@@ -304,42 +256,31 @@ app.post('/api/check-deposit', authMiddleware, async (req, res) => {
         description: `Депозит ${expected_ton} TON`,
         created_at: new Date().toISOString(),
       });
-
-      // Notify admin
       await bot.api.sendMessage(ADMIN_ID,
         `💰 Депозит!\n👤 ID: ${telegram_id}\n💎 ${expected_ton} TON\n💰 Баланс: ${newBalance.toFixed(3)} TON`
       );
-
       return res.json({ confirmed: true, ton_credited: expected_ton });
     }
-
     res.json({ confirmed: false });
   } catch (e) {
     res.json({ confirmed: false });
   }
 });
 
-// Withdraw request
 app.post('/api/withdraw-request', authMiddleware, async (req, res) => {
   try {
     const { telegram_id, ton_amount, wallet, username } = req.body;
-
     const { data: user } = await supabase
       .from('users')
       .select('ton_balance')
       .eq('telegram_id', String(telegram_id))
       .single();
-
     if (!user || user.ton_balance < ton_amount) {
       return res.status(400).json({ error: 'Insufficient balance' });
     }
-
-    // Freeze balance
     await supabase.from('users').update({
       ton_balance: user.ton_balance - ton_amount,
     }).eq('telegram_id', String(telegram_id));
-
-    // Save withdrawal request
     await supabase.from('transactions').insert({
       telegram_id: String(telegram_id),
       type: 'withdraw',
@@ -350,54 +291,42 @@ app.post('/api/withdraw-request', authMiddleware, async (req, res) => {
       description: `Вывод ${ton_amount} TON`,
       created_at: new Date().toISOString(),
     });
-
-    // Notify admin
     await bot.api.sendMessage(ADMIN_ID,
-      `⬆️ Заявка на вывод!\n👤 ${username || telegram_id}\n💎 ${ton_amount} TON\n👛 ${wallet}\n\nОтправь TON и подтверди /confirm_${telegram_id}`
+      `⬆️ Заявка на вывод!\n👤 ${username || telegram_id}\n💎 ${ton_amount} TON\n👛 ${wallet}`
     );
-
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-// TON rate
 app.get('/api/ton-rate', (req, res) => {
   res.json({ rate: tonRate, arc_per_ton: getArcPerTon() });
 });
 
-// ══ INACTIVITY BURN (every hour check) ══
 async function burnInactiveARC() {
   try {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const { data: inactive } = await supabase
       .from('users')
-      .select('telegram_id, arc_balance, last_seen, inactivity_warned')
+      .select('telegram_id, arc_balance, last_seen')
       .lt('last_seen', sevenDaysAgo)
       .gt('arc_balance', 0);
-
     if (!inactive) return;
-
     for (const user of inactive) {
       const daysSince = Math.floor((Date.now() - new Date(user.last_seen)) / (24 * 60 * 60 * 1000));
       let burnPct = 0;
       if (daysSince === 7) burnPct = 0.20;
       else if (daysSince > 7) burnPct = 0.05;
-
       if (burnPct > 0) {
         const burned = Math.floor(user.arc_balance * burnPct);
         await supabase.from('users').update({
           arc_balance: user.arc_balance - burned,
         }).eq('telegram_id', user.telegram_id);
-
-        // Notify user
         try {
-          if (daysSince === 7) {
-            await bot.api.sendMessage(Number(user.telegram_id),
-              `🔥 Твои ARC начали гореть!\n\nТы не заходил ${daysSince} дней — сожжено ${burned} ARC (-20%).\n\nЗайди чтобы остановить сжигание!`
-            );
-          }
+          await bot.api.sendMessage(Number(user.telegram_id),
+            `🔥 Твои ARC начали гореть!\n\nТы не заходил ${daysSince} дней — сожжено ${burned} ARC.\n\nЗайди чтобы остановить!`
+          );
         } catch (e) {}
       }
     }
@@ -405,7 +334,6 @@ async function burnInactiveARC() {
 }
 setInterval(burnInactiveARC, 60 * 60 * 1000);
 
-// ══ RESET DAILY LIMITS (midnight) ══
 function scheduleReset() {
   const now = new Date();
   const midnight = new Date(now);
@@ -418,13 +346,10 @@ function scheduleReset() {
 }
 scheduleReset();
 
-// ══ BOT COMMANDS ══
 bot.command('start', async (ctx) => {
   const userId = ctx.from.id;
   const refCode = ctx.match || '';
   const webAppUrl = process.env.WEBAPP_URL;
-
-  // Register user
   await fetch(`${webAppUrl}/api/user/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -435,7 +360,6 @@ bot.command('start', async (ctx) => {
       ref_code: refCode,
     }),
   }).catch(() => {});
-
   await ctx.reply('🖤 Добро пожаловать в Platform BLACK!\n\nЗарабатывай ARC — получай TON', {
     reply_markup: {
       inline_keyboard: [[{
@@ -446,7 +370,6 @@ bot.command('start', async (ctx) => {
   });
 });
 
-// Admin commands
 bot.command('stats', async (ctx) => {
   if (ctx.from.id !== ADMIN_ID) return;
   try {
@@ -458,21 +381,19 @@ bot.command('stats', async (ctx) => {
     const { data: balances } = await supabase.from('users').select('arc_balance, ton_balance');
     const totalARC = balances?.reduce((s, u) => s + (u.arc_balance || 0), 0) || 0;
     const totalTON = balances?.reduce((s, u) => s + (u.ton_balance || 0), 0) || 0;
-
     await ctx.reply(
       `📊 Статистика BLACK\n\n` +
-      `👥 Всего пользователей: ${totalUsers}\n` +
-      `🆕 Новых сегодня: ${newToday}\n` +
-      `💛 Всего ARC: ${Math.floor(totalARC).toLocaleString()}\n` +
-      `💎 Всего TON: ${totalTON.toFixed(3)}\n` +
-      `📈 Курс TON: $${tonRate}`
+      `👥 Всего: ${totalUsers}\n` +
+      `🆕 Сегодня: ${newToday}\n` +
+      `💛 ARC: ${Math.floor(totalARC).toLocaleString()}\n` +
+      `💎 TON: ${totalTON.toFixed(3)}\n` +
+      `📈 Курс: $${tonRate}`
     );
   } catch (e) {
     await ctx.reply('Ошибка: ' + e.message);
   }
 });
 
-// Serve manifest for TON Connect
 app.get('/tonconnect-manifest.json', (req, res) => {
   res.json({
     url: process.env.WEBAPP_URL,
@@ -481,12 +402,10 @@ app.get('/tonconnect-manifest.json', (req, res) => {
   });
 });
 
-// Serve index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start bot and server
 const PORT = process.env.PORT || 80;
 app.listen(PORT, () => console.log(`BLACK running on port ${PORT}`));
 bot.start();
