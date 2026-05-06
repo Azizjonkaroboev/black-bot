@@ -401,4 +401,9 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 80;
 app.listen(PORT, () => console.log(`BLACK running on port ${PORT}`));
-bot.start();
+bot.start().catch(err => {
+  if(err.error_code === 409) {
+    console.log('Bot conflict - restarting...');
+    setTimeout(() => bot.start(), 3000);
+  }
+});
