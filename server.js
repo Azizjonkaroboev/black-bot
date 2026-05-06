@@ -9,7 +9,6 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ENV
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
@@ -22,30 +21,10 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   realtime: { transport: ws }
 });
 
-// ══ TELEGRAM INIT DATA VALIDATION ══
-function validateTelegramData(initData) {
-  try {
-    const urlParams = new URLSearchParams(initData);
-    const hash = urlParams.get('hash');
-    urlParams.delete('hash');
-    const dataCheckString = Array.from(urlParams.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([k, v]) => `${k}=${v}`)
-      .join('\n');
-    const secretKey = crypto.createHmac('sha256', 'WebAppData').update(BOT_TOKEN).digest();
-    const checkHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
-    return checkHash === hash;
-  } catch (e) {
-    return false;
-  }
+function authMiddleware(req, res, next) {
+  return next();
 }
 
-function authMiddleware(req, res, next) {
-  // Пропускаем всех — проверка telegram_id на уровне логики
-  return next();
-} 
-
-// ══ COINGECKO RATE ══
 let tonRate = 1.33;
 async function fetchTonRate() {
   try {
@@ -58,10 +37,8 @@ fetchTonRate();
 setInterval(fetchTonRate, 10 * 60 * 1000);
 
 function getArcPerTon() {
-  return Math.floor(tonRate / 0.00036);
+  return 3500;
 }
-
-// ══ ROUTES ══
 
 app.get('/api/user/:tgId', authMiddleware, async (req, res) => {
   try {
@@ -92,18 +69,18 @@ app.post('/api/user/save', authMiddleware, async (req, res) => {
   try {
     const { telegram_id, arc_balance, ton_balance, multiplier, checkin_day,
       checkin_done, exc_today, done_tasks, wallet_addr } = req.body;
-    if (!telegram_id) return res.status(400).json({ error: 'No telegram_id' 
+    if (!telegram_id) return res.status(400).json({ error: 'No telegram_id' });
     const { error } = await supabase.from('users').update({
-  arc_balance: arc_balance ?? 0,
-  ton_balance: ton_balance ?? 0,
-  multiplier: multiplier ?? 1.0,
-  checkin_day: checkin_day ?? 1,
-  checkin_done: checkin_done ?? false,
-  exc_today: exc_today ?? 0,
-  done_tasks: done_tasks ?? [],
-  wallet_addr: wallet_addr ?? '',
-  last_seen: new Date().toISOString(),
-}).eq('telegram_id', String(telegram_id));
+      arc_balance: arc_balance ?? 0,
+      ton_balance: ton_balance ?? 0,
+      multiplier: multiplier ?? 1.0,
+      checkin_day: checkin_day ?? 1,
+      checkin_done: checkin_done ?? false,
+      exc_today: exc_today ?? 0,
+      done_tasks: done_tasks ?? [],
+      wallet_addr: wallet_addr ?? '',
+      last_seen: new Date().toISOString(),
+    }).eq('telegram_id', String(telegram_id));
     if (error) return res.status(500).json({ error: error.message });
     res.json({ ok: true });
   } catch (e) {
@@ -156,6 +133,7 @@ app.post('/api/user/register', async (req, res) => {
       await supabase.from('users').update({
         last_seen: new Date().toISOString(),
         username: username || '',
+        first_name: first_name || '',
       }).eq('telegram_id', String(telegram_id));
     }
     res.json({ ok: true });
@@ -354,10 +332,10 @@ bot.command('start', async (ctx) => {
   }).catch(() => {});
   await ctx.reply('🖤 Добро пожаловать в Platform BLACK!\n\nЗарабатывай ARC — получай TON', {
     reply_markup: {
-      inline_keyboard: [[{
-        text: '🚀 Открыть BLACK',
-        web_app: { url: webAppUrl }
-      }]]
+      inline_keyboard: [
+        [{ text: '🚀 Открыть BLACK', web_app: { url: webAppUrl } }],
+        [{ text: '📢 Канал', url: 'https://t.me/blackt_channel' }, { text: '💬 Поддержка', url: 'https://t.me/Ventlp' }]
+      ]
     }
   });
 });
@@ -400,6 +378,7 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 80;
 app.listen(PORT, () => console.log(`BLACK running on port ${PORT}`));
+
 async function startBot() {
   try {
     await bot.start();
