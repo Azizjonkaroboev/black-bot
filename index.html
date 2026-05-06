@@ -789,7 +789,7 @@ async function init(){
   S.refCode=String(S.tgId||Math.random().toString(36).slice(2,10).toUpperCase());
   await fetchRate();
   setInterval(fetchRate,10*60*1000);
-  await fetch('/api/user/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:S.tgId,username:S.user.replace('@',''),first_name:S.init})}).catch(()=>{});
+  if(S.tgId) await fetch('/api/user/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:S.tgId,username:S.user.replace('@',''),first_name:S.init})}).catch(()=>{});
 await loadData();
   drawWheel();
   renderAll();applyLang();
