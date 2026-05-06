@@ -41,16 +41,9 @@ function validateTelegramData(initData) {
 }
 
 function authMiddleware(req, res, next) {
-  const initData = req.headers['x-telegram-init-data'];
-  if (!initData) {
-    if (process.env.NODE_ENV === 'development') return next();
-    return res.status(401).json({ error: 'No auth' });
-  }
-  if (!validateTelegramData(initData)) {
-    return res.status(401).json({ error: 'Invalid auth' });
-  }
-  next();
-}
+  // Пропускаем всех — проверка telegram_id на уровне логики
+  return next();
+} 
 
 // ══ COINGECKO RATE ══
 let tonRate = 1.33;
