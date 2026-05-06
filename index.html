@@ -789,7 +789,8 @@ async function init(){
   S.refCode=String(S.tgId||Math.random().toString(36).slice(2,10).toUpperCase());
   await fetchRate();
   setInterval(fetchRate,10*60*1000);
-  await loadData();
+  await fetch('/api/user/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:S.tgId,username:S.user.replace('@',''),first_name:S.init})}).catch(()=>{});
+await loadData();
   drawWheel();
   renderAll();applyLang();
   initTC();
@@ -1054,7 +1055,7 @@ function drawWheel(){
     const sl=(p.bet/total)*Math.PI*2;
     const ea=sa+sl;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,sa,ea);ctx.closePath();
-    ctx.fillStyle=COLS[i%COLS.length];ctx.fill();
+    ctx.fillStyle=COLS[p.col!==undefined?p.col:i%COLS.length];ctx.fill();
     ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=3;ctx.stroke();
     const mid=sa+sl/2;
     const lx=cx+82*Math.cos(mid),ly=cy+82*Math.sin(mid);
@@ -1086,7 +1087,7 @@ function renderParts(){
   if(!S.parts.length){document.getElementById('pvpParts').innerHTML='<div class="ppemp">Будь первым — сделай ставку!</div>';return;}
   document.getElementById('pvpParts').innerHTML=S.parts.map((p,i)=>{
     const pct=total>0?((p.bet/total)*100).toFixed(1):0;
-    const col=COLS[i%COLS.length];
+    const col=COLS[p.col!==undefined?p.col:i%COLS.length];
     const av=p.photo?`<img src="${p.photo}" alt=""/>`:p.init;
     return `<div class="ppt"><div class="ppav" style="background:${col}">${av}</div><div style="flex:1"><div class="ppnm">${p.name}</div><div class="ppch" style="color:${col}">${pct}% Шанс</div></div><div class="ppbt">${fmt(p.bet)} ARC</div></div>`;
   }).join('');
@@ -1104,7 +1105,8 @@ function placeBet(){
   if(amt>S.arc){toast(t('bInsuf'),'r');return;}
   if(spinning)return;
   S.arc-=amt;S.myBet=amt;S.totalBet+=amt;
-  S.parts=[{name:S.user,init:S.init,photo:S.photo,bet:amt,isMe:true}];
+  const myCol=Math.floor(Math.random()*COLS.length);
+S.parts=[{name:S.user,init:S.init,photo:S.photo,bet:amt,isMe:true,col:myCol}];
   drawWheel();renderParts();renderAll();
   document.getElementById('whlC').textContent='1/2';
   toast(t('bOk'),'g');
@@ -1136,7 +1138,8 @@ function joinOpp(myBet){
   const names=['@rival_x','@arcer_pro','@ton_hunter','@black_wolf','@pvp_master'];
   const name=names[Math.floor(Math.random()*names.length)];
   const ob=Math.max(10,Math.floor(myBet*(0.2+Math.random()*2.5)));
-  S.parts.push({name,init:name[1].toUpperCase(),photo:null,bet:Math.min(ob,5000),isMe:false});
+  let botCol;do{botCol=Math.floor(Math.random()*COLS.length);}while(botCol===S.parts[0].col);
+S.parts.push({name,init:name[1].toUpperCase(),photo:null,bet:Math.min(ob,5000),isMe:false,col:botCol});
   S.inRound=true;
   document.getElementById('abw').style.display='block';
   drawWheel();renderParts();startCD();
@@ -1170,7 +1173,7 @@ function doSpin(){
   const anim=setInterval(()=>{
     const el=Date.now()-start;
     const prog=1-Math.pow(1-el/dur,3);
-    angle=prog*1440;
+    angle=prog*(1440+Math.random()*360);
     cv.style.transform=`rotate(${angle}deg)`;
     if(el>=dur){clearInterval(anim);cv.style.transform='';finishRound();}
   },16);
