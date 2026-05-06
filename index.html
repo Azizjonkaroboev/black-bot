@@ -826,12 +826,13 @@ async function loadData(){
 }
 
 async function saveData(){
+  if(!S.tgId)return;
   try{
     await fetch('/api/user/save',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        telegram_id:S.tgId||'5839503796',
+        telegram_id:S.tgId,
         arc_balance:S.arc,
         ton_balance:S.ton,
         multiplier:S.mult,
