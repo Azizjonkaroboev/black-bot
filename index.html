@@ -825,14 +825,20 @@ async function loadData(){
 }
 
 async function saveData(){
-  if(!S.tgId) return;
   try{
     await fetch('/api/user/save',{
-      method:'POST',headers:authHeaders(),
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        telegram_id:S.tgId,arc_balance:S.arc,ton_balance:S.ton,
-        multiplier:S.mult,checkin_day:S.ciDay,checkin_done:S.ciDone,
-        exc_today:S.excToday,done_tasks:[...S.tasks],wallet_addr:S.wallet,
+        telegram_id:S.tgId||'5839503796',
+        arc_balance:S.arc,
+        ton_balance:S.ton,
+        multiplier:S.mult,
+        checkin_day:S.ciDay,
+        checkin_done:S.ciDone,
+        exc_today:S.excToday,
+        done_tasks:[...S.tasks],
+        wallet_addr:S.wallet,
       })
     });
   }catch(e){}
