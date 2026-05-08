@@ -70,7 +70,8 @@ app.post('/api/user/save', authMiddleware, async (req, res) => {
     const { telegram_id, arc_balance, ton_balance, multiplier, checkin_day,
       checkin_done, exc_today, done_tasks, wallet_addr } = req.body;
     if (!telegram_id) return res.status(400).json({ error: 'No telegram_id' });
-    const { error } = await supabase.from('users').update({
+    const { error } = await supabase.from('users').upsert({
+      telegram_id: String(telegram_id),
       arc_balance: arc_balance ?? 0,
       ton_balance: ton_balance ?? 0,
       multiplier: multiplier ?? 1.0,
@@ -80,7 +81,7 @@ app.post('/api/user/save', authMiddleware, async (req, res) => {
       done_tasks: done_tasks ?? [],
       wallet_addr: wallet_addr ?? '',
       last_seen: new Date().toISOString(),
-    }).eq('telegram_id', String(telegram_id));
+    });
     if (error) return res.status(500).json({ error: error.message });
     res.json({ ok: true });
   } catch (e) {
