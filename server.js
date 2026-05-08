@@ -7,7 +7,7 @@ const path = require('path');
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -319,7 +319,7 @@ scheduleReset();
 
 bot.command('start', async (ctx) => {
   const userId = ctx.from.id;
-  const refCode = ctx.match || '';
+  const refCode = ctx.message?.text?.split(' ')[1] || '';
   const webAppUrl = process.env.WEBAPP_URL;
   await fetch(`${webAppUrl}/api/user/register`, {
     method: 'POST',
