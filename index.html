@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>BLACK</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
@@ -775,7 +776,8 @@ async function init(){
   buildDays();buildTasks();
   if(window.Telegram?.WebApp){
     const tg=window.Telegram.WebApp;
-    tg.expand();
+  tg.ready();
+  tg.expand();
     const u=tg.initDataUnsafe?.user;
     if(u){
       S.tgId=u.id;
@@ -790,7 +792,7 @@ async function init(){
   await fetchRate();
   setInterval(fetchRate,10*60*1000);
   if(S.tgId) await fetch('/api/user/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:S.tgId,username:S.user.replace('@',''),first_name:S.init})}).catch(()=>{});
-await loadData();
+if(S.tgId) await loadData();
   drawWheel();
   renderAll();applyLang();
   initTC();
