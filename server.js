@@ -40,6 +40,7 @@ function getArcPerTon() {
   return 3500;
 }
 
+// ══ GET USER ══
 app.get('/api/user/:tgId', authMiddleware, async (req, res) => {
   try {
     const { tgId } = req.params;
@@ -59,29 +60,46 @@ app.get('/api/user/:tgId', authMiddleware, async (req, res) => {
       .eq('telegram_id', tgId)
       .order('created_at', { ascending: false })
       .limit(50);
-    return res.json({ ...data, friends: refs || [], transactions: txs || [] });
+    return res.json({
+      ...data,
+      friends: refs || [],
+      transactions: txs || [],
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
 
+// ══ SAVE USER (ИСПРАВЛЕН баг checkin_day + добавлены pvp_history и used_promos) ══
 app.post('/api/user/save', authMiddleware, async (req, res) => {
   try {
-    const { telegram_id, arc_balance, ton_balance, multiplier, checkin_day,
-      checkin_done, exc_today, done_tasks, wallet_addr } = req.body;
+    const {
+      telegram_id, arc_balance, ton_balance, multiplier,
+      checkin_day, checkin_done, exc_today, done_tasks,
+      wallet_addr, pvp_history, used_promos
+    } = req.body;
     if (!telegram_id) return res.status(400).json({ error: 'No telegram_id' });
-    const { error } = await supabase.from('users').upsert({
+
+    const updateData = {
       telegram_id: String(telegram_id),
       arc_balance: arc_balance ?? 0,
       ton_balance: ton_balance ?? 0,
       multiplier: multiplier ?? 1.0,
-      checkin_day: checkin_day ?? 1,
-      checkin_done: checkin_done ?? false,
       exc_today: exc_today ?? 0,
       done_tasks: done_tasks ?? [],
       wallet_addr: wallet_addr ?? '',
       last_seen: new Date().toISOString(),
-    });
+    };
+
+    // ВАЖНО: не перезаписываем checkin_day/checkin_done если не пришли
+    if (checkin_day !== undefined) updateData.checkin_day = checkin_day;
+    if (checkin_done !== undefined) updateData.checkin_done = checkin_done;
+
+    // Сохраняем pvp_history и used_promos если пришли
+    if (pvp_history !== undefined) updateData.pvp_history = pvp_history;
+    if (used_promos !== undefined) updateData.used_promos = used_promos;
+
+    const { error } = await supabase.from('users').upsert(updateData);
     if (error) return res.status(500).json({ error: error.message });
     res.json({ ok: true });
   } catch (e) {
@@ -89,6 +107,7 @@ app.post('/api/user/save', authMiddleware, async (req, res) => {
   }
 });
 
+// ══ REGISTER ══
 app.post('/api/user/register', async (req, res) => {
   try {
     const { telegram_id, username, first_name, photo_url, ref_code } = req.body;
@@ -112,6 +131,8 @@ app.post('/api/user/register', async (req, res) => {
         exc_today: 0,
         done_tasks: [],
         wallet_addr: '',
+        pvp_history: [],
+        used_promos: [],
         ref_code: String(telegram_id),
         created_at: new Date().toISOString(),
         last_seen: new Date().toISOString(),
@@ -143,6 +164,33 @@ app.post('/api/user/register', async (req, res) => {
   }
 });
 
+// ══ LEADERBOARD (НОВЫЙ ENDPOINT) ══
+app.get('/api/leaderboard', authMiddleware, async (req, res) => {
+  try {
+    const type = req.query.type || 'pvp';
+    if (type === 'pvp') {
+      const { data } = await supabase
+        .from('users')
+        .select('telegram_id, username, first_name, photo_url, arc_balance')
+        .order('arc_balance', { ascending: false })
+        .limit(50);
+      const result = (data || []).map(u => ({
+        name: u.username ? '@' + u.username : u.first_name || 'Игрок',
+        init: (u.first_name || u.username || 'U')[0].toUpperCase(),
+        photo: u.photo_url || null,
+        val: u.arc_balance || 0,
+      }));
+      return res.json(result);
+    } else {
+      // ad views — пока возвращаем пустой (реклама ещё не активна)
+      return res.json([]);
+    }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ══ CHECK SUBSCRIPTION ══
 app.post('/api/check-subscription', authMiddleware, async (req, res) => {
   try {
     const { telegram_id, channel } = req.body;
@@ -154,6 +202,7 @@ app.post('/api/check-subscription', authMiddleware, async (req, res) => {
   }
 });
 
+// ══ EXCHANGE ══
 app.post('/api/exchange', authMiddleware, async (req, res) => {
   try {
     const { telegram_id, ton_amount } = req.body;
@@ -187,6 +236,7 @@ app.post('/api/exchange', authMiddleware, async (req, res) => {
   }
 });
 
+// ══ CHECK DEPOSIT ══
 app.post('/api/check-deposit', authMiddleware, async (req, res) => {
   try {
     const { telegram_id, expected_ton } = req.body;
@@ -238,6 +288,7 @@ app.post('/api/check-deposit', authMiddleware, async (req, res) => {
   }
 });
 
+// ══ WITHDRAW ══
 app.post('/api/withdraw-request', authMiddleware, async (req, res) => {
   try {
     const { telegram_id, ton_amount, wallet, username } = req.body;
@@ -271,10 +322,12 @@ app.post('/api/withdraw-request', authMiddleware, async (req, res) => {
   }
 });
 
+// ══ TON RATE ══
 app.get('/api/ton-rate', (req, res) => {
   res.json({ rate: tonRate, arc_per_ton: getArcPerTon() });
 });
 
+// ══ BURN INACTIVE ARC ══
 async function burnInactiveARC() {
   try {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -305,6 +358,7 @@ async function burnInactiveARC() {
 }
 setInterval(burnInactiveARC, 60 * 60 * 1000);
 
+// ══ DAILY RESET (exc_today и checkin_done) ══
 function scheduleReset() {
   const now = new Date();
   const midnight = new Date(now);
@@ -317,6 +371,7 @@ function scheduleReset() {
 }
 scheduleReset();
 
+// ══ BOT COMMANDS ══
 bot.command('start', async (ctx) => {
   const userId = ctx.from.id;
   const refCode = ctx.message?.text?.split(' ')[1] || '';
@@ -365,6 +420,7 @@ bot.command('stats', async (ctx) => {
   }
 });
 
+// ══ STATIC ══
 app.get('/tonconnect-manifest.json', (req, res) => {
   res.json({
     url: process.env.WEBAPP_URL,
@@ -377,6 +433,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// ══ START ══
 const PORT = process.env.PORT || 80;
 app.listen(PORT, () => console.log(`BLACK running on port ${PORT}`));
 
