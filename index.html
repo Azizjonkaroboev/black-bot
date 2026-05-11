@@ -617,7 +617,7 @@ const S={
   ciDay:1,ciDone:false,
   wallet:'',lang:'ru',
   tasks:new Set(),
-  pvpRound:1,pvpWins:0,pvpGID:1,
+  pvpRound:parseInt(localStorage.getItem('pvpRound')||'1'),pvpWins:0,pvpGID:parseInt(localStorage.getItem('pvpGID')||'1'),
   inRound:false,myBet:0,pvpTO:null,
   cdTimer:null,cdVal:15,
   parts:[],
@@ -798,6 +798,7 @@ if(S.tgId) await loadData();
   drawWheel();
   renderAll();applyLang();
   initTC();
+setTimeout(startIdleSpin,500);
 }
 
 // ══ AUTH HEADER ══
@@ -877,7 +878,7 @@ function arc4ton(){return Math.floor(S.tonRate/0.00036);}
 function renderAll(){
   function setAv(id){
     const el=document.getElementById(id);if(!el)return;
-    if(S.photo) el.innerHTML=`<img src="${S.photo}" alt=""/>`;
+    if(S.photo){const img=new Image();img.onload=()=>{el.innerHTML=`<img src="${S.photo}" alt=""/>`;};img.onerror=()=>{el.textContent=S.init;};img.src=S.photo;}
     else el.textContent=S.init;
   }
   setAv('topAv');setAv('prAv');
@@ -1102,7 +1103,17 @@ function renderParts(){
 }
 
 // ══ PVP LOGIC ══
-let spinning=false;
+let spinning=false;let idleAnim=null;
+function startIdleSpin(){
+  if(idleAnim)return;
+  const cv=document.getElementById('wc');
+  let ang=0;
+  idleAnim=setInterval(()=>{ang+=0.3;cv.style.transform=`rotate(${ang}deg)`;},16);
+}
+function stopIdleSpin(){
+  if(idleAnim){clearInterval(idleAnim);idleAnim=null;}
+  document.getElementById('wc').style.transform='';
+}
 function setB(v){document.getElementById('pbi').value=v;document.querySelectorAll('.pre').forEach(p=>p.classList.remove('sel'));event.target.classList.add('sel');}
 
 function placeBet(){
@@ -1112,7 +1123,8 @@ function placeBet(){
   if(amt>5000){toast(t('bMax'),'r');return;}
   if(amt>S.arc){toast(t('bInsuf'),'r');return;}
   if(spinning)return;
-  S.arc-=amt;S.myBet=amt;S.totalBet+=amt;
+  stopIdleSpin();
+S.arc-=amt;S.myBet=amt;S.totalBet+=amt;
   const myCol=Math.floor(Math.random()*COLS.length);
 S.parts=[{name:S.user,init:S.init,photo:S.photo,bet:amt,isMe:true,col:myCol}];
   drawWheel();renderParts();renderAll();
@@ -1143,8 +1155,7 @@ S.parts=[{name:S.user,init:S.init,photo:S.photo,bet:amt,isMe:true,col:myCol}];
 
 function joinOpp(myBet){
   clearTimeout(S.pvpTO);
-  const names=['@rival_x','@arcer_pro','@ton_hunter','@black_wolf','@pvp_master'];
-  const name=names[Math.floor(Math.random()*names.length)];
+  const name='🤖 Нейросеть';
   const ob=Math.max(10,Math.floor(myBet*(0.2+Math.random()*2.5)));
   let botCol;do{botCol=Math.floor(Math.random()*COLS.length);}while(botCol===S.parts[0].col);
 S.parts.push({name,init:name[1].toUpperCase(),photo:null,bet:Math.min(ob,5000),isMe:false,col:botCol});
@@ -1195,9 +1206,9 @@ function finishRound(){
   const pot=Math.floor(total*.9);
   const winPct=Math.floor(myC*100);
   if(won){S.arc+=pot;S.pvpWins++;}
-  S.pvpRound++;S.pvpGID++;
+  S.pvpRound++;S.pvpGID++;localStorage.setItem('pvpRound',S.pvpRound);localStorage.setItem('pvpGID',S.pvpGID);
   const win=won?S.parts[0]:S.parts[1]||S.parts[0];
-  const entry={name:win.name,init:win.init,photo:win.photo,arc:pot,pct:winPct,round:S.pvpRound-1,isMe:won};
+  const entry={name:win.name,init:win.init,photo:win.photo,arc:pot,pct:winPct,round:S.pvpRound-1,isMe:won,isBot:win.name==='🤖 Нейросеть'};
   S.hist.unshift(entry);if(S.hist.length>30)S.hist.pop();
   S.prev={user:win.name,val:'+'+fmt(pot)+' ARC',ch:'ШАНС '+winPct+'%'};
   if(!S.top||pot>(S.top.rv||0)) S.top={user:win.name,val:'+'+fmt(pot)+' ARC',ch:'ШАНС '+winPct+'%',rv:pot};
@@ -1234,14 +1245,39 @@ function showPR(won,win,amount,pct,myBet){
   document.getElementById('prAm').className='pvpr-am '+(won?'pl':'mn');
   document.getElementById('prMt').innerHTML=`WIN CHANCE: ${pct}%<br>INVESTMENT: ${fmt(myBet)} ARC`;
   el.classList.add('show');
-  if(won){if(pct<=5)confetti('epic');else if(pct<=20)confetti('lucky');else confetti('normal');coins();}
+  if(won){
+    animateCount(document.getElementById('prAm'),0,amount);
+    if(pct<=5)confetti('epic');else if(pct<=20)confetti('lucky');else confetti('normal');
+    coins();flashScreen('#22c55e');
+  } else {
+    flashScreen('#ef4444');
+  }
   setTimeout(()=>closePR(),4000);
+}
+
+function animateCount(el,from,to){
+  const dur=1500;const start=Date.now();
+  const tick=()=>{
+    const p=Math.min((Date.now()-start)/dur,1);
+    const val=Math.floor(from+(to-from)*p);
+    el.textContent='+'+fmt(val)+' ARC';
+    if(p<1)requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+function flashScreen(color){
+  const div=document.createElement('div');
+  div.style.cssText=`position:fixed;inset:0;background:${color};opacity:0.35;z-index:9999;pointer-events:none;transition:opacity 0.6s`;
+  document.body.appendChild(div);
+  setTimeout(()=>{div.style.opacity='0';setTimeout(()=>div.remove(),600);},100);
 }
 function closePR(){document.getElementById('pvpr').classList.remove('show');stopConfetti();}
 
 function resetPVP(){
   S.parts=[];S.myBet=0;drawWheel();renderParts();
-  document.getElementById('whlC').textContent='Ожидание';
+  document.getElementById('whlC').textContent='Ожидание игроков...';
+  startIdleSpin();
   document.getElementById('abw').style.display='none';
   document.getElementById('cd').style.display='none';
 }
@@ -1329,8 +1365,9 @@ function initTC(){
     tcUI.onStatusChange(wallet=>{
       if(wallet){
         const raw=wallet.account.address;
-        S.wallet=raw;
-        showWC(raw);
+const friendly=wallet.account.address.replace(/^0:/,'UQ').slice(0,48)||raw;
+S.wallet=raw;
+showWC(raw);
         saveData();
         toast(t('wOk'),'g');
       } else {
@@ -1440,7 +1477,7 @@ async function doDeposit(){
     try{
       await tcUI.sendTransaction({
         validUntil:Math.floor(Date.now()/1000)+300,
-        messages:[{address:PW,amount:String(Math.floor(v*1e9))}]
+        messages:[{address:PW,amount:String(Math.floor(v*1e9)),payload:btoa('black_dep_'+S.tgId)}]
       });
       closeModal();
       toast(t('depSent'),'g');
