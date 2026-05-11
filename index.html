@@ -1365,9 +1365,17 @@ function initTC(){
     tcUI.onStatusChange(wallet=>{
       if(wallet){
         const raw=wallet.account.address;
-const friendly=wallet.account.address.replace(/^0:/,'UQ').slice(0,48)||raw;
-S.wallet=raw;
-showWC(raw);
+        let friendly=raw;
+        try{
+          if(window.TonWeb){
+            friendly=TonWeb.utils.Address.toString(raw,{bounceable:false,urlSafe:true});
+          } else {
+            const hex=raw.replace(/^0:/,'');
+            friendly='UQ'+btoa(String.fromCharCode(...new Uint8Array(hex.match(/.{2}/g).map(b=>parseInt(b,16))))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+          }
+        }catch(e){friendly=raw;}
+        S.wallet=friendly;
+        showWC(friendly);
         saveData();
         toast(t('wOk'),'g');
       } else {
@@ -1477,7 +1485,7 @@ async function doDeposit(){
     try{
       await tcUI.sendTransaction({
         validUntil:Math.floor(Date.now()/1000)+300,
-        messages:[{address:PW,amount:String(Math.floor(v*1e9)),payload:btoa('black_dep_'+S.tgId)}]
+        messages:[{address:PW,amount:String(Math.floor(v*1e9)),payload:btoa(unescape(encodeURIComponent('black_dep_'+S.tgId)))}]
       });
       closeModal();
       toast(t('depSent'),'g');
