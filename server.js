@@ -244,6 +244,7 @@ app.post('/api/check-deposit', authMiddleware, async (req, res) => {
       `https://tonapi.io/v2/accounts/${PLATFORM_WALLET}/transactions?limit=10`
     );
     const data = await response.json();
+    console.log('TONAPI response:', JSON.stringify(data?.transactions?.[0], null, 2));
     if (!data.transactions) return res.json({ confirmed: false });
     const nowSec = Math.floor(Date.now() / 1000);
     const nanoAmount = Math.floor(expected_ton * 1e9);
