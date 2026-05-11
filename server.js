@@ -247,13 +247,11 @@ app.post('/api/check-deposit', authMiddleware, async (req, res) => {
     if (!data.transactions) return res.json({ confirmed: false });
     const nowSec = Math.floor(Date.now() / 1000);
     const nanoAmount = Math.floor(expected_ton * 1e9);
-    const expectedComment = `black_dep_${telegram_id}`;
     const found = data.transactions.find(tx => {
       const isRecent = (nowSec - tx.utime) < 600;
-      const amountMatch = Math.abs(tx.in_msg?.value - nanoAmount) < 1e7;
-      const comment = tx.in_msg?.decoded_body?.text || tx.in_msg?.message || '';
-      const commentMatch = comment.includes(expectedComment);
-      return isRecent && amountMatch && tx.in_msg?.value > 0 && commentMatch;
+      const txValue = typeof tx.in_msg?.value === 'string' ? parseInt(tx.in_msg.value) : (tx.in_msg?.value || 0);
+      const amountMatch = Math.abs(txValue - nanoAmount) < 1e7;
+      return isRecent && amountMatch && txValue > 0;
     });
     if (found) {
       const { data: existing } = await supabase
