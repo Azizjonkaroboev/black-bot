@@ -9,20 +9,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --bg:#f2f2f7;
-  --card:#ffffff;
-  --card2:#f8f8f8;
-  --border:#e5e5ea;
-  --yellow:#FFD000;
-  --yellow2:#FFC000;
-  --ytext:#1a1a1a;
-  --text:#1c1c1e;
-  --t2:#6c6c70;
-  --t3:#aeaeb2;
-  --red:#ff3b30;
-  --green:#34c759;
+  --bg:#0d1117;
+  --card:#161b27;
+  --card2:#1c2333;
+  --border:#2a3347;
+  --yellow:#3b82f6;
+  --yellow2:#2563eb;
+  --ytext:#ffffff;
+  --text:#e8eaf0;
+  --t2:#8b95a8;
+  --t3:#4a5568;
+  --red:#ef4444;
+  --green:#22c55e;
   --nav-h:60px;
-}
+  }
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{height:100%}
 body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden}
@@ -35,20 +36,20 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 /* TOPBAR */
 .tb{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
 .tb-user{display:flex;align-items:center;gap:10px}
-.tb-av{width:34px;height:34px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--ytext);overflow:hidden;flex-shrink:0}
-.tb-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.tb-av{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#1e40af);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--ytext);overflow:hidden;flex-shrink:0}
+.tb-av img{width:100%;height:100%;object-fit:cover;border-radius:12px}
 .tb-name{font-size:14px;font-weight:700}
 .lw{display:flex;background:var(--card2);border:1px solid var(--border);border-radius:20px;overflow:hidden;padding:2px}
 .lw button{padding:4px 11px;border:none;background:transparent;color:var(--t2);font-size:11px;font-weight:700;cursor:pointer;border-radius:16px;font-family:'Inter'}
 .lw button.on{background:var(--yellow);color:var(--ytext)}
 
 /* NAV */
-#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:var(--nav-h);background:var(--card);border-top:1px solid var(--border);display:flex;align-items:center;z-index:100}
+#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:var(--nav-h);background:#111827;border-top:1px solid var(--border);display:flex;align-items:center;z-index:100}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:6px 0;position:relative}
 .ni svg{width:22px;height:22px;stroke:var(--t3);fill:none;stroke-width:1.7;transition:.2s}
 .ni span{font-size:10px;color:var(--t3);font-weight:600;transition:.2s}
-.ni.on svg{stroke:var(--text)}
-.ni.on span{color:var(--text)}
+.ni.on svg{stroke:#3b82f6}
+.ni.on span{color:#3b82f6}
 .ni.on::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:var(--yellow);border-radius:2px 2px 0 0}
 
 /* BTNS */
@@ -625,6 +626,7 @@ const S={
   hist:[],totalBet:0,adViews:0,
   prev:null,top:null,
   txs:[],
+  usedPromos:new Set(),
 };
 
 const TASKS=[
@@ -823,6 +825,8 @@ async function loadData(){
       if(d.friends) S.friends=d.friends;
       if(d.wallet_addr&&d.wallet_addr){S.wallet=d.wallet_addr;showWC(d.wallet_addr);}
       if(d.transactions) S.txs=d.transactions;
+   if(d.pvp_history&&Array.isArray(d.pvp_history)) S.hist=d.pvp_history;
+      if(d.used_promos&&Array.isArray(d.used_promos)) S.usedPromos=new Set(d.used_promos);
     }
   }catch(e){}
 }
@@ -832,7 +836,7 @@ async function saveData(){
   try{
     await fetch('/api/user/save',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:authHeaders(),
       body:JSON.stringify({
         telegram_id:S.tgId,
         arc_balance:S.arc,
@@ -843,6 +847,8 @@ async function saveData(){
         exc_today:S.excToday,
         done_tasks:[...S.tasks],
         wallet_addr:S.wallet,
+        pvp_history:S.hist,
+        used_promos:[...S.usedPromos],
       })
     });
   }catch(e){}
@@ -1025,12 +1031,11 @@ function doneTask(id,rew){
 
 // ══ PROMO ══
 const PROMOS={'BLACK100':100,'ARC500':500,'LAUNCH50':50};
-const used=new Set();
 function redeemPromo(){
   const c=document.getElementById('promoInp').value.trim().toUpperCase();
   if(!c)return;
-  if(used.has(c)||!PROMOS[c]){toast(t('promoFail'),'r');return;}
-  used.add(c);S.arc+=PROMOS[c];renderAll();saveData();
+  if(S.usedPromos.has(c)||!PROMOS[c]){toast(t('promoFail'),'r');return;}
+  S.usedPromos.add(c);S.arc+=PROMOS[c];renderAll();saveData();
   document.getElementById('promoInp').value='';
   toast(t('promoOk').replace('{n}',PROMOS[c]),'g');
 }
