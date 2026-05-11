@@ -247,10 +247,13 @@ app.post('/api/check-deposit', authMiddleware, async (req, res) => {
     if (!data.transactions) return res.json({ confirmed: false });
     const nowSec = Math.floor(Date.now() / 1000);
     const nanoAmount = Math.floor(expected_ton * 1e9);
+    const expectedComment = `black_dep_${telegram_id}`;
     const found = data.transactions.find(tx => {
       const isRecent = (nowSec - tx.utime) < 600;
       const amountMatch = Math.abs(tx.in_msg?.value - nanoAmount) < 1e7;
-      return isRecent && amountMatch && tx.in_msg?.value > 0;
+      const comment = tx.in_msg?.decoded_body?.text || tx.in_msg?.message || '';
+      const commentMatch = comment.includes(expectedComment);
+      return isRecent && amountMatch && tx.in_msg?.value > 0 && commentMatch;
     });
     if (found) {
       const { data: existing } = await supabase
@@ -278,7 +281,7 @@ app.post('/api/check-deposit', authMiddleware, async (req, res) => {
         created_at: new Date().toISOString(),
       });
       await bot.api.sendMessage(ADMIN_ID,
-        `💰 Депозит!\n👤 ID: ${telegram_id}\n💎 ${expected_ton} TON\n💰 Баланс: ${newBalance.toFixed(3)} TON`
+        `💰 Депозит!\n👤 ID: ${telegram_id}\n💎 ${expected_ton} TON\n💰 Баланс: ${newBalance.toFixed(3)} TON\n🔑 Комментарий: black_dep_${telegram_id}`
       );
       return res.json({ confirmed: true, ton_credited: expected_ton });
     }
