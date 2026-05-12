@@ -1482,8 +1482,8 @@ async function doDeposit(){
   if(tcUI){
     try{
       await tcUI.sendTransaction({
-        validUntil:Math.floor(Date.now()/1000)+300,
-        messages:[{address:PW,amount:String(Math.floor(v*1e9)),payload:btoa('black_dep_'+S.tgId)}]
+        validUntil:Math.floor(Date.now()/1000)+600,
+        messages:[{address:PW,amount:String(Math.floor(v*1e9)),payload:btoa(unescape(encodeURIComponent('black_dep_'+S.tgId)))
       });
       closeModal();
 toast(t('depSent'),'g');
