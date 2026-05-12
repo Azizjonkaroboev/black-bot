@@ -1359,14 +1359,21 @@ let tcUI=null;
 function initTC(){
   try{
     tcUI=new TON_CONNECT_UI.TonConnectUI({
-      manifestUrl:window.location.origin+'/tonconnect-manifest.json',
-      buttonRootId:null,
-    });
+  manifestUrl:window.location.origin+'/tonconnect-manifest.json',
+  restoreConnection:true,
+  buttonRootId:null,
+});
     tcUI.onStatusChange(wallet=>{
       if(wallet){
-        const raw=wallet.account.address;
-        S.wallet=raw;
-        showWC(raw);
+        const raw = wallet.account.address;
+
+const friendly =
+window.TON_CONNECT_UI?.toUserFriendlyAddress
+? window.TON_CONNECT_UI.toUserFriendlyAddress(raw)
+: raw;
+
+S.wallet = raw;
+showWC(friendly);
         saveData();
         toast(t('wOk'),'g');
       } else {
@@ -1376,7 +1383,7 @@ function initTC(){
   }catch(e){}
 }
 function showWC(addr){
-  const d=fmtA(addr);
+  const d=addr;
   document.getElementById('wDisc').style.display='none';
   document.getElementById('wConn').style.display='block';
   document.getElementById('wAddr').textContent=d;
@@ -1476,11 +1483,15 @@ async function doDeposit(){
     try{
       await tcUI.sendTransaction({
         validUntil:Math.floor(Date.now()/1000)+300,
-        messages:[{address:PW,amount:String(Math.floor(v*1e9))}]
+        messages:[{address:PW,amount:String(Math.floor(v*1e9)),payload:btoa('black_dep_'+S.tgId)}]
       });
       closeModal();
-      toast(t('depSent'),'g');
-      pollDep(v);
+toast(t('depSent'),'g');
+
+await loadData();
+renderAll();
+
+pollDep(v);
     }catch(e){toast(t('depCancel'),'r');}
   }
 }
@@ -1494,9 +1505,8 @@ function pollDep(expected){
       const d=await r.json();
       if(d.confirmed){
         clearInterval(poll);
-        S.ton+=expected;
-        addTx('deposit',expected,'TON');
-        renderAll();saveData();
+        await loadData();
+renderAll();
         toast(t('depOk'),'g');
       }
     }catch(e){}
