@@ -776,6 +776,7 @@ const t=k=>(L[S.lang][k]||k);
 // ══ INIT ══
 async function init(){
   buildDays();buildTasks();
+  await new Promise(r=>setTimeout(r,300));
   if(window.Telegram?.WebApp){
     const tg=window.Telegram.WebApp;
   tg.ready();
