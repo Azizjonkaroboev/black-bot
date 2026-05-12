@@ -265,8 +265,9 @@ async function monitorDeposits() {
         try {
   const decoded = Buffer.from(rawComment, 'base64').toString('utf8');
 
-  if (decoded.includes('black_dep_')) {
-    comment = decoded;
+  const match = decoded.match(/black_dep_\d+/);
+  if (match) {
+    comment = match[0];
   }
 } catch(e) {}
         console.log('TX comment:', comment, 'raw:', rawComment);
