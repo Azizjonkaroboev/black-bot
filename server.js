@@ -256,11 +256,21 @@ async function monitorDeposits() {
           .from('transactions').select('id').eq('tx_hash', txHash).single();
         if (existing) continue;
         const msg = tx.in_msg || {};
-        const rawComment = msg.message || msg.msg_data?.text || '';
+        const rawComment =
+  msg.message ||
+  msg.msg_data?.text ||
+  msg.msg_data?.body ||
+  '';
         let comment = rawComment;
-        try { comment = Buffer.from(rawComment, 'base64').toString('utf8'); } catch(e) {}
+        try {
+  const decoded = Buffer.from(rawComment, 'base64').toString('utf8');
+
+  if (decoded.includes('black_dep_')) {
+    comment = decoded;
+  }
+} catch(e) {}
         console.log('TX comment:', comment, 'raw:', rawComment);
-        const amountTon = parseInt(msg.value || 0) / 1e9;
+        const amountTon = Number(msg.value || 0) / 1e9;
         if (comment && comment.startsWith('black_dep_') && amountTon >= 0.05) {
           const uid = comment.replace('black_dep_', '').trim();
           const { data: user } = await supabase
