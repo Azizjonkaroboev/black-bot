@@ -238,57 +238,56 @@ app.post('/api/exchange', authMiddleware, async (req, res) => {
 
 // ══ CHECK DEPOSIT ══
 app.post('/api/check-deposit', authMiddleware, async (req, res) => {
+  res.json({ confirmed: false, monitoring: true });
+});
+
+async function monitorDeposits() {
   try {
-    const { telegram_id, expected_ton } = req.body;
     const response = await fetch(
-      `https://tonapi.io/v2/accounts/${PLATFORM_WALLET}/transactions?limit=10`
+      `https://toncenter.com/api/v2/getTransactions?address=${PLATFORM_WALLET}&limit=50`
     );
     const data = await response.json();
-    console.log('TONAPI response:', JSON.stringify(data?.transactions?.[0], null, 2));
-    if (!data.transactions) return res.json({ confirmed: false });
-    const nowSec = Math.floor(Date.now() / 1000);
-    const nanoAmount = Math.floor(expected_ton * 1e9);
-    const found = data.transactions.find(tx => {
-      const isRecent = (nowSec - tx.utime) < 600;
-      const txValue = typeof tx.in_msg?.value === 'string' ? parseInt(tx.in_msg.value) : (tx.in_msg?.value || 0);
-      const amountMatch = Math.abs(txValue - nanoAmount) < 1e7;
-      return isRecent && amountMatch && txValue > 0;
-    });
-    if (found) {
-      const { data: existing } = await supabase
-        .from('transactions')
-        .select('id')
-        .eq('tx_hash', found.hash)
-        .single();
-      if (existing) return res.json({ confirmed: false, already_processed: true });
-      const { data: user } = await supabase
-        .from('users')
-        .select('ton_balance')
-        .eq('telegram_id', String(telegram_id))
-        .single();
-      const newBalance = (user?.ton_balance || 0) + expected_ton;
-      await supabase.from('users').update({
-        ton_balance: newBalance,
-      }).eq('telegram_id', String(telegram_id));
-      await supabase.from('transactions').insert({
-        telegram_id: String(telegram_id),
-        type: 'deposit',
-        amount: expected_ton,
-        currency: 'TON',
-        tx_hash: found.hash,
-        description: `Депозит ${expected_ton} TON`,
-        created_at: new Date().toISOString(),
-      });
-      await bot.api.sendMessage(ADMIN_ID,
-        `💰 Депозит!\n👤 ID: ${telegram_id}\n💎 ${expected_ton} TON\n💰 Баланс: ${newBalance.toFixed(3)} TON\n🔑 Комментарий: black_dep_${telegram_id}`
-      );
-      return res.json({ confirmed: true, ton_credited: expected_ton });
+    const txs = data.result || [];
+    for (const tx of txs) {
+      try {
+        const txHash = tx.transaction_id?.hash || '';
+        if (!txHash) continue;
+        const { data: existing } = await supabase
+          .from('transactions').select('id').eq('tx_hash', txHash).single();
+        if (existing) continue;
+        const msg = tx.in_msg || {};
+        const rawComment = msg.message || msg.msg_data?.text || '';
+        let comment = rawComment;
+        try { comment = Buffer.from(rawComment, 'base64').toString('utf8'); } catch(e) {}
+        console.log('TX comment:', comment, 'raw:', rawComment);
+        const amountTon = parseInt(msg.value || 0) / 1e9;
+        if (comment && comment.startsWith('black_dep_') && amountTon >= 0.05) {
+          const uid = comment.replace('black_dep_', '').trim();
+          const { data: user } = await supabase
+            .from('users').select('ton_balance').eq('telegram_id', uid).single();
+          if (!user) continue;
+          const newBalance = (user.ton_balance || 0) + amountTon;
+          await supabase.from('users').update({ ton_balance: newBalance }).eq('telegram_id', uid);
+          await supabase.from('transactions').insert({
+            telegram_id: uid,
+            type: 'deposit',
+            amount: amountTon,
+            currency: 'TON',
+            tx_hash: txHash,
+            description: `Депозит ${amountTon.toFixed(3)} TON`,
+            created_at: new Date().toISOString(),
+          });
+          try {
+            await bot.api.sendMessage(Number(uid), `✅ Депозит зачислен: +${amountTon.toFixed(3)} TON`);
+            await bot.api.sendMessage(ADMIN_ID, `💰 Депозит!\n👤 ID: ${uid}\n💎 ${amountTon.toFixed(3)} TON\n💰 Баланс: ${newBalance.toFixed(3)} TON`);
+          } catch(e) {}
+        }
+      } catch(e) { console.log('TX error:', e.message); }
     }
-    res.json({ confirmed: false });
-  } catch (e) {
-    res.json({ confirmed: false });
-  }
-});
+  } catch(e) { console.log('Monitor error:', e.message); }
+}
+setInterval(monitorDeposits, 30000);
+monitorDeposits();
 
 // ══ WITHDRAW ══
 app.post('/api/withdraw-request', authMiddleware, async (req, res) => {
