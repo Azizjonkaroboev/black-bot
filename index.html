@@ -788,6 +788,39 @@ async function init(){
       S.init=(u.first_name||u.username||'U')[0].toUpperCase();
       if(u.photo_url) S.photo=u.photo_url;
     }
+    if(!u && tg.initData){
+
+  try{
+
+    const r = await fetch('/api/me',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        initData:tg.initData
+      })
+    });
+
+    const d = await r.json();
+
+    if(d?.id){
+
+      S.tgId=d.id;
+      S.user='@'+(d.username||d.first_name||'user');
+      S.init=(d.first_name||d.username||'U')[0].toUpperCase();
+
+      if(d.photo_url){
+        S.photo=d.photo_url;
+      }
+
+    }
+
+  }catch(e){
+    console.log(e);
+  }
+
+  }
     // Send initData to server for auth
     S.initData=tg.initData||'';
   }
