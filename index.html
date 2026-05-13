@@ -783,7 +783,7 @@ async function init(){
   tg.expand();
     const u=tg.initDataUnsafe?.user;
     if(u){
-      S.tgId=u.id;
+      S.tgId=String(u.id);
       S.user='@'+(u.username||u.first_name||'user');
       S.init=(u.first_name||u.username||'U')[0].toUpperCase();
       if(u.photo_url) S.photo=u.photo_url;
@@ -806,7 +806,7 @@ async function init(){
 
     if(d?.id){
 
-      S.tgId=d.id;
+      S.tgId=String(d.id);
       S.user='@'+(d.username||d.first_name||'user');
       S.init=(d.first_name||d.username||'U')[0].toUpperCase();
 
