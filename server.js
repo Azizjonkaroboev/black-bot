@@ -445,6 +445,82 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+function verifyTelegramInitData(initData){
+
+  const secretKey = crypto
+    .createHmac('sha256','WebAppData')
+    .update(BOT_TOKEN)
+    .digest();
+
+  const urlParams = new URLSearchParams(initData);
+
+  const hash = urlParams.get('hash');
+
+  urlParams.delete('hash');
+
+  const dataCheckString = [...urlParams.entries()]
+    .sort()
+    .map(([k,v])=>`${k}=${v}`)
+    .join('\n');
+
+  const hmac = crypto
+    .createHmac('sha256',secretKey)
+    .update(dataCheckString)
+    .digest('hex');
+
+  return hmac === hash;
+}
+
+app.post('/api/me', async(req,res)=>{
+
+  try{
+
+    const { initData } = req.body;
+
+    if(!initData){
+      return res.status(400).json({
+        error:'No initData'
+      });
+    }
+
+    const valid =
+      verifyTelegramInitData(initData);
+
+    if(!valid){
+      return res.status(401).json({
+        error:'Invalid initData'
+      });
+    }
+
+    const params =
+      new URLSearchParams(initData);
+
+    const userRaw = params.get('user');
+
+    if(!userRaw){
+      return res.status(400).json({
+        error:'No user'
+      });
+    }
+
+    const user = JSON.parse(userRaw);
+
+    res.json({
+      id:user.id,
+      username:user.username||'',
+      first_name:user.first_name||'',
+      photo_url:user.photo_url||''
+    });
+
+  }catch(e){
+
+    res.status(500).json({
+      error:e.message
+    });
+
+  }
+
+});
 // ══ START ══
 const PORT = process.env.PORT || 80;
 app.listen(PORT, () => console.log(`BLACK running on port ${PORT}`));
