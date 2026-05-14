@@ -1515,13 +1515,10 @@ async function doDeposit(){
   if(!v||v<0.1){toast('Введи сумму (мин 0.1 TON)','r');return;}
   if(tcUI){
     try{
-      await tcUI.sendTransaction({
+      const amountInNano=(BigInt(Math.floor(v*1e9))).toString();
+await tcUI.sendTransaction({
   validUntil:Math.floor(Date.now()/1000)+600,
-  messages:[{
-    address:PW,
-    amount:String(Math.floor(v*1e9)),
-    payload:'black_dep_'+S.tgId
-  }]
+  messages:[{address:PW,amount:amountInNano}]
 });
       closeModal();
 toast(t('depSent'),'g');
