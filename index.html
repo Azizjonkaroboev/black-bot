@@ -1520,7 +1520,7 @@ async function doDeposit(){
   messages:[{
     address:PW,
     amount:String(Math.floor(v*1e9)),
-    payload:btoa(unescape(encodeURIComponent('black_dep_'+S.tgId)))
+    payload:'black_dep_'+S.tgId
   }]
 });
       closeModal();
