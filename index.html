@@ -6,6 +6,7 @@
 <title>BLACK</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<script src="https://unpkg.com/@ton/core@0.15.0/dist/index.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -1515,10 +1516,13 @@ async function doDeposit(){
   if(!v||v<0.1){toast('Введи сумму (мин 0.1 TON)','r');return;}
   if(tcUI){
     try{
-      const amountInNano=(BigInt(Math.floor(v*1e9))).toString();
+      const commentText='black_dep_'+S.tgId;
+const body=TonCore.beginCell().storeUint(0,32).storeStringTail(commentText).endCell();
+const payloadB64=body.toBoc().toString('base64');
+const amountInNano=(BigInt(Math.floor(v*1e9))).toString();
 await tcUI.sendTransaction({
   validUntil:Math.floor(Date.now()/1000)+600,
-  messages:[{address:PW,amount:amountInNano}]
+  messages:[{address:PW,amount:amountInNano,payload:payloadB64}]
 });
       closeModal();
 toast(t('depSent'),'g');
