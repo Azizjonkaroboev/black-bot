@@ -237,139 +237,132 @@ app.post('/api/exchange', authMiddleware, async (req, res) => {
 });
 
 // ══ PVP QUEUE ══
+let currentRound = {
+  id: 1,
+  status: 'waiting',
+  players: [],
+  startedAt: null,
+  countdownStartedAt: null,
+  winner: null,
+  totalPool: 0,
+};
+function getChancePercent(playerBet,totalPool){
+  return Number(((playerBet/totalPool)*100).toFixed(2));
+}
 
-let pvpQueue = [];
-let pvpGames = {};
-
-app.post('/api/pvp/join', authMiddleware, async (req, res) => {
+app.post('/api/pvp/join', authMiddleware, async (req,res)=>{
 
   try{
 
     const { telegram_id, bet } = req.body;
 
-    if(!telegram_id || !bet){
-      return res.status(400).json({ error:'Missing fields' });
-    }
-
     const amt = Number(bet);
 
-    if(amt < 10 || amt > 5000){
-      return res.status(400).json({ error:'Invalid bet' });
+    if(amt < 1){
+      return res.status(400).json({
+        error:'Minimum 1 ARC'
+      });
     }
 
     const { data:user } = await supabase
       .from('users')
       .select('*')
-      .eq('telegram_id', String(telegram_id))
+      .eq('telegram_id',String(telegram_id))
       .single();
 
     if(!user){
-      return res.status(404).json({ error:'User not found' });
+      return res.status(404).json({
+        error:'User not found'
+      });
     }
 
+    // ищем игрока в раунде
+    const existingPlayer =
+      currentRound.players.find(
+        x=>x.telegram_id===String(telegram_id)
+      );
+
+    // первый вход
+    if(!existingPlayer){
+
+      if(amt < 10){
+        return res.status(400).json({
+          error:'Minimum first bet is 10 ARC'
+        });
+      }
+
+      if(currentRound.players.length >= 10){
+        return res.status(400).json({
+          error:'Round full'
+        });
+      }
+
+    }
+
+    // максимум 5000
+    const currentBet =
+      existingPlayer
+      ? existingPlayer.bet
+      : 0;
+
+    if(currentBet + amt > 5000){
+      return res.status(400).json({
+        error:'Max 5000 ARC'
+      });
+    }
+
+    // баланс
     if((user.arc_balance || 0) < amt){
-      return res.status(400).json({ error:'Insufficient ARC' });
-    }
-
-    // Ищем игрока с такой же ставкой
-    const opponentIndex = pvpQueue.findIndex(x =>
-      x.bet === amt &&
-      x.telegram_id !== String(telegram_id)
-    );
-
-    // Если никого нет — ставим в очередь
-    if(opponentIndex === -1){
-
-      pvpQueue.push({
-        telegram_id:String(telegram_id),
-        bet:amt,
-        created_at:Date.now()
-      });
-
-      return res.json({
-        waiting:true
+      return res.status(400).json({
+        error:'Insufficient ARC'
       });
     }
 
-    // Нашли соперника
-    const opponent = pvpQueue[opponentIndex];
-
-    // Удаляем его из очереди
-    pvpQueue.splice(opponentIndex,1);
-
-    // Создаем игру
-    const gameId =
-      'pvp_' +
-      Date.now() +
-      '_' +
-      Math.floor(Math.random()*999999);
-
-    // Рандом победителя
-    const winner =
-      Math.random() < 0.5
-      ? String(telegram_id)
-      : opponent.telegram_id;
-
-    const totalPool = amt * 2;
-
-    // 10% комиссия
-    const fee = Math.floor(totalPool * 0.10);
-
-    const winAmount = totalPool - fee;
-
-    pvpGames[gameId] = {
-      gameId,
-      p1:String(telegram_id),
-      p2:opponent.telegram_id,
-      bet:amt,
-      winner,
-      fee,
-      winAmount,
-      created_at:Date.now()
-    };
-
-    // Начисляем победителю
-    const { data:winnerUser } = await supabase
-      .from('users')
-      .select('arc_balance,pvp_history')
-      .eq('telegram_id', winner)
-      .single();
-
+    // списываем ARC
     await supabase
       .from('users')
       .update({
-        arc_balance:(winnerUser.arc_balance || 0) + winAmount,
-        pvp_history:[
-          ...(winnerUser.pvp_history || []),
-          {
-            gameId,
-            bet:amt,
-            won:winAmount,
-            at:new Date().toISOString()
-          }
-        ]
+        arc_balance:(user.arc_balance || 0) - amt
       })
-      .eq('telegram_id', winner);
+      .eq('telegram_id',String(telegram_id));
 
-    // Пишем транзакцию
-    await supabase
-      .from('transactions')
-      .insert({
-        telegram_id:winner,
-        type:'pvp_win',
-        amount:winAmount,
-        currency:'ARC',
-        description:`PvP win ${winAmount} ARC`,
-        created_at:new Date().toISOString()
+    // уже в раунде
+    if(existingPlayer){
+
+      existingPlayer.bet += amt;
+
+    }else{
+
+      currentRound.players.push({
+        telegram_id:String(telegram_id),
+        username:user.username || 'Player',
+        bet:amt,
       });
 
+    }
+
+    // pool
+    currentRound.totalPool =
+      currentRound.players.reduce(
+        (a,b)=>a+b.bet,
+        0
+      );
+
+    // старт countdown
+    if(
+      currentRound.players.length >= 2 &&
+      !currentRound.countdownStartedAt
+    ){
+
+      currentRound.status='countdown';
+
+      currentRound.countdownStartedAt=Date.now();
+
+    }
+
     return res.json({
-      matched:true,
-      gameId,
-      opponent:opponent.telegram_id,
-      winner,
-      winAmount,
-      fee
+      ok:true,
+      round:currentRound
     });
 
   }catch(e){
@@ -381,6 +374,178 @@ app.post('/api/pvp/join', authMiddleware, async (req, res) => {
   }
 
 });
+
+app.get('/api/pvp/state', async(req,res)=>{
+
+  try{
+
+    let countdown = null;
+
+    if(currentRound.countdownStartedAt){
+
+      const passed =
+        Math.floor(
+          (Date.now()-currentRound.countdownStartedAt)/1000
+        );
+
+      countdown = Math.max(0,15-passed);
+
+    }
+
+    const players =
+      currentRound.players.map(x=>({
+
+        telegram_id:x.telegram_id,
+        username:x.username,
+        bet:x.bet,
+        chance:getChancePercent(
+          x.bet,
+          currentRound.totalPool || 1
+        )
+
+      }));
+
+    res.json({
+
+      roundId:currentRound.id,
+      status:currentRound.status,
+      countdown,
+      totalPool:currentRound.totalPool,
+      players,
+      winner:currentRound.winner,
+
+    });
+
+  }catch(e){
+
+    res.status(500).json({
+      error:e.message
+    });
+
+  }
+
+});
+setInterval(async()=>{
+
+  try{
+
+    if(
+      currentRound.status !== 'countdown'
+    ) return;
+
+    const passed =
+      Math.floor(
+        (Date.now()-currentRound.countdownStartedAt)/1000
+      );
+
+    if(passed < 15) return;
+
+    currentRound.status='spinning';
+
+    const total =
+      currentRound.totalPool;
+
+    let rand =
+      Math.random()*total;
+
+    let winnerPlayer=null;
+
+    for(const p of currentRound.players){
+
+      rand -= p.bet;
+
+      if(rand <= 0){
+
+        winnerPlayer=p;
+        break;
+
+      }
+
+    }
+
+    if(!winnerPlayer){
+      winnerPlayer=currentRound.players[0];
+    }
+
+    // комиссия 10%
+    const fee =
+      Math.floor(total * 0.10);
+
+    const winAmount =
+      total - fee;
+
+    // победитель
+    const { data:winnerUser } =
+      await supabase
+        .from('users')
+        .select('arc_balance')
+        .eq(
+          'telegram_id',
+          winnerPlayer.telegram_id
+        )
+        .single();
+
+    await supabase
+      .from('users')
+      .update({
+        arc_balance:
+          (winnerUser.arc_balance || 0)
+          + winAmount
+      })
+      .eq(
+        'telegram_id',
+        winnerPlayer.telegram_id
+      );
+
+    currentRound.winner={
+
+      telegram_id:winnerPlayer.telegram_id,
+      username:winnerPlayer.username,
+      amount:winAmount,
+      chance:getChancePercent(
+        winnerPlayer.bet,
+        total
+      )
+
+    };
+
+    // история
+    await supabase
+      .from('transactions')
+      .insert({
+
+        telegram_id:winnerPlayer.telegram_id,
+        type:'pvp_win',
+        amount:winAmount,
+        currency:'ARC',
+        description:`PvP round #${currentRound.id}`
+
+      });
+
+    // новый раунд
+    setTimeout(()=>{
+
+      currentRound={
+
+        id:currentRound.id+1,
+        status:'waiting',
+        players:[],
+        startedAt:null,
+        countdownStartedAt:null,
+        winner:null,
+        totalPool:0,
+
+      };
+
+    },4000);
+
+  }catch(e){
+
+    console.log('PVP LOOP ERROR',e);
+
+  }
+
+},1000);
 
 // ══ CHECK DEPOSIT ══
 app.post('/api/check-deposit', authMiddleware, async (req, res) => {
