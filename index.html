@@ -874,18 +874,17 @@ async function saveData(){
       method:'POST',
       headers:authHeaders(),
       body:JSON.stringify({
-        telegram_id:S.tgId,
-        arc_balance:S.arc,
-        ton_balance:S.ton,
-        multiplier:S.mult,
-        checkin_day:S.ciDay,
-        checkin_done:S.ciDone,
-        exc_today:S.excToday,
-        done_tasks:[...S.tasks],
-        wallet_addr:S.wallet,
-        pvp_history:S.hist,
-        used_promos:[...S.usedPromos],
-      })
+  telegram_id:S.tgId,
+  arc_balance:S.arc,
+  multiplier:S.mult,
+  checkin_day:S.ciDay,
+  checkin_done:S.ciDone,
+  exc_today:S.excToday,
+  done_tasks:[...S.tasks],
+  wallet_addr:S.wallet,
+  pvp_history:S.hist,
+  used_promos:[...S.usedPromos],
+})
     });
   }catch(e){}
 }
@@ -1151,7 +1150,78 @@ function stopIdleSpin(){
 }
 function setB(v){document.getElementById('pbi').value=v;document.querySelectorAll('.pre').forEach(p=>p.classList.remove('sel'));event.target.classList.add('sel');}
 
-function placeBet(){
+async function placeBet(){
+
+  if(S.inRound){
+    addBet();
+    return;
+  }
+
+  const amt=parseInt(document.getElementById('pbi').value)||0;
+
+  if(amt<10){
+    toast(t('bMin'),'r');
+    return;
+  }
+
+  if(amt>5000){
+    toast(t('bMax'),'r');
+    return;
+  }
+
+  if(amt>S.arc){
+    toast(t('bInsuf'),'r');
+    return;
+  }
+
+  if(spinning)return;
+
+  stopIdleSpin();
+
+  S.arc-=amt;
+  S.myBet=amt;
+  S.totalBet+=amt;
+
+  const myCol=Math.floor(Math.random()*COLS.length);
+
+  S.parts=[{
+    name:S.user,
+    init:S.init,
+    photo:S.photo,
+    bet:amt,
+    isMe:true,
+    col:myCol
+  }];
+
+  drawWheel();
+  renderParts();
+  renderAll();
+
+  document.getElementById('whlC').textContent='WAITING PLAYER...';
+
+  toast('Поиск игрока...','g');
+
+  try{
+
+    const r=await fetch('/api/pvp/join',{
+      method:'POST',
+      headers:authHeaders(),
+      body:JSON.stringify({
+        telegram_id:S.tgId,
+        bet:amt
+      })
+    });
+
+    const d=await r.json();
+
+    console.log(d);
+
+  }catch(e){
+    console.log(e);
+    toast('Ошибка PvP','r');
+  }
+
+}
   if(S.inRound){addBet();return;}
   const amt=parseInt(document.getElementById('pbi').value)||0;
   if(amt<10){toast(t('bMin'),'r');return;}
@@ -1174,7 +1244,6 @@ S.parts=[{name:S.user,init:S.init,photo:S.photo,bet:amt,isMe:true,col:myCol}];
       toast(t('pvpRet'),'r');
     }
   },60000);
-  setTimeout(()=>{if(!spinning&&!S.inRound)joinOpp(amt);},(2+Math.random()*5)*1000);
   }
 
   function addBet(){
@@ -1188,16 +1257,6 @@ S.parts=[{name:S.user,init:S.init,photo:S.photo,bet:amt,isMe:true,col:myCol}];
   toast('+'+fmt(ex)+' ARC добавлено','g');
 }
 
-function joinOpp(myBet){
-  clearTimeout(S.pvpTO);
-  const name='🤖 Нейросеть';
-  const ob=Math.max(10,Math.floor(myBet*(0.2+Math.random()*2.5)));
-  let botCol;do{botCol=Math.floor(Math.random()*COLS.length);}while(botCol===S.parts[0].col);
-S.parts.push({name,init:name[1].toUpperCase(),photo:null,bet:Math.min(ob,5000),isMe:false,col:botCol});
-  S.inRound=true;
-  document.getElementById('abw').style.display='block';
-  drawWheel();renderParts();startCD();
-}
 
 function startCD(){
   S.cdVal=15;
@@ -1524,35 +1583,42 @@ await tcUI.sendTransaction({
   validUntil:Math.floor(Date.now()/1000)+600,
   messages:[{address:PW,amount:amountInNano,payload:payloadB64}]
 });
-      closeModal();
+closeModal();
 toast(t('depSent'),'g');
-
-await loadData();
-renderAll();
-
 pollDep(v);
     }catch(e){toast(t('depCancel'),'r');}
   }
 }
 
 function pollDep(expected){
-  let att=0;
-  const poll=setInterval(async()=>{
+  let att = 0;
+  const poll = setInterval(async () => {
     att++;
-    try{
-      const r=await fetch('/api/check-deposit',{method:'POST',headers:authHeaders(),body:JSON.stringify({telegram_id:S.tgId,expected_ton:expected})});
-      const d=await r.json();
-      if(d.confirmed){
+    try {
+      const r = await fetch('/api/check-deposit', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          telegram_id: S.tgId,
+          expected_ton: expected
+        })
+      });
+      const d = await r.json();
+
+      if (d.confirmed) {
         clearInterval(poll);
         await loadData();
-renderAll();
-        toast(t('depOk'),'g');
+        renderAll();
+        toast(t('depOk'), 'g');
+        return;
       }
-    }catch(e){}
-        if(att>=60) clearInterval(poll);
-  },5000);
-}
+    } catch (e) {}
 
+    if (att >= 60) {
+      clearInterval(poll);
+    }
+  }, 5000);
+}
 async function doWithdraw(){
   const v=parseFloat(document.getElementById('wAmt')?.value)||0;
   if(!v||v<0.1){toast('Минимум 0.1 TON','r');return;}
