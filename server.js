@@ -171,14 +171,14 @@ app.get('/api/leaderboard', authMiddleware, async (req, res) => {
     if (type === 'pvp') {
       const { data } = await supabase
         .from('users')
-        .select('telegram_id, username, first_name, photo_url, arc_balance')
-        .order('arc_balance', { ascending: false })
+        .select('telegram_id, username, first_name, photo_url, total_pvp_bet')
+.order('total_pvp_bet', { ascending: false })
         .limit(50);
       const result = (data || []).map(u => ({
         name: u.username ? '@' + u.username : u.first_name || 'Игрок',
         init: (u.first_name || u.username || 'U')[0].toUpperCase(),
         photo: u.photo_url || null,
-        val: u.arc_balance || 0,
+        val: u.total_pvp_bet || 0,
       }));
       return res.json(result);
     } else {
