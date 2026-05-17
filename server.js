@@ -75,22 +75,21 @@ app.get('/api/user/:tgId', authMiddleware, async (req, res) => {
 app.post('/api/user/save', authMiddleware, async (req, res) => {
   try {
     const {
-      telegram_id, arc_balance, ton_balance, multiplier,
-      checkin_day, checkin_done, exc_today, done_tasks,
-      wallet_addr, pvp_history, used_promos
-    } = req.body;
+  telegram_id, arc_balance, multiplier,
+  checkin_day, checkin_done, exc_today, done_tasks,
+  wallet_addr, pvp_history, used_promos
+} = req.body;
     if (!telegram_id) return res.status(400).json({ error: 'No telegram_id' });
 
     const updateData = {
-      telegram_id: String(telegram_id),
-      arc_balance: arc_balance ?? 0,
-      ton_balance: ton_balance ?? 0,
-      multiplier: multiplier ?? 1.0,
-      exc_today: exc_today ?? 0,
-      done_tasks: done_tasks ?? [],
-      wallet_addr: wallet_addr ?? '',
-      last_seen: new Date().toISOString(),
-    };
+  telegram_id: String(telegram_id),
+  arc_balance: arc_balance ?? 0,
+  multiplier: multiplier ?? 1.0,
+  exc_today: exc_today ?? 0,
+  done_tasks: done_tasks ?? [],
+  wallet_addr: wallet_addr ?? '',
+  last_seen: new Date().toISOString(),
+};
 
     // ВАЖНО: не перезаписываем checkin_day/checkin_done если не пришли
     if (checkin_day !== undefined) updateData.checkin_day = checkin_day;
@@ -237,11 +236,184 @@ app.post('/api/exchange', authMiddleware, async (req, res) => {
   }
 });
 
-// ══ CHECK DEPOSIT ══
-app.post('/api/check-deposit', authMiddleware, async (req, res) => {
-  res.json({ confirmed: false, monitoring: true });
+// ══ PVP QUEUE ══
+
+let pvpQueue = [];
+let pvpGames = {};
+
+app.post('/api/pvp/join', authMiddleware, async (req, res) => {
+
+  try{
+
+    const { telegram_id, bet } = req.body;
+
+    if(!telegram_id || !bet){
+      return res.status(400).json({ error:'Missing fields' });
+    }
+
+    const amt = Number(bet);
+
+    if(amt < 10 || amt > 5000){
+      return res.status(400).json({ error:'Invalid bet' });
+    }
+
+    const { data:user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('telegram_id', String(telegram_id))
+      .single();
+
+    if(!user){
+      return res.status(404).json({ error:'User not found' });
+    }
+
+    if((user.arc_balance || 0) < amt){
+      return res.status(400).json({ error:'Insufficient ARC' });
+    }
+
+    // Ищем игрока с такой же ставкой
+    const opponentIndex = pvpQueue.findIndex(x =>
+      x.bet === amt &&
+      x.telegram_id !== String(telegram_id)
+    );
+
+    // Если никого нет — ставим в очередь
+    if(opponentIndex === -1){
+
+      pvpQueue.push({
+        telegram_id:String(telegram_id),
+        bet:amt,
+        created_at:Date.now()
+      });
+
+      return res.json({
+        waiting:true
+      });
+    }
+
+    // Нашли соперника
+    const opponent = pvpQueue[opponentIndex];
+
+    // Удаляем его из очереди
+    pvpQueue.splice(opponentIndex,1);
+
+    // Создаем игру
+    const gameId =
+      'pvp_' +
+      Date.now() +
+      '_' +
+      Math.floor(Math.random()*999999);
+
+    // Рандом победителя
+    const winner =
+      Math.random() < 0.5
+      ? String(telegram_id)
+      : opponent.telegram_id;
+
+    const totalPool = amt * 2;
+
+    // 10% комиссия
+    const fee = Math.floor(totalPool * 0.10);
+
+    const winAmount = totalPool - fee;
+
+    pvpGames[gameId] = {
+      gameId,
+      p1:String(telegram_id),
+      p2:opponent.telegram_id,
+      bet:amt,
+      winner,
+      fee,
+      winAmount,
+      created_at:Date.now()
+    };
+
+    // Начисляем победителю
+    const { data:winnerUser } = await supabase
+      .from('users')
+      .select('arc_balance,pvp_history')
+      .eq('telegram_id', winner)
+      .single();
+
+    await supabase
+      .from('users')
+      .update({
+        arc_balance:(winnerUser.arc_balance || 0) + winAmount,
+        pvp_history:[
+          ...(winnerUser.pvp_history || []),
+          {
+            gameId,
+            bet:amt,
+            won:winAmount,
+            at:new Date().toISOString()
+          }
+        ]
+      })
+      .eq('telegram_id', winner);
+
+    // Пишем транзакцию
+    await supabase
+      .from('transactions')
+      .insert({
+        telegram_id:winner,
+        type:'pvp_win',
+        amount:winAmount,
+        currency:'ARC',
+        description:`PvP win ${winAmount} ARC`,
+        created_at:new Date().toISOString()
+      });
+
+    return res.json({
+      matched:true,
+      gameId,
+      opponent:opponent.telegram_id,
+      winner,
+      winAmount,
+      fee
+    });
+
+  }catch(e){
+
+    res.status(500).json({
+      error:e.message
+    });
+
+  }
+
 });
 
+// ══ CHECK DEPOSIT ══
+app.post('/api/check-deposit', authMiddleware, async (req, res) => {
+  try {
+    const { telegram_id, expected_ton } = req.body;
+    if (!telegram_id) return res.status(400).json({ confirmed: false });
+
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('id, amount, type, currency, created_at')
+      .eq('telegram_id', String(telegram_id))
+      .eq('type', 'deposit')
+      .eq('currency', 'TON')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !data) {
+      return res.json({ confirmed: false });
+    }
+
+    const amt = Number(data.amount || 0);
+    const ok = expected_ton ? amt >= Number(expected_ton) - 0.000001 : true;
+
+    return res.json({
+      confirmed: ok,
+      amount: amt,
+      created_at: data.created_at,
+    });
+  } catch (e) {
+    res.status(500).json({ confirmed: false, error: e.message });
+  }
+});
 async function monitorDeposits() {
   try {
     const response = await fetch(
@@ -292,7 +464,10 @@ const decoded=buf.readUInt32BE(0)===0?buf.subarray(4).toString('utf8'):buf.toStr
           });
           try {
             await bot.api.sendMessage(Number(uid), `✅ Депозит зачислен: +${amountTon.toFixed(3)} TON`);
-            await bot.api.sendMessage(ADMIN_ID, `💰 Депозит!\n👤 ID: ${uid}\n💎 ${amountTon.toFixed(3)} TON\n💰 Баланс: ${newBalance.toFixed(3)} TON`);
+            await bot.api.sendMessage(
+  5839503796,
+  `💰 Депозит!\n👤 ID: ${uid}\n💎 ${amountTon.toFixed(3)} TON\n💰 Баланс: ${newBalance.toFixed(3)} TON\n🔗 TX: ${txHash}\n📝 ${comment}`
+);
           } catch(e) {}
         }
       } catch(e) { console.log('TX error:', e.message); }
@@ -327,9 +502,10 @@ app.post('/api/withdraw-request', authMiddleware, async (req, res) => {
       description: `Вывод ${ton_amount} TON`,
       created_at: new Date().toISOString(),
     });
-    await bot.api.sendMessage(ADMIN_ID,
-      `⬆️ Заявка на вывод!\n👤 ${username || telegram_id}\n💎 ${ton_amount} TON\n👛 ${wallet}`
-    );
+    await bot.api.sendMessage(
+  5839503796,
+  `⬆️ Заявка на вывод!\n👤 ${username || telegram_id}\n🆔 ${telegram_id}\n💎 ${ton_amount} TON\n👛 ${wallet}\n🕒 ${new Date().toISOString()}`
+);
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
