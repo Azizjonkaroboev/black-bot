@@ -1233,90 +1233,225 @@ S.arc-=amt;S.myBet=amt;S.totalBet+=amt;
   const myCol=Math.floor(Math.random()*COLS.length);
 S.parts=[{name:S.user,init:S.init,photo:S.photo,bet:amt,isMe:true,col:myCol}];
   drawWheel();renderParts();renderAll();
-  document.getElementById('whlC').textContent='1/2';
-  toast(t('bOk'),'g');
-  if(S.pvpTO) clearTimeout(S.pvpTO);
-  S.pvpTO=setTimeout(()=>{
-    if(!spinning&&!S.inRound){
-      S.arc+=S.myBet;S.myBet=0;S.parts=[];
-      drawWheel();renderParts();renderAll();
-      document.getElementById('whlC').textContent='Ожидание';
-      toast(t('pvpRet'),'r');
-    }
-  },60000);
+async function placeBet(){
+
+  if(!S.tgId){
+    toast('No user','r');
+    return;
   }
 
-  function addBet(){
-  if(!S.inRound)return;
-  const ex=parseInt(document.getElementById('pbi').value)||0;
-  if(ex<10){toast(t('bMin'),'r');return;}
-  if(ex>S.arc){toast(t('bInsuf'),'r');return;}
-  S.arc-=ex;S.myBet+=ex;S.totalBet+=ex;
-  S.parts[0].bet+=ex;
-  drawWheel();renderParts();renderAll();
-  toast('+'+fmt(ex)+' ARC добавлено','g');
+  if(spinning)return;
+
+  const amt = parseInt(document.getElementById('pbi').value) || 0;
+
+  if(amt < 10){
+    toast(t('bMin'),'r');
+    return;
+  }
+
+  if(amt > 5000){
+    toast(t('bMax'),'r');
+    return;
+  }
+
+  if(amt > S.arc){
+    toast(t('bInsuf'),'r');
+    return;
+  }
+
+  stopIdleSpin();
+
+  try{
+
+    const r = await fetch('/api/pvp/join', {
+      method:'POST',
+      headers:{
+        ...authHeaders(),
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        telegram_id:S.tgId,
+        bet:amt
+      })
+    });
+
+    const d = await r.json();
+
+    if(!r.ok){
+      toast(d.error || 'PvP error', 'r');
+      return;
+    }
+
+    S.arc -= amt;
+    renderAll();
+    await loadPvpState();
+    toast(t('bOk'),'g');
+
+  }catch(e){
+    toast('PvP error','r');
+  }
+
+      }
+
+  async function addBet(){
+
+  if(!S.tgId){
+    toast('No user','r');
+    return;
+  }
+
+  const ex = parseInt(document.getElementById('pbi').value) || 0;
+
+  if(ex < 1){
+    toast('Минимум 1 ARC','r');
+    return;
+  }
+
+  if(ex > S.arc){
+    toast(t('bInsuf'),'r');
+    return;
+  }
+
+  try{
+
+    const r = await fetch('/api/pvp/join', {
+      method:'POST',
+      headers:{
+        ...authHeaders(),
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        telegram_id:S.tgId,
+        bet:ex
+      })
+    });
+
+    const d = await r.json();
+
+    if(!r.ok){
+      toast(d.error || 'PvP error', 'r');
+      return;
+    }
+
+    S.arc -= ex;
+
+    renderAll();
+
+    await loadPvpState();
+
+    toast('+'+fmt(ex)+' ARC', 'g');
+
+  }catch(e){
+
+    toast('PvP error','r');
+
+  }
+
 }
 
+async function loadPvpState(){
 
-function startCD(){
-  S.cdVal=15;
-  const el=document.getElementById('cd');
-  el.style.display='block';
-  document.getElementById('whlC').textContent='00:15';
-  if(S.cdTimer) clearInterval(S.cdTimer);
-  S.cdTimer=setInterval(()=>{
-    S.cdVal--;
-    document.getElementById('cdn').textContent=S.cdVal;
-    document.getElementById('whlC').textContent='00:'+String(S.cdVal).padStart(2,'0');
-    if(S.cdVal<=0){
-      clearInterval(S.cdTimer);
-      el.style.display='none';
-      document.getElementById('abw').style.display='none';
-      doSpin();
+  try{
+
+    const r = await fetch('/api/pvp/state');
+
+    const d = await r.json();
+
+    if(!d)return;
+
+    document.getElementById('whlC').textContent =
+      'Round #' + d.roundId;
+
+    S.parts = [];
+
+    if(d.players){
+
+      d.players.forEach((p,i)=>{
+
+        S.parts.push({
+
+          name:p.username || 'Player',
+          init:(p.username || 'P')[0].toUpperCase(),
+          photo:null,
+          bet:p.bet,
+          isMe:String(p.telegram_id)===String(S.tgId),
+          col:i % COLS.length
+
+        });
+
+      });
+
     }
-  },1000);
+
+    drawWheel();
+
+    renderParts();
+
+    if(d.countdown !== null){
+
+      document.getElementById('cdn').textContent =
+        d.countdown;
+
+    }
+
+    if(d.status === 'spinning'){
+
+      doSpin();
+
+    }
+
+    if(d.winner){
+
+      showWB(
+        d.winner.username,
+        d.winner.amount,
+        d.winner.chance
+      );
+
+    }
+
+  }catch(e){}
+
 }
 
 function doSpin(){
+
   if(spinning)return;
-  spinning=true;
-  document.getElementById('whlC').textContent='...';
-  const cv=document.getElementById('wc');
-  let angle=0;const dur=3000;const start=Date.now();
-  const anim=setInterval(()=>{
-    const el=Date.now()-start;
-    const prog=1-Math.pow(1-el/dur,3);
-    angle=prog*(1440+Math.random()*360);
-    cv.style.transform=`rotate(${angle}deg)`;
-    if(el>=dur){clearInterval(anim);cv.style.transform='';finishRound();}
+
+  spinning = true;
+
+  const cv = document.getElementById('wc');
+
+  let angle = 0;
+
+  const dur = 5000;
+
+  const start = Date.now();
+
+  const anim = setInterval(()=>{
+
+    const elapsed = Date.now()-start;
+
+    const prog = 1-Math.pow(1-elapsed/dur,3);
+
+    angle = prog * 2200;
+
+    cv.style.transform =
+      `rotate(${angle}deg)`;
+
+    if(elapsed >= dur){
+
+      clearInterval(anim);
+
+      spinning = false;
+
+    }
+
   },16);
+
 }
 
-function finishRound(){
-  spinning=false;S.inRound=false;
-  const total=S.parts.reduce((s,p)=>s+p.bet,0);
-  const myC=total>0?(S.parts[0].bet/total):0;
-  const won=Math.random()<myC;
-  const pot=Math.floor(total*.9);
-  const winPct=Math.floor(myC*100);
-  if(won){S.arc+=pot;S.pvpWins++;}
-  S.pvpRound++;S.pvpGID++;localStorage.setItem('pvpRound',S.pvpRound);localStorage.setItem('pvpGID',S.pvpGID);
-  const win=won?S.parts[0]:S.parts[1]||S.parts[0];
-  const entry={name:win.name,init:win.init,photo:win.photo,arc:pot,pct:winPct,round:S.pvpRound-1,isMe:won,isBot:win.name==='🤖 Нейросеть'};
-  S.hist.unshift(entry);if(S.hist.length>30)S.hist.pop();
-  S.prev={user:win.name,val:'+'+fmt(pot)+' ARC',ch:'ШАНС '+winPct+'%'};
-  if(!S.top||pot>(S.top.rv||0)) S.top={user:win.name,val:'+'+fmt(pot)+' ARC',ch:'ШАНС '+winPct+'%',rv:pot};
-  updateBans();
-  showWB(win.name,pot,winPct);
-  showPR(won,win,pot,winPct,S.parts[0].bet);
-  renderAll();saveData();
-  setTimeout(()=>resetPVP(),4000);
-}
-
-function updateBans(){
-  if(S.prev){document.getElementById('prevU').textContent=S.prev.user;document.getElementById('prevV').textContent=S.prev.val;document.getElementById('prevC').textContent=S.prev.ch;}
-  if(S.top){document.getElementById('topU').textContent=S.top.user;document.getElementById('topV').textContent=S.top.val;document.getElementById('topC').textContent=S.top.ch;}
-}
+setInterval(loadPvpState,1000);
 
 function showWB(name,arc,pct){
   document.getElementById('wbT').textContent=`🏆 ${name} выиграл +${fmt(arc)} ARC`;
