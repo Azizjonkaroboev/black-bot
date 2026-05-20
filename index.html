@@ -1659,19 +1659,10 @@ async function doExchange(){
       renderAll();calcExc();saveData();
       toast('+'+d.arc_credited.toLocaleString()+' ARC ✓','g');
     } else {
-      // Fallback local
-      const arc=Math.floor(v*arc4ton());
-      S.arc+=arc;S.ton-=v;S.excToday+=v;
-      addTx('exchange',arc,'ARC');
-      renderAll();calcExc();saveData();
-      toast('+'+arc.toLocaleString()+' ARC ✓','g');
+      toast('Exchange error','r');
     }
   }catch(e){
-    const arc=Math.floor(v*arc4ton());
-    S.arc+=arc;S.ton-=v;S.excToday+=v;
-    addTx('exchange',arc,'ARC');
-    renderAll();calcExc();saveData();
-    toast('+'+arc.toLocaleString()+' ARC ✓','g');
+    toast('Exchange error','r');
   }
 }
 
