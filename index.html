@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>BLACK</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 <script src="https://unpkg.com/@ton/core@0.15.0/dist/index.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0d1117;
@@ -23,8 +23,7 @@
   --red:#ef4444;
   --green:#22c55e;
   --nav-h:60px;
-  }
-
+}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{height:100%}
 body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden}
@@ -33,8 +32,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 #screen::-webkit-scrollbar{display:none}
 .page{display:none}
 .page.active{display:block}
-
-/* TOPBAR */
 .tb{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
 .tb-user{display:flex;align-items:center;gap:10px}
 .tb-av{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#1e40af);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--ytext);overflow:hidden;flex-shrink:0}
@@ -43,8 +40,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .lw{display:flex;background:var(--card2);border:1px solid var(--border);border-radius:20px;overflow:hidden;padding:2px}
 .lw button{padding:4px 11px;border:none;background:transparent;color:var(--t2);font-size:11px;font-weight:700;cursor:pointer;border-radius:16px;font-family:'Inter'}
 .lw button.on{background:var(--yellow);color:var(--ytext)}
-
-/* NAV */
 #nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:var(--nav-h);background:#111827;border-top:1px solid var(--border);display:flex;align-items:center;z-index:100}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:6px 0;position:relative}
 .ni svg{width:22px;height:22px;stroke:var(--t3);fill:none;stroke-width:1.7;transition:.2s}
@@ -52,8 +47,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .ni.on svg{stroke:#3b82f6}
 .ni.on span{color:#3b82f6}
 .ni.on::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:#3b82f6;border-radius:2px 2px 0 0}
-
-/* BTNS */
 .btn{display:flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:13px;cursor:pointer;font-family:'Inter';font-weight:700;transition:.15s;outline:none;font-size:14px;padding:13px 20px}
 .btn-y{background:var(--yellow);color:var(--ytext)}
 .btn-y:active{background:var(--yellow2);transform:scale(.97)}
@@ -61,24 +54,14 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .btn-w:active{background:var(--card2)}
 .btn-r{background:rgba(255,59,48,.08);border:1.5px solid rgba(255,59,48,.2);color:var(--red)}
 .btn-full{width:100%}
-
-/* INPUT */
 .inp{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;color:var(--text);font-family:'Inter';font-size:14px;font-weight:500;outline:none}
 .inp:focus{border-color:var(--yellow)}
-.inp::placeholder{color:var(--t3)}
-
-/* CARDS */
 .card{background:var(--card);border-radius:18px}
 .sp{height:12px}
-
-/* TOAST */
 #toast{position:fixed;top:12px;left:50%;transform:translateX(-50%) translateY(-70px);background:#1c1c1e;color:#fff;border-radius:12px;padding:9px 18px;font-size:13px;font-weight:600;z-index:999;transition:.3s;white-space:nowrap;pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0)}
 #toast.g{background:var(--green)}
 #toast.r{background:var(--red)}
-#toast.y{background:#1c1c1e}
-
-/* ═══ HOME ═══ */
 .hero{margin:12px;padding:20px;background:linear-gradient(135deg,#1e3a8a,#1e40af,#1d4ed8);border-radius:20px}
 .hero-plat{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:3px}
 .hero-ttl{font-size:30px;font-weight:900;letter-spacing:-.5px;margin-bottom:16px}
@@ -100,8 +83,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .ad-nm{font-size:14px;font-weight:700}
 .ad-sb{font-size:11px;color:var(--t3);margin-top:2px}
 .soon-b{background:var(--bg);border:1.5px solid var(--border);color:var(--t3);font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;white-space:nowrap}
-
-/* ═══ TASKS ═══ */
 .ci-c{margin:12px;padding:18px;background:var(--card);border-radius:20px}
 .slbl{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--t3);text-transform:uppercase;margin-bottom:10px}
 .ci-st{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -134,8 +115,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .tbtns{display:flex;gap:5px;flex-shrink:0}
 .tb2{font-size:11px;padding:6px 10px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;font-family:'Inter';font-weight:700;white-space:nowrap}
 .tb2.y{background:var(--yellow);border-color:var(--yellow);color:var(--ytext)}
-
-/* ═══ PVP ═══ */
 .pvp-hd{padding:14px 16px 8px;display:flex;align-items:flex-start;justify-content:space-between}
 .pvp-ttl{font-size:34px;font-weight:900;letter-spacing:-1px}
 .rb{background:var(--yellow);color:var(--ytext);padding:5px 13px;border-radius:20px;font-size:12px;font-weight:800}
@@ -155,7 +134,7 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .whl-w{display:flex;justify-content:center;margin:0 0 14px;position:relative}
 .whl-ptr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:22px;color:var(--yellow2)}
 #wc{border-radius:50%;display:block}
-.whl-ctr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;background:var(--card);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:var(--text);text-align:center;line-height:1.2;cursor:pointer;box-shadow:0 2px 16px rgba(0,0,0,.12)}
+.whl-ctr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;background:var(--card);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:var(--text);text-align:center;line-height:1.2;cursor:pointer}
 .pvp-bet{margin:0 12px 10px;background:var(--card);border-radius:16px;padding:16px}
 .pbl{font-size:11px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
 .pbr{display:flex;gap:8px;margin-bottom:8px}
@@ -183,8 +162,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .ppbt{font-size:15px;font-weight:900}
 .ppemp{text-align:center;padding:22px;color:var(--t3);font-size:13px}
 .hbtn{margin:0 12px 12px;padding:13px;background:var(--card);border:1.5px solid var(--border);border-radius:14px;color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;width:calc(100% - 24px);display:flex;align-items:center;justify-content:center;gap:8px}
-
-/* ═══ FRIENDS ═══ */
 .fr-hero{margin:12px;background:var(--card);border-radius:20px;padding:18px}
 .fr-ttl{font-size:22px;font-weight:900;margin-bottom:4px}
 .fr-sub{font-size:12px;color:var(--t3);margin-bottom:16px}
@@ -202,8 +179,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .fr-lh{padding:14px 16px;border-bottom:1.5px solid var(--bg)}
 .fr-lt{font-size:13px;font-weight:800}
 .nofr{text-align:center;padding:24px;color:var(--t3);font-size:13px}
-
-/* ═══ PROFILE ═══ */
 .pr-hero{margin:12px;background:var(--card);border-radius:20px;padding:20px;text-align:center}
 .prav{width:74px;height:74px;border-radius:22px;background:linear-gradient(135deg,#3b82f6,#1e40af);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:#fff;margin:0 auto 12px;border:3px solid rgba(59,130,246,0.3);overflow:hidden}
 .prav img{width:100%;height:100%;object-fit:cover;border-radius:50%}
@@ -215,7 +190,7 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .wc2{margin:0 12px 10px;background:var(--card);border-radius:16px;padding:16px}
 .wlbl{font-size:11px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
 .wsr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.waddrb{background:var(--bg);border:1.5px solid var(--border);border-radius:11px;padding:11px 13px;font-family:monospace;font-size:14px;font-weight:800;margin-bottom:12px;letter-spacing:.02em}
+.waddrb{background:var(--bg);border:1.5px solid var(--border);border-radius:11px;padding:11px 13px;font-family:monospace;font-size:14px;font-weight:800;margin-bottom:12px}
 .exc-c{margin:0 12px 10px;background:var(--card);border-radius:16px;padding:16px}
 .exc-rate{background:linear-gradient(135deg,#1e3a8a,#2563eb);border-radius:12px;padding:13px 15px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
 .erl{font-size:12px;font-weight:700;color:rgba(255,255,255,0.7)}
@@ -236,8 +211,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .irl{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
 .irico{width:32px;height:32px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .irr{font-size:14px;font-weight:800;color:var(--t2)}
-
-/* TX LIST */
 .tx-c{margin:0 12px 12px;background:var(--card);border-radius:16px;overflow:hidden}
 .tx-h{padding:14px 16px;border-bottom:1.5px solid var(--bg)}
 .tx-ht{font-size:13px;font-weight:800}
@@ -254,8 +227,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .tx-am.pl{color:var(--green)}
 .tx-am.mn{color:var(--red)}
 .tx-emp{text-align:center;padding:24px;color:var(--t3);font-size:13px}
-
-  /* SHEETS */
 .shbg{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:300;display:none;align-items:flex-end;justify-content:center}
 .shbg.show{display:flex}
 .shbox{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-width:430px;max-height:86vh;overflow:hidden;display:flex;flex-direction:column;animation:sup .25s ease}
@@ -267,7 +238,7 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .lb-tabs{display:flex;background:var(--bg);border-radius:12px;overflow:hidden;margin:0 14px 12px;padding:3px;gap:3px}
 .lbt{flex:1;padding:9px;border:none;background:transparent;color:var(--t2);font-size:13px;font-weight:800;cursor:pointer;border-radius:10px;font-family:'Inter'}
 .lbt.on{background:#3b82f6;color:#fff}
-.shscr{flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:0 14px 20px}
+.shscr{flex:1;overflow-y:scroll;padding:0 14px 20px}
 .shscr::-webkit-scrollbar{display:none}
 .lbi{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;margin-bottom:5px;background:var(--bg)}
 .lbi.me{background:rgba(59,130,246,0.12);border:1.5px solid #3b82f6}
@@ -288,8 +259,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .hinm{font-size:13px;font-weight:700}
 .himt{font-size:11px;color:var(--t3);margin-top:1px}
 .hiarc{font-size:13px;font-weight:900;color:var(--green)}
-
-/* MODAL */
 #mbg{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:400;display:none;align-items:flex-end;justify-content:center}
 #mbg.show{display:flex}
 .msh{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-width:430px;padding:6px 0 32px;animation:sup .25s ease}
@@ -297,8 +266,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .mttl{font-size:18px;font-weight:900;padding:0 20px 14px}
 .mbody{padding:0 20px}
 .mnote{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:14px}
-
-/* PVP RESULT */
 #pvpr{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);z-index:350;display:none;align-items:center;justify-content:center}
 #pvpr.show{display:flex}
 .pvpr-in{background:var(--card);border-radius:24px;padding:28px 24px;max-width:320px;width:88%;text-align:center;position:relative}
@@ -314,23 +281,17 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 .pvpr-am.pl{color:var(--green)}
 .pvpr-am.mn{color:var(--red)}
 .pvpr-mt{font-size:12px;color:var(--t3);margin-bottom:22px;line-height:1.7}
-
-/* WINNER BANNER */
-#wban{position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-100px);max-width:400px;width:92%;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:12px 16px;z-index:200;transition:.3s;display:none;box-shadow:0 4px 24px rgba(0,0,0,.12)}
+#wban{position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-100px);max-width:400px;width:92%;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:12px 16px;z-index:200;transition:.3s;display:none}
 #wban.show{transform:translateX(-50%) translateY(0);display:block}
 .wbin{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .wbcl{width:26px;height:26px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-weight:800}
-
-/* CONFETTI */
 #cfc{position:fixed;inset:0;pointer-events:none;z-index:340;display:none}
 .coin{position:fixed;pointer-events:none;z-index:360;font-size:22px;animation:cf 1.3s ease-out forwards}
 @keyframes cf{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-140px) scale(.2);opacity:0}}
 </style>
-</head>
-<body>
+</head
+  <body>
 <div id="app">
-
-<!-- TOPBAR -->
 <div class="tb">
   <div class="tb-user">
     <div class="tb-av" id="topAv">B</div>
@@ -341,10 +302,7 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
     <button id="btnEN" onclick="setLang('en')">EN</button>
   </div>
 </div>
-
 <div id="screen">
-
-<!-- HOME -->
 <div class="page active" id="page-home">
   <div class="hero">
     <div class="hero-plat">Platform</div>
@@ -366,8 +324,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
   </div>
   <div class="sp"></div>
 </div>
-
-<!-- TASKS -->
 <div class="page" id="page-tasks">
   <div class="ci-c">
     <div class="slbl" id="ciTitle">Чек-ин</div>
@@ -389,8 +345,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
   <div class="tlist" id="tlist"></div>
   <div class="sp"></div>
 </div>
-
-<!-- PVP -->
 <div class="page" id="page-pvp">
   <div class="pvp-hd">
     <div><div style="font-size:11px;color:var(--t3);font-weight:800" id="pvpLbl">⚔️ АРЕНА</div><div class="pvp-ttl">PvP</div></div>
@@ -438,8 +392,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
   <button class="hbtn" onclick="openHist()"><span>📋</span><span id="pvpHistLbl">История 30 игр</span></button>
   <div class="sp"></div>
 </div>
-
-<!-- FRIENDS -->
 <div class="page" id="page-friends">
   <div class="fr-hero">
     <div class="fr-ttl" id="frTitle">Пригласи и заработай</div>
@@ -464,8 +416,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
   </div>
   <div class="sp"></div>
 </div>
-
-<!-- PROFILE -->
 <div class="page" id="page-profile">
   <div class="pr-hero">
     <div class="prav" id="prAv">B</div>
@@ -476,7 +426,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
       <div class="pr-st"><div class="pr-sv" id="prMlt">×1.0</div><div class="pr-sl" id="prML">Множитель</div></div>
     </div>
   </div>
-
   <div class="wc2">
     <div class="wlbl" id="wLbl">TON Кошелёк</div>
     <div id="wDisc">
@@ -489,7 +438,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
       <button class="btn btn-r btn-full" onclick="disconnectWallet()" id="wDiscBtn">Отключить</button>
     </div>
   </div>
-
   <div class="exc-c">
     <div class="slbl" id="exchTitle">Обмен TON → ARC</div>
     <div class="exc-rate">
@@ -510,24 +458,19 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
       <button class="btn btn-w" onclick="openModal('withdraw')" id="withBtn">↑ Вывод</button>
     </div>
   </div>
-
   <div class="irows">
     <div class="ir" onclick="openLB()"><div class="irl"><div class="irico">🏆</div><span id="lbIL">Лидерборд</span></div><div class="irr">›</div></div>
     <div class="ir"><div class="irl"><div class="irico">📅</div><span id="ciIL">Серия чек-ин</span></div><div class="irr" id="ciIV">День 1 · ×1.0</div></div>
     <div class="ir"><div class="irl"><div class="irico">👥</div><span id="refIL">Рефералов</span></div><div class="irr" id="refIV">0</div></div>
     <div class="ir" onclick="openModal('burn')"><div class="irl"><div class="irico">🔥</div><span id="burnIL">Сжигание ARC</span></div><div class="irr">›</div></div>
   </div>
-
   <div class="tx-c">
     <div class="tx-h"><div class="tx-ht" id="txTitle">История транзакций</div></div>
     <div id="txList"><div class="tx-emp" id="txEmp">Транзакций пока нет</div></div>
   </div>
   <div class="sp"></div>
 </div>
-
-</div><!-- /screen -->
-
-<!-- NAV -->
+</div>
 <nav id="nav">
   <div class="ni" onclick="gp('pvp',this)">
     <svg viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 9H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5S16.33 9 15.5 9z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 15H10v-1.5c0-.83-.67-1.5-1.5-1.5S7 12.67 7 13.5 7.67 15 8.5 15z"/></svg>
@@ -551,10 +494,7 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
   </div>
 </nav>
 </div>
-
 <canvas id="cfc"></canvas>
-
-<!-- PVP RESULT -->
 <div id="pvpr">
   <div class="pvpr-in">
     <button class="pvpr-cl" onclick="closePR()">×</button>
@@ -567,16 +507,12 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
     <button class="btn btn-y btn-full" onclick="closePR()" style="padding:14px;font-size:15px">Awesome! 🎉</button>
   </div>
 </div>
-
-<!-- WINNER BANNER -->
 <div id="wban">
   <div class="wbin">
     <div><div style="font-size:13px;font-weight:800" id="wbT">🏆</div><div style="font-size:11px;color:var(--t3);margin-top:2px" id="wbS"></div></div>
     <button class="wbcl" onclick="closeWB()">×</button>
   </div>
 </div>
-
-<!-- LB SHEET -->
 <div class="shbg" id="lbSh" onclick="closeLBBg(event)">
   <div class="shbox">
     <div class="shhdl"></div>
@@ -585,8 +521,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
     <div class="shscr" id="lbScr"></div>
   </div>
 </div>
-
-  <!-- HIST SHEET -->
 <div class="shbg" id="hiSh" onclick="closeHiBg(event)">
   <div class="shbox">
     <div class="shhdl"></div>
@@ -594,8 +528,6 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
     <div class="shscr" id="hiScr"></div>
   </div>
 </div>
-
-<!-- MODAL -->
 <div id="mbg" onclick="closeMBg(event)">
   <div class="msh">
     <div class="mhdl"></div>
@@ -603,91 +535,85 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
     <div class="mbody" id="mB"></div>
   </div>
 </div>
-
 <div id="toast"></div>
-
 <script>
-const PW='UQAG8cx9dXAWIfcoNUkdyki-Un9QzJxw3_xU8624H6OnZFMb';
-const BOT='black_tonbot';
-const CH='blackt_channel';
-const COLS=['#3498db','#e74c3c','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#e91e63','#00bcd4','#ff5722'];
+  const PW = 'UQAG8cx9dXAWIfcoNUkdyki-Un9QzJxw3_xU8624H6OnZFMb';
+const BOT = 'black_tonbot';
+const CH = 'blackt_channel';
+const COLS = ['#3498db','#e74c3c','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#e91e63','#00bcd4','#ff5722'];
 
-const S={
-  tgId:null,user:'@user',init:'U',photo:null,
-  arc:0,ton:0,mult:1.0,
-  ciDay:1,ciDone:false,
-  wallet:'',lang:'ru',
-  tasks:new Set(),
-  pvpRound:parseInt(localStorage.getItem('pvpRound')||'1'),pvpWins:0,pvpGID:parseInt(localStorage.getItem('pvpGID')||'1'),
-  inRound:false,myBet:0,pvpTO:null,
-  cdTimer:null,cdVal:15,
-  parts:[],
-  refCode:'',friends:[],
-  excToday:0,tonRate:0,
-  hist:[],totalBet:0,adViews:0,
-  prev:null,top:null,
-  txs:[],
-  usedPromos:new Set(),
+const S = {
+  tgId: null, user: '@user', init: 'U', photo: null,
+  arc: 0, ton: 0, mult: 1.0,
+  ciDay: 1, ciDone: false,
+  wallet: '', lang: 'ru',
+  tasks: new Set(),
+  pvpRound: 1,
+  refCode: '', friends: [],
+  excToday: 0, tonRate: 0,
+  txs: [],
+  usedPromos: new Set(),
+  initData: ''
 };
 
-const TASKS=[
+const TASKS = [
   {id:'ch',ico:'📣',rew:5,type:'ch'},
   {id:'r1',ico:'👥',rew:5,type:'r',req:1},
   {id:'r3',ico:'👥',rew:15,type:'r',req:3},
   {id:'r5',ico:'👥',rew:30,type:'r',req:5},
   {id:'r10',ico:'👥',rew:70,type:'r',req:10},
   {id:'r20',ico:'👥',rew:150,type:'r',req:20},
-  {id:'r50',ico:'👥',rew:400,type:'r',req:50},
+  {id:'r50',ico:'👥',rew:400,type:'r',req:50}
 ];
 
-const L={
-ru:{
-  earnTitle:'РЕКЛАМА',earnSub:'Скоро',
-  adN1:'Реклама 1',adN2:'Реклама 2',adN3:'Реклама 3',adN4:'Реклама 4',adN5:'Реклама 5',
-  adL1:'Лимит 50/день',adL2:'Лимит 50/день',adL3:'Лимит 30/день',adL4:'Лимит 30/день',adL5:'Лимит 30/день',
-  ciTitle:'Чек-ин',ciDL:'День',ciML:'Множитель',
-  ciR:'🌟 Получить чек-ин',ciD:'✓ Уже получено',
-  promoTitle:'Промо-код',promoBtn:'Применить',tasksTitle:'Задания',
-  tCh:'Подписаться на канал',tChD:'@blackt_channel',
-  tr1:'Пригласи 1 друга',tr3:'Пригласи 3 друзей',tr5:'Пригласи 5 друзей',
-  tr10:'Пригласи 10 друзей',tr20:'Пригласи 20 друзей',tr50:'Пригласи 50 друзей',
-  chk:'Проверить',go:'Перейти',
-  pvpLbl:'⚔️ АРЕНА',pvpBetLbl:'Ставка (мин 10, макс 5000 ARC)',pvpBetBtn:'Ставить',
+const L = {
+ru: {
+  earnTitle:'РЕКЛАМА', earnSub:'Скоро',
+  adN1:'Реклама 1', adN2:'Реклама 2', adN3:'Реклама 3', adN4:'Реклама 4', adN5:'Реклама 5',
+  adL1:'Лимит 50/день', adL2:'Лимит 50/день', adL3:'Лимит 30/день', adL4:'Лимит 30/день', adL5:'Лимит 30/день',
+  ciTitle:'Чек-ин', ciDL:'День', ciML:'Множитель',
+  ciR:'🌟 Получить чек-ин', ciD:'✓ Уже получено',
+  promoTitle:'Промо-код', promoBtn:'Применить', tasksTitle:'Задания',
+  tCh:'Подписаться на канал', tChD:'@blackt_channel',
+  tr1:'Пригласи 1 друга', tr3:'Пригласи 3 друзей', tr5:'Пригласи 5 друзей',
+  tr10:'Пригласи 10 друзей', tr20:'Пригласи 20 друзей', tr50:'Пригласи 50 друзей',
+  chk:'Проверить', go:'Перейти',
+  pvpLbl:'⚔️ АРЕНА', pvpBetLbl:'Ставка (мин 10, макс 5000 ARC)', pvpBetBtn:'Ставить',
   pvpNote:'10% комиссия · 2-10 игроков · Возврат через 1 мин',
-  pvpPL:'Участники',pvpHistLbl:'История 30 игр',pvpBL:'Мой баланс ARC',
-  pvpW:'ПОБЕДА',pvpL:'ПОРАЖЕНИЕ',cds:'Раунд начался!',
-  frTitle:'Пригласи и заработай',frSub:'20% с рекламы друга — навсегда',
-  frIL:'Приглашено',frAL:'ARC с рефералов',
-  copyBtn:'🔗 Скопировать',shareBtn:'📤 Поделиться',
-  lv1l:'Уровень 1',lv1d:'С рекламы прямых рефералов',
-  lv2l:'Уровень 2',lv2d:'С рекламы их рефералов',
+  pvpPL:'Участники', pvpHistLbl:'История 30 игр', pvpBL:'Мой баланс ARC',
+  pvpW:'ПОБЕДА', pvpL:'ПОРАЖЕНИЕ', cds:'Раунд начался!',
+  frTitle:'Пригласи и заработай', frSub:'20% с рекламы друга — навсегда',
+  frIL:'Приглашено', frAL:'ARC с рефералов',
+  copyBtn:'🔗 Скопировать', shareBtn:'📤 Поделиться',
+  lv1l:'Уровень 1', lv1d:'С рекламы прямых рефералов',
+  lv2l:'Уровень 2', lv2d:'С рекламы их рефералов',
   frListT:'Мои друзья',
-  wLbl:'TON Кошелёк',wNC:'Не подключён',wCT:'Подключён',
-  wBtn:'💎 Подключить кошелёк',wDiscBtn:'Отключить',
-  exchTitle:'Обмен TON → ARC',excLL:'Лимит сегодня',
-  depBtn:'↓ Депозит',withBtn:'↑ Вывод',
-  lbIL:'Лидерборд',ciIL:'Серия чек-ин',refIL:'Рефералов',burnIL:'Сжигание ARC',
-  lbTitle:'Лидерборд',hiTitle:'История PvP',txTitle:'История транзакций',
-  nPvp:'PvP',nTasks:'Задания',nHome:'Главная',nFr:'Друзья',nPr:'Профиль',prML:'Множитель',
+  wLbl:'TON Кошелёк', wNC:'Не подключён', wCT:'Подключён',
+  wBtn:'💎 Подключить кошелёк', wDiscBtn:'Отключить',
+  exchTitle:'Обмен TON → ARC', excLL:'Лимит сегодня',
+  depBtn:'↓ Депозит', withBtn:'↑ Вывод',
+  lbIL:'Лидерборд', ciIL:'Серия чек-ин', refIL:'Рефералов', burnIL:'Сжигание ARC',
+  lbTitle:'Лидерборд', hiTitle:'История PvP', txTitle:'История транзакций',
+  nPvp:'PvP', nTasks:'Задания', nHome:'Главная', nFr:'Друзья', nPr:'Профиль', prML:'Множитель',
   burnT:'Сжигание ARC 🔥',
-  burnTx:'PvP: 10% банка сжигается каждый раунд.\n\nНеактивность: 7 дней без входа → -20% ARC.\nПотом -5% каждый день.\n\nЗаходи каждый день чтобы сохранить ARC!',
+  burnTx:'PvP: 10% банка сжигается каждый раунд.\n\nНеактивность: 7 дней без входа → -20% ARC.\nПотом -5% каждый день.',
   depT:'Депозит TON',
-  depN:'Введи сумму и нажми "Пополнить" — тебя перекинет в Tonkeeper для подтверждения. После оплаты TON упадёт на баланс бота автоматически.',
+  depN:'Введи сумму и нажми "Пополнить" — тебя перекинет в Tonkeeper.',
   depMin:'Минимум 0.1 TON',
   witT:'Вывод TON',
   witN:'Укажи сумму TON. Администратор отправит на твой кошелёк в течение 24 часов.',
   witMin:'Минимум 0.1 TON · Лимит 50 TON в день',
   witBtn:'Отправить заявку',
   copied:'Ссылка скопирована',
-  promoOk:'+{n} ARC промо применён 🎉',promoFail:'Неверный промо-код',
-  ciOk:'Множитель {m} получен ✓',ciDone:'Уже получено сегодня',
-  bMin:'Минимум 10 ARC',bMax:'Максимум 5000 ARC',bInsuf:'Недостаточно ARC',
+  promoOk:'+{n} ARC промо применён 🎉', promoFail:'Неверный промо-код',
+  ciOk:'Множитель {m} получен ✓', ciDone:'Уже получено сегодня',
+  bMin:'Минимум 10 ARC', bMax:'Максимум 5000 ARC', bInsuf:'Недостаточно ARC',
   bOk:'Ставка принята! Ждём соперника...',
   pvpRet:'Ставка возвращена — нет соперника',
-  wOk:'Кошелёк подключён 💎',wDis:'Кошелёк отключён',
+  wOk:'Кошелёк подключён 💎', wDis:'Кошелёк отключён',
   noW:'Сначала подключи кошелёк',
-  excFail:'Введи сумму',excInsuf:'Недостаточно TON на балансе',
-  excMin:'Минимум 0.1 TON',excMax:'Максимум 5 TON в день',
+  excFail:'Введи сумму', excInsuf:'Недостаточно TON',
+  excMin:'Минимум 0.1 TON', excMax:'Максимум 5 TON в день',
   excLim:'Лимит обмена исчерпан',
   excRes:'Получишь: {n} ARC',
   excOk:'Обмен выполнен ✓',
@@ -701,58 +627,57 @@ ru:{
   depSent:'Транзакция отправлена...',
   depCancel:'Транзакция отменена',
   depOk:'TON зачислен на баланс ✓',
-  addrCopied:'Адрес скопирован',
   lbEmp:'Пока нет игроков',
   txEmp:'Транзакций пока нет',
-  txDep:'Депозит TON',txWit:'Вывод TON',txExc:'Обмен TON→ARC',
+  txDep:'Депозит TON', txWit:'Вывод TON', txExc:'Обмен TON→ARC'
 },
-en:{
-  earnTitle:'ADS',earnSub:'Soon',
-  adN1:'Ad 1',adN2:'Ad 2',adN3:'Ad 3',adN4:'Ad 4',adN5:'Ad 5',
-  adL1:'Limit 50/day',adL2:'Limit 50/day',adL3:'Limit 30/day',adL4:'Limit 30/day',adL5:'Limit 30/day',
-  ciTitle:'Check-In',ciDL:'Day',ciML:'Multiplier',
-  ciR:'🌟 Get Check-In',ciD:'✓ Already claimed',
-  promoTitle:'Promo Code',promoBtn:'Apply',tasksTitle:'Tasks',
-  tCh:'Subscribe to channel',tChD:'@blackt_channel',
-  tr1:'Invite 1 friend',tr3:'Invite 3 friends',tr5:'Invite 5 friends',
-  tr10:'Invite 10 friends',tr20:'Invite 20 friends',tr50:'Invite 50 friends',
-  chk:'Check',go:'Go',
-  pvpLbl:'⚔️ ARENA',pvpBetLbl:'Bet (min 10, max 5000 ARC)',pvpBetBtn:'Bet',
+en: {
+  earnTitle:'ADS', earnSub:'Soon',
+  adN1:'Ad 1', adN2:'Ad 2', adN3:'Ad 3', adN4:'Ad 4', adN5:'Ad 5',
+  adL1:'Limit 50/day', adL2:'Limit 50/day', adL3:'Limit 30/day', adL4:'Limit 30/day', adL5:'Limit 30/day',
+  ciTitle:'Check-In', ciDL:'Day', ciML:'Multiplier',
+  ciR:'🌟 Get Check-In', ciD:'✓ Already claimed',
+  promoTitle:'Promo Code', promoBtn:'Apply', tasksTitle:'Tasks',
+  tCh:'Subscribe to channel', tChD:'@blackt_channel',
+  tr1:'Invite 1 friend', tr3:'Invite 3 friends', tr5:'Invite 5 friends',
+  tr10:'Invite 10 friends', tr20:'Invite 20 friends', tr50:'Invite 50 friends',
+  chk:'Check', go:'Go',
+  pvpLbl:'⚔️ ARENA', pvpBetLbl:'Bet (min 10, max 5000 ARC)', pvpBetBtn:'Bet',
   pvpNote:'10% fee · 2-10 players · Refund in 1 min',
-  pvpPL:'Participants',pvpHistLbl:'Last 30 games',pvpBL:'My ARC Balance',
-  pvpW:'YOU WIN',pvpL:'YOU LOSE',cds:'Round started!',
-  frTitle:'Invite & Earn',frSub:"20% from friend's ads — forever",
-  frIL:'Invited',frAL:'ARC from refs',
-  copyBtn:'🔗 Copy',shareBtn:'📤 Share',
-  lv1l:'Level 1',lv1d:"From direct referrals' ads",
-  lv2l:'Level 2',lv2d:"From their referrals' ads",
+  pvpPL:'Participants', pvpHistLbl:'Last 30 games', pvpBL:'My ARC Balance',
+  pvpW:'YOU WIN', pvpL:'YOU LOSE', cds:'Round started!',
+  frTitle:'Invite & Earn', frSub:"20% from friend's ads — forever",
+  frIL:'Invited', frAL:'ARC from refs',
+  copyBtn:'🔗 Copy', shareBtn:'📤 Share',
+  lv1l:'Level 1', lv1d:"From direct referrals' ads",
+  lv2l:'Level 2', lv2d:"From their referrals' ads",
   frListT:'My Friends',
-  wLbl:'TON Wallet',wNC:'Not connected',wCT:'Connected',
-  wBtn:'💎 Connect Wallet',wDiscBtn:'Disconnect',
-  exchTitle:'Exchange TON → ARC',excLL:'Limit today',
-  depBtn:'↓ Deposit',withBtn:'↑ Withdraw',
-  lbIL:'Leaderboard',ciIL:'Check-In streak',refIL:'Referrals',burnIL:'ARC Burn',
-  lbTitle:'Leaderboard',hiTitle:'PvP History',txTitle:'Transaction History',
-  nPvp:'PvP',nTasks:'Tasks',nHome:'Home',nFr:'Friends',nPr:'Profile',prML:'Multiplier',
+  wLbl:'TON Wallet', wNC:'Not connected', wCT:'Connected',
+  wBtn:'💎 Connect Wallet', wDiscBtn:'Disconnect',
+  exchTitle:'Exchange TON → ARC', excLL:'Limit today',
+  depBtn:'↓ Deposit', withBtn:'↑ Withdraw',
+  lbIL:'Leaderboard', ciIL:'Check-In streak', refIL:'Referrals', burnIL:'ARC Burn',
+  lbTitle:'Leaderboard', hiTitle:'PvP History', txTitle:'Transaction History',
+  nPvp:'PvP', nTasks:'Tasks', nHome:'Home', nFr:'Friends', nPr:'Profile', prML:'Multiplier',
   burnT:'ARC Burn 🔥',
-  burnTx:'PvP: 10% of pot burned each round.\n\nInactivity: 7 days → -20% ARC.\nThen -5% per day.\n\nLog in daily to protect your ARC!',
+  burnTx:'PvP: 10% of pot burned each round.\n\nInactivity: 7 days → -20% ARC.\nThen -5% per day.',
   depT:'TON Deposit',
-  depN:'Enter amount and tap Deposit — you will be redirected to Tonkeeper. TON will be credited automatically after payment.',
+  depN:'Enter amount and tap Deposit — you will be redirected to Tonkeeper.',
   depMin:'Minimum 0.1 TON',
   witT:'TON Withdrawal',
   witN:'Enter amount. Admin will send to your wallet within 24h.',
   witMin:'Minimum 0.1 TON · Limit 50 TON per day',
   witBtn:'Submit Request',
   copied:'Link copied',
-  promoOk:'+{n} ARC promo applied 🎉',promoFail:'Invalid code',
-  ciOk:'Multiplier {m} set ✓',ciDone:'Already claimed today',
-  bMin:'Min 10 ARC',bMax:'Max 5000 ARC',bInsuf:'Insufficient ARC',
+  promoOk:'+{n} ARC promo applied 🎉', promoFail:'Invalid code',
+  ciOk:'Multiplier {m} set ✓', ciDone:'Already claimed today',
+  bMin:'Min 10 ARC', bMax:'Max 5000 ARC', bInsuf:'Insufficient ARC',
   bOk:'Bet placed! Waiting...',
   pvpRet:'Bet returned — no opponent',
-  wOk:'Wallet connected 💎',wDis:'Wallet disconnected',
+  wOk:'Wallet connected 💎', wDis:'Wallet disconnected',
   noW:'Connect wallet first',
-  excFail:'Enter amount',excInsuf:'Insufficient TON balance',
-  excMin:'Min 0.1 TON',excMax:'Max 5 TON per day',
+  excFail:'Enter amount', excInsuf:'Insufficient TON',
+  excMin:'Min 0.1 TON', excMax:'Max 5 TON per day',
   excLim:'Daily limit reached',
   excRes:'You get: {n} ARC',
   excOk:'Exchange done ✓',
@@ -766,204 +691,203 @@ en:{
   depSent:'Transaction sent...',
   depCancel:'Transaction cancelled',
   depOk:'TON credited ✓',
-  addrCopied:'Address copied',
   lbEmp:'No players yet',
   txEmp:'No transactions yet',
-  txDep:'TON Deposit',txWit:'TON Withdrawal',txExc:'Exchange TON→ARC',
+  txDep:'TON Deposit', txWit:'TON Withdrawal', txExc:'Exchange TON→ARC'
 }
 };
-const t=k=>(L[S.lang][k]||k);
 
-// ══ INIT ══
-async function init(){
-  buildDays();buildTasks();
-  await new Promise(r=>setTimeout(r,300));
-  if(window.Telegram?.WebApp){
-    const tg=window.Telegram.WebApp;
-  tg.ready();
-  tg.expand();
-    const u=tg.initDataUnsafe?.user;
-    if(u){
-      S.tgId=String(u.id);
-      S.user='@'+(u.username||u.first_name||'user');
-      S.init=(u.first_name||u.username||'U')[0].toUpperCase();
-      if(u.photo_url) S.photo=u.photo_url;
+const t = (k) => (L[S.lang][k] || k);
+
+async function init() {
+  buildDays();
+  buildTasks();
+  await new Promise(r => setTimeout(r, 300));
+  if (window.Telegram?.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    const u = tg.initDataUnsafe?.user;
+    if (u) {
+      S.tgId = String(u.id);
+      S.user = '@' + (u.username || u.first_name || 'user');
+      S.init = (u.first_name || u.username || 'U')[0].toUpperCase();
+      if (u.photo_url) S.photo = u.photo_url;
     }
-    if(!u && tg.initData){
-
-  try{
-
-    const r = await fetch('/api/me',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({
-        initData:tg.initData
-      })
-    });
-
-    const d = await r.json();
-
-    if(d?.id){
-
-      S.tgId=String(d.id);
-      S.user='@'+(d.username||d.first_name||'user');
-      S.init=(d.first_name||d.username||'U')[0].toUpperCase();
-
-      if(d.photo_url){
-        S.photo=d.photo_url;
-      }
-
+    if (!u && tg.initData) {
+      try {
+        const r = await fetch('/api/me', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData: tg.initData })
+        });
+        const d = await r.json();
+        if (d?.id) {
+          S.tgId = String(d.id);
+          S.user = '@' + (d.username || d.first_name || 'user');
+          S.init = (d.first_name || d.username || 'U')[0].toUpperCase();
+          if (d.photo_url) S.photo = d.photo_url;
+        }
+      } catch(e) {}
     }
-
-  }catch(e){
-    console.log(e);
+    S.initData = tg.initData || '';
   }
-
-  }
-    // Send initData to server for auth
-    S.initData=tg.initData||'';
-  }
-  S.refCode=String(S.tgId||Math.random().toString(36).slice(2,10).toUpperCase());
+  S.refCode = String(S.tgId || Math.random().toString(36).slice(2,10).toUpperCase());
   await fetchRate();
-  setInterval(fetchRate,10*60*1000);
-  if(S.tgId) await fetch('/api/user/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:S.tgId,username:S.user.replace('@',''),first_name:S.init})}).catch(()=>{});
-if(S.tgId) await loadData();
+  setInterval(fetchRate, 10 * 60 * 1000);
+  if (S.tgId) {
+    await fetch('/api/user/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        telegram_id: S.tgId,
+        username: S.user.replace('@',''),
+        first_name: S.init
+      })
+    }).catch(() => {});
+    await loadData();
+  }
   drawWheel();
-  renderAll();applyLang();
+  renderAll();
+  applyLang();
   initTC();
-setTimeout(startIdleSpin,500);
+  setInterval(loadPvpState, 1000);
 }
 
-// ══ AUTH HEADER ══
-function authHeaders(){
-  return{
-    'Content-Type':'application/json',
-    'x-telegram-init-data':S.initData||'',
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'x-telegram-init-data': S.initData || ''
   };
 }
 
-// ══ API ══
-async function loadData(){
-  if(!S.tgId) return;
-  try{
-    const r=await fetch('/api/user/'+S.tgId,{headers:authHeaders()});
-    if(r.ok){
-      const d=await r.json();
-      if(d.arc_balance!=null) S.arc=parseFloat(d.arc_balance)||0;
-      if(d.ton_balance!=null) S.ton=parseFloat(d.ton_balance)||0;
-      if(d.multiplier!=null) S.mult=parseFloat(d.multiplier)||1.0;
-      if(d.checkin_day!=null) S.ciDay=parseInt(d.checkin_day)||1;
-      if(d.checkin_done!=null) S.ciDone=!!d.checkin_done;
-      if(d.exc_today!=null) S.excToday=parseFloat(d.exc_today)||0;
-      if(d.done_tasks) S.tasks=new Set(d.done_tasks);
-      if(d.friends) S.friends=d.friends;
-      if(d.wallet_addr&&d.wallet_addr){S.wallet=d.wallet_addr;showWC(d.wallet_addr);}
-      if(d.transactions) S.txs=d.transactions;
-   if(d.pvp_history&&Array.isArray(d.pvp_history)) S.hist=d.pvp_history;
-      if(d.used_promos&&Array.isArray(d.used_promos)) S.usedPromos=new Set(d.used_promos);
+async function loadData() {
+  if (!S.tgId) return;
+  try {
+    const r = await fetch('/api/user/' + S.tgId, { headers: authHeaders() });
+    if (r.ok) {
+      const d = await r.json();
+      if (d.arc_balance != null) S.arc = parseFloat(d.arc_balance) || 0;
+      if (d.ton_balance != null) S.ton = parseFloat(d.ton_balance) || 0;
+      if (d.multiplier != null) S.mult = parseFloat(d.multiplier) || 1.0;
+      if (d.checkin_day != null) S.ciDay = parseInt(d.checkin_day) || 1;
+      if (d.checkin_done != null) S.ciDone = !!d.checkin_done;
+      if (d.exc_today != null) S.excToday = parseFloat(d.exc_today) || 0;
+      if (d.done_tasks) S.tasks = new Set(d.done_tasks);
+      if (d.friends) S.friends = d.friends;
+      if (d.wallet_addr && d.wallet_addr) {
+        S.wallet = d.wallet_addr;
+        showWC(d.wallet_addr);
+      }
+      if (d.transactions) S.txs = d.transactions;
+      if (d.used_promos && Array.isArray(d.used_promos)) S.usedPromos = new Set(d.used_promos);
     }
-  }catch(e){}
+  } catch(e) {}
 }
 
-async function saveData(){
-  if(!S.tgId)return;
-  try{
-    await fetch('/api/user/save',{
-      method:'POST',
-      headers:authHeaders(),
-      body:JSON.stringify({
-  telegram_id:S.tgId,
-  arc_balance:S.arc,
-  multiplier:S.mult,
-  checkin_day:S.ciDay,
-  checkin_done:S.ciDone,
-  exc_today:S.excToday,
-  done_tasks:[...S.tasks],
-  wallet_addr:S.wallet,
-  pvp_history:S.hist,
-  used_promos:[...S.usedPromos],
-})
+async function saveData() {
+  if (!S.tgId) return;
+  try {
+    await fetch('/api/user/save', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        telegram_id: S.tgId,
+        arc_balance: S.arc,
+        multiplier: S.mult,
+        checkin_day: S.ciDay,
+        checkin_done: S.ciDone,
+        exc_today: S.excToday,
+        done_tasks: [...S.tasks],
+        wallet_addr: S.wallet,
+        used_promos: [...S.usedPromos]
+      })
     });
-  }catch(e){}
+  } catch(e) {}
 }
 
-function addTx(type,amount,currency){
-  S.txs.unshift({type,amount,currency,date:new Date().toISOString()});
-  if(S.txs.length>50) S.txs=S.txs.slice(0,50);
+async function fetchRate() {
+  try {
+    const r = await fetch('/api/ton-rate');
+    const d = await r.json();
+    if (d.arc_per_ton) {
+      document.getElementById('excRate').textContent = d.arc_per_ton.toLocaleString() + ' ARC';
+    }
+  } catch(e) {}
+  calcExc();
+}
+
+function renderAll() {
+  function setAv(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (S.photo) {
+      const img = new Image();
+      img.onload = () => { el.innerHTML = `<img src="${S.photo}" alt=""/>`; };
+      img.onerror = () => { el.textContent = S.init; };
+      img.src = S.photo;
+    } else {
+      el.textContent = S.init;
+    }
+  }
+  setAv('topAv');
+  setAv('prAv');
+  document.getElementById('topName').textContent = S.user;
+  document.getElementById('prNm').textContent = S.user;
+  document.getElementById('hArc').textContent = fmt(S.arc);
+  document.getElementById('hTon').textContent = S.ton.toFixed(3);
+  document.getElementById('hMult').textContent = '× ' + S.mult.toFixed(1) + ' Множитель';
+  document.getElementById('prArc').textContent = fmt(S.arc);
+  document.getElementById('prTon').textContent = S.ton.toFixed(3);
+  document.getElementById('prMlt').textContent = '×' + S.mult.toFixed(1);
+  document.getElementById('ciDay').textContent = S.ciDay;
+  document.getElementById('ciM').textContent = '×' + S.mult.toFixed(1);
+  document.getElementById('pvpRound').textContent = 'ROUND #' + S.pvpRound;
+  document.getElementById('pvpBV').textContent = fmt(S.arc) + ' ARC';
+  document.getElementById('refIV').textContent = S.friends.length;
+  document.getElementById('frCnt').textContent = S.friends.length;
+  document.getElementById('frEarn').textContent = fmt(S.friends.reduce((a,f) => a + (f.earned_arc || 0), 0));
+  document.getElementById('refBox').textContent = 't.me/' + BOT + '?start=' + S.refCode;
+  const pct = Math.min(100, (S.excToday / 5) * 100);
+  document.getElementById('excLV').textContent = S.excToday.toFixed(2) + ' / 5 TON';
+  document.getElementById('excLF').style.width = pct + '%';
+  updateCIBtn();
+  buildTasks();
   renderTx();
 }
 
-// ══ RATE ══
-async function fetchRate(){
-  try{
-    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd');
-    const d=await r.json();
-    S.tonRate=d['the-open-network']?.usd||1.33;
-  }catch(e){S.tonRate=S.tonRate||1.33;}
-  const el=document.getElementById('excRate');
-  if(el) el.textContent=arc4ton().toLocaleString()+' ARC';
-  calcExc();
+function fmt(n) {
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return Math.floor(n).toString();
 }
-function arc4ton(){return Math.floor(S.tonRate/0.00036);}
 
-// ══ RENDER ══
-function renderAll(){
-  function setAv(id){
-    const el=document.getElementById(id);if(!el)return;
-    if(S.photo){const img=new Image();img.onload=()=>{el.innerHTML=`<img src="${S.photo}" alt=""/>`;};img.onerror=()=>{el.textContent=S.init;};img.src=S.photo;}
-    else el.textContent=S.init;
+function renderTx() {
+  const el = document.getElementById('txList');
+  if (!el) return;
+  if (!S.txs.length) {
+    el.innerHTML = '<div class="tx-emp">' + t('txEmp') + '</div>';
+    return;
   }
-  setAv('topAv');setAv('prAv');
-  ['topName','prNm'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=S.user;});
-  document.getElementById('hArc').textContent=fmt(S.arc);
-  document.getElementById('hTon').textContent=S.ton.toFixed(3);
-  document.getElementById('hMult').textContent='× '+S.mult.toFixed(1)+' Множитель';
-  document.getElementById('prArc').textContent=fmt(S.arc);
-  document.getElementById('prTon').textContent=S.ton.toFixed(3);
-  document.getElementById('prMlt').textContent='×'+S.mult.toFixed(1);
-  document.getElementById('ciDay').textContent=S.ciDay;
-  document.getElementById('ciM').textContent='×'+S.mult.toFixed(1);
-  const mults=[1.0,1.1,1.2,1.3,1.4,1.5];
-  document.getElementById('ciIV').textContent='День '+S.ciDay+' · ×'+mults[Math.min(S.ciDay-1,5)].toFixed(1);
-  document.getElementById('pvpRound').textContent='ROUND #'+S.pvpRound;
-  document.getElementById('pvpBV').textContent=fmt(S.arc)+' ARC';
-  document.getElementById('refIV').textContent=S.friends.length;
-  document.getElementById('frCnt').textContent=S.friends.length;
-  document.getElementById('frEarn').textContent=fmt(S.friends.reduce((a,f)=>a+(f.earned_arc||0),0));
-  document.getElementById('refBox').textContent='t.me/'+BOT+'?start='+S.refCode;
-  const pct=Math.min(100,(S.excToday/5)*100);
-  document.getElementById('excLV').textContent=S.excToday.toFixed(2)+' / 5 TON';
-  document.getElementById('excLF').style.width=pct+'%';
-  updateCIBtn();buildTasks();renderTx();
-}
-function fmt(n){return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1000?(n/1000).toFixed(1)+'K':Math.floor(n).toString();}
-function fmtA(a){if(!a||a.length<8)return a;return a.slice(0,4)+'...'+a.slice(-4);}
-function fmtD(iso){const d=new Date(iso);return d.toLocaleDateString('ru',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});}
-
-function renderTx(){
-  const el=document.getElementById('txList');if(!el)return;
-  if(!S.txs.length){el.innerHTML=`<div class="tx-emp">${t('txEmp')}</div>`;return;}
-  el.innerHTML=S.txs.map(tx=>{
-    let ico,cls,nm,ac,am;
-    if(tx.type==='deposit'||tx.type==='dep'){ico='⬇️';cls='dep';nm=t('txDep');ac='pl';am='+'+tx.amount+' TON';}
-    else if(tx.type==='withdraw'||tx.type==='wit'){ico='⬆️';cls='wit';nm=t('txWit');ac='mn';am='-'+tx.amount+' TON';}
-    else if(tx.type==='exchange'||tx.type==='exc'){ico='🔄';cls='exc';nm=t('txExc');ac='pl';am='+'+tx.amount+' ARC';}
-    else{ico='💫';cls='exc';nm=tx.type||'';ac='pl';am=tx.amount;}
-    return `<div class="txi"><div class="tx-ico ${cls}">${ico}</div><div class="tx-inf"><div class="tx-nm">${nm}</div><div class="tx-dt">${fmtD(tx.date||tx.created_at||new Date())}</div></div><div class="tx-am ${ac}">${am}</div></div>`;
+  el.innerHTML = S.txs.map(tx => {
+    let ico, cls, nm, ac, am;
+    if (tx.type === 'deposit') { ico = '⬇️'; cls = 'dep'; nm = t('txDep'); ac = 'pl'; am = '+' + tx.amount + ' TON'; }
+    else if (tx.type === 'withdraw') { ico = '⬆️'; cls = 'wit'; nm = t('txWit'); ac = 'mn'; am = '-' + tx.amount + ' TON'; }
+    else if (tx.type === 'exchange') { ico = '🔄'; cls = 'exc'; nm = t('txExc'); ac = 'pl'; am = '+' + tx.amount + ' ARC'; }
+    else if (tx.type === 'pvp_win') { ico = '🏆'; cls = 'exc'; nm = 'PvP победа'; ac = 'pl'; am = '+' + tx.amount + ' ARC'; }
+    else { ico = '💫'; cls = 'exc'; nm = tx.type || ''; ac = 'pl'; am = tx.amount; }
+    return '<div class="txi"><div class="tx-ico ' + cls + '">' + ico + '</div><div class="tx-inf"><div class="tx-nm">' + nm + '</div><div class="tx-dt">' + new Date(tx.created_at).toLocaleString() + '</div></div><div class="tx-am ' + ac + '">' + am + '</div></div>';
   }).join('');
-}
-
-// ══ LANG ══
-function setLang(l){
-  S.lang=l;
-  document.getElementById('btnRU').classList.toggle('on',l==='ru');
-  document.getElementById('btnEN').classList.toggle('on',l==='en');
+  }
+  function setLang(l) {
+  S.lang = l;
+  document.getElementById('btnRU').classList.toggle('on', l === 'ru');
+  document.getElementById('btnEN').classList.toggle('on', l === 'en');
   applyLang();
 }
-function applyLang(){
-  const ids=['earnTitle','earnSub','adN1','adN2','adN3','adN4','adN5','adL1','adL2','adL3','adL4','adL5',
+
+function applyLang() {
+  const ids = ['earnTitle','earnSub','adN1','adN2','adN3','adN4','adN5','adL1','adL2','adL3','adL4','adL5',
     'ciTitle','ciDL','ciML','promoTitle','promoBtn','tasksTitle',
     'pvpLbl','pvpBetLbl','pvpBetBtn','pvpNote','pvpPL','pvpHistLbl','pvpBL','cds',
     'frTitle','frSub','frIL','frAL','copyBtn','shareBtn',
@@ -972,802 +896,1059 @@ function applyLang(){
     'exchTitle','excLL','depBtn','withBtn',
     'lbIL','ciIL','refIL','burnIL','lbTitle','hiTitle','txTitle',
     'nPvp','nTasks','nHome','nFr','nPr','prML'];
-  ids.forEach(id=>{const el=document.getElementById(id);if(el&&L[S.lang][id])el.textContent=L[S.lang][id];});
-  updateCIBtn();buildTasks();
-  const pi=document.getElementById('promoInp');
-  if(pi) pi.placeholder=S.lang==='ru'?'Введи промо-код...':'Enter promo code...';
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && L[S.lang][id]) el.textContent = L[S.lang][id];
+  });
+  updateCIBtn();
+  buildTasks();
 }
 
-// ══ NAV ══
-const PGS=['pvp','tasks','home','friends','profile'];
-function gp(name,btn){
-  PGS.forEach(p=>document.getElementById('page-'+p)?.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
-  document.getElementById('page-'+name)?.classList.add('active');
+const PGS = ['pvp','tasks','home','friends','profile'];
+function gp(name, btn) {
+  PGS.forEach(p => document.getElementById('page-' + p)?.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
+  document.getElementById('page-' + name)?.classList.add('active');
   btn?.classList.add('on');
-  document.getElementById('screen').scrollTop=0;
+  document.getElementById('screen').scrollTop = 0;
 }
 
-// ══ CHECKIN ══
-const MM=[1.0,1.1,1.2,1.3,1.4,1.5];
-function buildDays(){
-  const g=document.getElementById('dg');if(!g)return;
-  const lb=['Д1','Д2','Д3','Д4','Д5','Д6+'];
-  const ml=['×1.0','×1.1','×1.2','×1.3','×1.4','×1.5'];
-  g.innerHTML='';
-  for(let i=0;i<6;i++){
-    const d=document.createElement('div');
-    d.className='db'+(i===S.ciDay-1?' td':i<S.ciDay-1?' dn':' lk');
-    d.innerHTML=`<div class="dl">${lb[i]}</div><div class="dm">${ml[i]}</div>`;
+const MM = [1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
+function buildDays() {
+  const g = document.getElementById('dg');
+  if (!g) return;
+  const lb = ['Д1','Д2','Д3','Д4','Д5','Д6+'];
+  const ml = ['×1.0','×1.1','×1.2','×1.3','×1.4','×1.5'];
+  g.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('div');
+    d.className = 'db' + (i === S.ciDay-1 ? ' td' : i < S.ciDay-1 ? ' dn' : ' lk');
+    d.innerHTML = '<div class="dl">' + lb[i] + '</div><div class="dm">' + ml[i] + '</div>';
     g.appendChild(d);
   }
 }
-function updateCIBtn(){
-  const b=document.getElementById('cib');if(!b)return;
-  if(S.ciDone){b.textContent=t('ciD');b.className='cib dne';}
-  else{b.textContent=t('ciR');b.className='cib rdy';}
-}
-function doCI(){
-  if(S.ciDone){toast(t('ciDone'),'r');return;}
-  S.ciDone=true;
-  const m=MM[Math.min(S.ciDay-1,5)];
-  S.mult=m;
-  buildDays();updateCIBtn();renderAll();saveData();
-  toast(t('ciOk').replace('{m}','×'+m.toFixed(1)),'g');
+
+function updateCIBtn() {
+  const b = document.getElementById('cib');
+  if (!b) return;
+  if (S.ciDone) {
+    b.textContent = t('ciD');
+    b.className = 'cib dne';
+  } else {
+    b.textContent = t('ciR');
+    b.className = 'cib rdy';
+  }
 }
 
-// ══ TASKS ══
-function buildTasks(){
-  const list=document.getElementById('tlist');if(!list)return;
-  list.innerHTML='';
-  TASKS.forEach(task=>{
-    const done=S.tasks.has(task.id);
-    const el=document.createElement('div');
-    el.className='ti'+(done?' dn':'');
-    let nm='',ds='';
-    if(task.type==='ch'){nm=t('tCh');ds=t('tChD');}
-    else{nm=t('tr'+task.req);ds=S.lang==='ru'?`Рефералов: ${S.friends.length}/${task.req}`:`Referrals: ${S.friends.length}/${task.req}`;}
-    let rb='';
-    if(done) rb='<span style="font-size:20px">✅</span>';
-    else if(task.type==='ch'){
-      rb=`<div class="tbtns"><button class="tb2 y" onclick="goChannel()">${t('go')}</button><button class="tb2" onclick="checkCh('${task.id}',${task.rew})">${t('chk')}</button></div>`;
+function doCI() {
+  if (S.ciDone) {
+    toast(t('ciDone'), 'r');
+    return;
+  }
+  S.ciDone = true;
+  const m = MM[Math.min(S.ciDay-1, 5)];
+  S.mult = m;
+  buildDays();
+  updateCIBtn();
+  renderAll();
+  saveData();
+  toast(t('ciOk').replace('{m}', '×' + m.toFixed(1)), 'g');
+}
+
+function buildTasks() {
+  const list = document.getElementById('tlist');
+  if (!list) return;
+  list.innerHTML = '';
+  TASKS.forEach(task => {
+    const done = S.tasks.has(task.id);
+    const el = document.createElement('div');
+    el.className = 'ti' + (done ? ' dn' : '');
+    let nm = '', ds = '';
+    if (task.type === 'ch') {
+      nm = t('tCh');
+      ds = t('tChD');
     } else {
-      rb=`<button class="tb2" onclick="checkRef('${task.id}',${task.req},${task.rew})">${t('chk')}</button>`;
+      nm = t('tr' + task.req);
+      ds = S.lang === 'ru' ? 'Рефералов: ' + S.friends.length + '/' + task.req : 'Referrals: ' + S.friends.length + '/' + task.req;
     }
-    el.innerHTML=`<div class="tico">${task.ico}</div>
-      <div class="tinf"><div class="tnm">${nm}</div><div class="tds">${ds}</div></div>
-      <div style="display:flex;align-items:center;gap:8px">${!done?`<div class="trew">+${task.rew} ARC</div>`:''} ${rb}</div>`;
+    let rb = '';
+    if (done) {
+      rb = '<span style="font-size:20px">✅</span>';
+    } else if (task.type === 'ch') {
+      rb = '<div class="tbtns"><button class="tb2 y" onclick="goChannel()">' + t('go') + '</button><button class="tb2" onclick="checkCh(\'' + task.id + '\',' + task.rew + ')">' + t('chk') + '</button></div>';
+    } else {
+      rb = '<button class="tb2" onclick="checkRef(\'' + task.id + '\',' + task.req + ',' + task.rew + ')">' + t('chk') + '</button>';
+    }
+    el.innerHTML = '<div class="tico">' + task.ico + '</div><div class="tinf"><div class="tnm">' + nm + '</div><div class="tds">' + ds + '</div></div><div style="display:flex;align-items:center;gap:8px">' + (!done ? '<div class="trew">+' + task.rew + ' ARC</div>' : '') + rb + '</div>';
     list.appendChild(el);
   });
 }
-function goChannel(){
-  if(window.Telegram?.WebApp) window.Telegram.WebApp.openTelegramLink('https://t.me/'+CH);
-  else window.open('https://t.me/'+CH,'_blank');
-}
-async function checkCh(id,rew){
-  if(S.tasks.has(id)){toast(t('tDone'),'r');return;}
-  try{
-    const r=await fetch('/api/check-subscription',{method:'POST',headers:authHeaders(),body:JSON.stringify({telegram_id:S.tgId,channel:CH})});
-    const d=await r.json();
-    if(d.subscribed) doneTask(id,rew);
-    else toast(t('noSub'),'r');
-  }catch(e){doneTask(id,rew);}
-}
-function checkRef(id,req,rew){
-  if(S.tasks.has(id)){toast(t('tDone'),'r');return;}
-  if(S.friends.length<req){toast(t('noRef').replace('{c}',S.friends.length).replace('{r}',req),'r');return;}
-  doneTask(id,rew);
-}
-function doneTask(id,rew){
-  S.tasks.add(id);S.arc+=rew;
-  renderAll();saveData();
-  toast(t('refOk').replace('{n}',rew),'g');
+
+function goChannel() {
+  if (window.Telegram?.WebApp) window.Telegram.WebApp.openTelegramLink('https://t.me/' + CH);
+  else window.open('https://t.me/' + CH, '_blank');
 }
 
-// ══ PROMO ══
-const PROMOS={'BLACK100':100,'ARC500':500,'LAUNCH50':50};
-function redeemPromo(){
-  const c=document.getElementById('promoInp').value.trim().toUpperCase();
-  if(!c)return;
-  if(S.usedPromos.has(c)||!PROMOS[c]){toast(t('promoFail'),'r');return;}
-  S.usedPromos.add(c);S.arc+=PROMOS[c];renderAll();saveData();
-  document.getElementById('promoInp').value='';
-  toast(t('promoOk').replace('{n}',PROMOS[c]),'g');
-}
-
-// ══ WHEEL ══
-function drawWheel(){
-  const cv=document.getElementById('wc');
-  const ctx=cv.getContext('2d');
-  const W=260,cx=130,cy=130,r=120;
-  ctx.clearRect(0,0,W,W);
-  if(!S.parts.length){
-    for(let i=0;i<8;i++){
-      const a1=(i/8)*Math.PI*2-Math.PI/2,a2=((i+1)/8)*Math.PI*2-Math.PI/2;
-      ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a1,a2);ctx.closePath();
-      ctx.fillStyle=i%2?'#e8e8e8':'#d0d0d0';ctx.fill();
-      ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();
-    }
-    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
-    ctx.strokeStyle='#ccc';ctx.lineWidth=2;ctx.stroke();
+async function checkCh(id, rew) {
+  if (S.tasks.has(id)) {
+    toast(t('tDone'), 'r');
     return;
   }
-  const total=S.parts.reduce((s,p)=>s+p.bet,0);
-  let sa=-Math.PI/2;
-  S.parts.forEach((p,i)=>{
-    const sl=(p.bet/total)*Math.PI*2;
-    const ea=sa+sl;
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,sa,ea);ctx.closePath();
-    ctx.fillStyle=COLS[p.col!==undefined?p.col:i%COLS.length];ctx.fill();
-    ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=3;ctx.stroke();
-    const mid=sa+sl/2;
-    const lx=cx+82*Math.cos(mid),ly=cy+82*Math.sin(mid);
-    if(p.photo){
-      const img=new Image();
-      img.onload=()=>{
-        ctx.save();ctx.beginPath();ctx.arc(lx,ly,18,0,Math.PI*2);ctx.clip();
-        ctx.drawImage(img,lx-18,ly-18,36,36);ctx.restore();
-        ctx.beginPath();ctx.arc(lx,ly,18,0,Math.PI*2);
-        ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2;ctx.stroke();
-      };img.src=p.photo;
-    } else {
-      ctx.beginPath();ctx.arc(lx,ly,18,0,Math.PI*2);
-      ctx.fillStyle='rgba(255,255,255,.25)';ctx.fill();
-      ctx.fillStyle='#fff';ctx.font='bold 15px Inter,sans-serif';
-      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.init,lx,ly);
-    }
-    sa=ea;
-  });
-  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
-  ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=3;ctx.stroke();
+  try {
+    const r = await fetch('/api/check-subscription', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ telegram_id: S.tgId, channel: CH })
+    });
+    const d = await r.json();
+    if (d.subscribed) doneTask(id, rew);
+    else toast(t('noSub'), 'r');
+  } catch(e) {
+    doneTask(id, rew);
+  }
 }
 
-function renderParts(){
-  const total=S.parts.reduce((s,p)=>s+p.bet,0);
-  document.getElementById('pvpTot').textContent=fmt(total)+' ARC';
-  document.getElementById('pvpPool').textContent=fmt(total)+' ARC';
-  document.getElementById('pvpGID').textContent='ИГРА #'+S.pvpGID;
-  if(!S.parts.length){document.getElementById('pvpParts').innerHTML='<div class="ppemp">Будь первым — сделай ставку!</div>';return;}
-  document.getElementById('pvpParts').innerHTML=S.parts.map((p,i)=>{
-    const pct=total>0?((p.bet/total)*100).toFixed(1):0;
-    const col=COLS[p.col!==undefined?p.col:i%COLS.length];
-    const av=p.photo?`<img src="${p.photo}" alt=""/>`:p.init;
-    return `<div class="ppt"><div class="ppav" style="background:${col}">${av}</div><div style="flex:1"><div class="ppnm">${p.name}</div><div class="ppch" style="color:${col}">${pct}% Шанс</div></div><div class="ppbt">${fmt(p.bet)} ARC</div></div>`;
-  }).join('');
+function checkRef(id, req, rew) {
+  if (S.tasks.has(id)) {
+    toast(t('tDone'), 'r');
+    return;
+  }
+  if (S.friends.length < req) {
+    toast(t('noRef').replace('{c}', S.friends.length).replace('{r}', req), 'r');
+    return;
+  }
+  doneTask(id, rew);
 }
 
-// ══ PVP LOGIC ══
-let spinning=false;let idleAnim=null;
-function startIdleSpin(){
-  if(idleAnim)return;
-  const cv=document.getElementById('wc');
-  let ang=0;
-  idleAnim=setInterval(()=>{ang+=0.3;cv.style.transform=`rotate(${ang}deg)`;},16);
-}
-function stopIdleSpin(){
-  if(idleAnim){clearInterval(idleAnim);idleAnim=null;}
-  document.getElementById('wc').style.transform='';
-}
-function setB(v){document.getElementById('pbi').value=v;document.querySelectorAll('.pre').forEach(p=>p.classList.remove('sel'));event.target.classList.add('sel');}
-
-async function placeBet(){
-
-  if(S.inRound){
-    addBet();
-    return;
-  }
-
-  const amt=parseInt(document.getElementById('pbi').value)||0;
-
-  if(amt<10){
-    toast(t('bMin'),'r');
-    return;
-  }
-
-  if(amt>5000){
-    toast(t('bMax'),'r');
-    return;
-  }
-
-  if(amt>S.arc){
-    toast(t('bInsuf'),'r');
-    return;
-  }
-
-  if(spinning)return;
-
-  stopIdleSpin();
-
-  S.arc-=amt;
-  S.myBet=amt;
-  S.totalBet+=amt;
-
-  const myCol=Math.floor(Math.random()*COLS.length);
-
-  S.parts=[{
-    name:S.user,
-    init:S.init,
-    photo:S.photo,
-    bet:amt,
-    isMe:true,
-    col:myCol
-  }];
-
-  drawWheel();
-  renderParts();
+function doneTask(id, rew) {
+  S.tasks.add(id);
+  S.arc += rew;
   renderAll();
-
-  document.getElementById('whlC').textContent='WAITING PLAYER...';
-
-  toast('Поиск игрока...','g');
-
-  try{
-
-    const r=await fetch('/api/pvp/join',{
-      method:'POST',
-      headers:authHeaders(),
-      body:JSON.stringify({
-        telegram_id:S.tgId,
-        bet:amt
-      })
-    });
-
-    const d=await r.json();
-
-    console.log(d);
-
-  }catch(e){
-    console.log(e);
-    toast('Ошибка PvP','r');
-  }
-
-}
-  if(S.inRound){addBet();return;}
-  const amt=parseInt(document.getElementById('pbi').value)||0;
-  if(amt<10){toast(t('bMin'),'r');return;}
-  if(amt>5000){toast(t('bMax'),'r');return;}
-  if(amt>S.arc){toast(t('bInsuf'),'r');return;}
-  if(spinning)return;
-  stopIdleSpin();
-S.arc-=amt;S.myBet=amt;S.totalBet+=amt;
-  const myCol=Math.floor(Math.random()*COLS.length);
-S.parts=[{name:S.user,init:S.init,photo:S.photo,bet:amt,isMe:true,col:myCol}];
-  drawWheel();renderParts();renderAll();
-async function placeBet(){
-
-  if(!S.tgId){
-    toast('No user','r');
-    return;
-  }
-
-  if(spinning)return;
-
-  const amt = parseInt(document.getElementById('pbi').value) || 0;
-
-  if(amt < 10){
-    toast(t('bMin'),'r');
-    return;
-  }
-
-  if(amt > 5000){
-    toast(t('bMax'),'r');
-    return;
-  }
-
-  if(amt > S.arc){
-    toast(t('bInsuf'),'r');
-    return;
-  }
-
-  stopIdleSpin();
-
-  try{
-
-    const r = await fetch('/api/pvp/join', {
-      method:'POST',
-      headers:{
-        ...authHeaders(),
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({
-        telegram_id:S.tgId,
-        bet:amt
-      })
-    });
-
-    const d = await r.json();
-
-    if(!r.ok){
-      toast(d.error || 'PvP error', 'r');
-      return;
-    }
-
-    S.arc -= amt;
-    renderAll();
-    await loadPvpState();
-    toast(t('bOk'),'g');
-
-  }catch(e){
-    toast('PvP error','r');
-  }
-
-      }
-
-  async function addBet(){
-
-  if(!S.tgId){
-    toast('No user','r');
-    return;
-  }
-
-  const ex = parseInt(document.getElementById('pbi').value) || 0;
-
-  if(ex < 1){
-    toast('Минимум 1 ARC','r');
-    return;
-  }
-
-  if(ex > S.arc){
-    toast(t('bInsuf'),'r');
-    return;
-  }
-
-  try{
-
-    const r = await fetch('/api/pvp/join', {
-      method:'POST',
-      headers:{
-        ...authHeaders(),
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({
-        telegram_id:S.tgId,
-        bet:ex
-      })
-    });
-
-    const d = await r.json();
-
-    if(!r.ok){
-      toast(d.error || 'PvP error', 'r');
-      return;
-    }
-
-    S.arc -= ex;
-
-    renderAll();
-
-    await loadPvpState();
-
-    toast('+'+fmt(ex)+' ARC', 'g');
-
-  }catch(e){
-
-    toast('PvP error','r');
-
-  }
-
+  saveData();
+  toast(t('refOk').replace('{n}', rew), 'g');
 }
 
-async function loadPvpState(){
+const PROMOS = { 'BLACK100': 100, 'ARC500': 500, 'LAUNCH50': 50 };
+function redeemPromo() {
+  const c = document.getElementById('promoInp').value.trim().toUpperCase();
+  if (!c) return;
+  if (S.usedPromos.has(c) || !PROMOS[c]) {
+    toast(t('promoFail'), 'r');
+    return;
+  }
+  S.usedPromos.add(c);
+  S.arc += PROMOS[c];
+  renderAll();
+  saveData();
+  document.getElementById('promoInp').value = '';
+  toast(t('promoOk').replace('{n}', PROMOS[c]), 'g');
+}
 
-  try{
+let spinning = false;
+let currentWinnerShown = null;
 
+async function loadPvpState() {
+  try {
     const r = await fetch('/api/pvp/state');
-
     const d = await r.json();
-
-    if(!d)return;
-
-    document.getElementById('whlC').textContent =
-      'Round #' + d.roundId;
-
-    S.parts = [];
-
-    if(d.players){
-
-      d.players.forEach((p,i)=>{
-
-        S.parts.push({
-
-          name:p.username || 'Player',
-          init:(p.username || 'P')[0].toUpperCase(),
-          photo:null,
-          bet:p.bet,
-          isMe:String(p.telegram_id)===String(S.tgId),
-          col:i % COLS.length
-
-        });
-
-      });
-
+    if (!d) return;
+    document.getElementById('pvpRound').textContent = 'ROUND #' + d.roundId;
+    if (d.countdown !== null && d.countdown > 0) {
+      document.getElementById('cd').style.display = 'block';
+      document.getElementById('cdn').textContent = d.countdown;
+      document.getElementById('whlC').textContent = d.countdown + ' сек';
+    } else {
+      document.getElementById('cd').style.display = 'none';
+      if (d.status === 'waiting') document.getElementById('whlC').textContent = 'Ожидание';
+      if (d.status === 'spinning') document.getElementById('whlC').textContent = 'Розыгрыш';
     }
-
-    drawWheel();
-
-    renderParts();
-
-    if(d.countdown !== null){
-
-      document.getElementById('cdn').textContent =
-        d.countdown;
-
+    if (d.players && d.players.length) {
+      const total = d.totalPool;
+      let html = '';
+      for (let i = 0; i < d.players.length; i++) {
+        const p = d.players[i];
+        const pct = p.chance;
+        const col = COLS[i % COLS.length];
+        const isMe = String(p.telegram_id) === String(S.tgId);
+        html += '<div class="ppt"><div class="ppav" style="background:' + col + '">' + (p.username ? p.username[0].toUpperCase() : 'P') + '</div><div style="flex:1"><div class="ppnm">' + p.username + (isMe ? ' (вы)' : '') + '</div><div class="ppch" style="color:' + col + '">' + pct + '% Шанс</div></div><div class="ppbt">' + fmt(p.bet) + ' ARC</div></div>';
+      }
+      document.getElementById('pvpParts').innerHTML = html;
+      document.getElementById('pvpTot').textContent = fmt(total) + ' ARC';
+      document.getElementById('pvpPool').textContent = fmt(total) + ' ARC';
     }
-
-    if(d.status === 'spinning'){
-
+    if (d.winner && currentWinnerShown !== d.winner.telegram_id + '_' + d.roundId) {
+      currentWinnerShown = d.winner.telegram_id + '_' + d.roundId;
+      showWB(d.winner.username, d.winner.amount, d.winner.chance);
+    }
+    if (d.status === 'spinning' && !spinning) {
       doSpin();
-
     }
-
-    if(d.winner){
-
-      showWB(
-        d.winner.username,
-        d.winner.amount,
-        d.winner.chance
-      );
-
-    }
-
-  }catch(e){}
-
+  } catch(e) {}
 }
 
-function doSpin(){
-
-  if(spinning)return;
-
+let spinAnim = null;
+function doSpin() {
+  if (spinning) return;
   spinning = true;
-
   const cv = document.getElementById('wc');
-
   let angle = 0;
-
   const dur = 5000;
-
   const start = Date.now();
-
-  const anim = setInterval(()=>{
-
-    const elapsed = Date.now()-start;
-
-    const prog = 1-Math.pow(1-elapsed/dur,3);
-
+  spinAnim = setInterval(() => {
+    const elapsed = Date.now() - start;
+    const prog = 1 - Math.pow(1 - elapsed / dur, 3);
     angle = prog * 2200;
-
-    cv.style.transform =
-      `rotate(${angle}deg)`;
-
-    if(elapsed >= dur){
-
-      clearInterval(anim);
-
+    cv.style.transform = 'rotate(' + angle + 'deg)';
+    if (elapsed >= dur) {
+      clearInterval(spinAnim);
       spinning = false;
-
     }
-
-  },16);
-
+  }, 16);
 }
 
-setInterval(loadPvpState,1000);
-
-function showWB(name,arc,pct){
-  document.getElementById('wbT').textContent=`🏆 ${name} выиграл +${fmt(arc)} ARC`;
-  document.getElementById('wbS').textContent=`Шанс: ${pct}% · Следующий раунд через 4 сек`;
-  const b=document.getElementById('wban');b.style.display='block';b.classList.add('show');
-  setTimeout(()=>closeWB(),4000);
+function showWB(name, amount, chance) {
+  const banner = document.getElementById('wban');
+  document.getElementById('wbT').innerHTML = '🏆 ' + name + ' выиграл +' + fmt(amount) + ' ARC';
+  document.getElementById('wbS').innerHTML = 'Шанс: ' + chance + '% · Новый раунд через 4 сек';
+  banner.style.display = 'block';
+  banner.classList.add('show');
+  setTimeout(() => closeWB(), 4000);
 }
-function closeWB(){const b=document.getElementById('wban');b.classList.remove('show');setTimeout(()=>b.style.display='none',300);}
 
-function showPR(won,win,amount,pct,myBet){
-  const el=document.getElementById('pvpr');
-  const av=document.getElementById('prAv2');
-  if(win.photo){av.innerHTML=`<img src="${win.photo}" alt=""/>`;av.style.background='none';}
-  else{av.textContent=win.init;av.style.background='';}
-  document.getElementById('prEm').textContent=won?'🏆':'💀';
-  document.getElementById('prNm2').textContent=win.name;
-  document.getElementById('prTt').textContent=won?t('pvpW'):t('pvpL');
-  document.getElementById('prTt').className='pvpr-tt '+(won?'win':'lose');
-  document.getElementById('prAm').textContent=(won?'+':'-')+fmt(won?amount:myBet)+' ARC';
-  document.getElementById('prAm').className='pvpr-am '+(won?'pl':'mn');
-  document.getElementById('prMt').innerHTML=`WIN CHANCE: ${pct}%<br>INVESTMENT: ${fmt(myBet)} ARC`;
-  el.classList.add('show');
-  if(won){
-    animateCount(document.getElementById('prAm'),0,amount);
-    if(pct<=5)confetti('epic');else if(pct<=20)confetti('lucky');else confetti('normal');
-    coins();flashScreen('#22c55e');
+function closeWB() {
+  const banner = document.getElementById('wban');
+  banner.classList.remove('show');
+  setTimeout(() => banner.style.display = 'none', 300);
+}
+
+function drawWheel() {
+  const cv = document.getElementById('wc');
+  const ctx = cv.getContext('2d');
+  const W = 260, cx = 130, cy = 130, r = 120;
+  ctx.clearRect(0, 0, W, W);
+  for (let i = 0; i < 8; i++) {
+    const a1 = (i / 8) * Math.PI * 2 - Math.PI / 2;
+    const a2 = ((i + 1) / 8) * Math.PI * 2 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, a1, a2);
+    ctx.closePath();
+    ctx.fillStyle = i % 2 ? '#e8e8e8' : '#d0d0d0';
+    ctx.fill();
+  }
+}
+
+function setB(v) {
+  document.getElementById('pbi').value = v;
+}
+
+async function placeBet() {
+  if (!S.tgId) {
+    toast('No user', 'r');
+    return;
+  }
+  const amt = parseInt(document.getElementById('pbi').value) || 0;
+  if (amt < 10) {
+    toast(t('bMin'), 'r');
+    return;
+  }
+  if (amt > 5000) {
+    toast(t('bMax'), 'r');
+    return;
+  }
+  if (amt > S.arc) {
+    toast(t('bInsuf'), 'r');
+    return;
+  }
+  try {
+    const r = await fetch('/api/pvp/join', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ telegram_id: S.tgId, bet: amt })
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      toast(d.error || 'PvP error', 'r');
+      return;
+    }
+    await loadData();
+    renderAll();
+    toast(t('bOk'), 'g');
+  } catch(e) {
+    toast('PvP error', 'r');
+  }
+}
+
+async function addBet() {
+  if (!S.tgId) {
+    toast('No user', 'r');
+    return;
+  }
+  const ex = parseInt(document.getElementById('pbi').value) || 0;
+  if (ex < 1) {
+    toast('Минимум 1 ARC', 'r');
+    return;
+  }
+  if (ex > S.arc) {
+    toast(t('bInsuf'), 'r');
+    return;
+  }
+  try {
+    const r = await fetch('/api/pvp/join', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ telegram_id: S.tgId, bet: ex })
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      toast(d.error || 'PvP error', 'r');
+      return;
+    }
+    await loadData();
+    renderAll();
+    toast('+' + fmt(ex) + ' ARC', 'g');
+  } catch(e) {
+    toast('PvP error', 'r');
+  }
+}
+
+function copyRef() {
+  navigator.clipboard?.writeText('https://t.me/' + BOT + '?start=' + S.refCode).catch(() => {});
+  toast(t('copied'), 'g');
+}
+
+function shareRef() {
+  const link = 'https://t.me/' + BOT + '?start=' + S.refCode;
+  const txt = S.lang === 'ru' ? '🖤 Присоединяйся к Platform BLACK!' : '🖤 Join Platform BLACK!';
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(txt));
   } else {
-    flashScreen('#ef4444');
+    navigator.clipboard?.writeText(link).catch(() => {});
+    toast(t('copied'), 'g');
   }
-  setTimeout(()=>closePR(),4000);
+             } 
+  function setLang(l) {
+  S.lang = l;
+  document.getElementById('btnRU').classList.toggle('on', l === 'ru');
+  document.getElementById('btnEN').classList.toggle('on', l === 'en');
+  applyLang();
 }
 
-function animateCount(el,from,to){
-  const dur=1500;const start=Date.now();
-  const tick=()=>{
-    const p=Math.min((Date.now()-start)/dur,1);
-    const val=Math.floor(from+(to-from)*p);
-    el.textContent='+'+fmt(val)+' ARC';
-    if(p<1)requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
+function applyLang() {
+  const ids = ['earnTitle','earnSub','adN1','adN2','adN3','adN4','adN5','adL1','adL2','adL3','adL4','adL5',
+    'ciTitle','ciDL','ciML','promoTitle','promoBtn','tasksTitle',
+    'pvpLbl','pvpBetLbl','pvpBetBtn','pvpNote','pvpPL','pvpHistLbl','pvpBL','cds',
+    'frTitle','frSub','frIL','frAL','copyBtn','shareBtn',
+    'lv1l','lv1d','lv2l','lv2d','frListT',
+    'wLbl','wNC','wCT','wBtn','wDiscBtn',
+    'exchTitle','excLL','depBtn','withBtn',
+    'lbIL','ciIL','refIL','burnIL','lbTitle','hiTitle','txTitle',
+    'nPvp','nTasks','nHome','nFr','nPr','prML'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && L[S.lang][id]) el.textContent = L[S.lang][id];
+  });
+  updateCIBtn();
+  buildTasks();
 }
 
-function flashScreen(color){
-  const div=document.createElement('div');
-  div.style.cssText=`position:fixed;inset:0;background:${color};opacity:0.35;z-index:9999;pointer-events:none;transition:opacity 0.6s`;
-  document.body.appendChild(div);
-  setTimeout(()=>{div.style.opacity='0';setTimeout(()=>div.remove(),600);},100);
-}
-function closePR(){document.getElementById('pvpr').classList.remove('show');stopConfetti();}
-
-function resetPVP(){
-  S.parts=[];S.myBet=0;drawWheel();renderParts();
-  document.getElementById('whlC').textContent='Ожидание игроков...';
-  startIdleSpin();
-  document.getElementById('abw').style.display='none';
-  document.getElementById('cd').style.display='none';
+const PGS = ['pvp','tasks','home','friends','profile'];
+function gp(name, btn) {
+  PGS.forEach(p => document.getElementById('page-' + p)?.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
+  document.getElementById('page-' + name)?.classList.add('active');
+  btn?.classList.add('on');
+  document.getElementById('screen').scrollTop = 0;
 }
 
-// ══ CONFETTI ══
-let cfAnim=null,cfPcs=[];
-function confetti(type){
-  const cv=document.getElementById('cfc');
-  cv.width=window.innerWidth;cv.height=window.innerHeight;cv.style.display='block';
-  const ctx=cv.getContext('2d');
-  const n=type==='epic'?200:type==='lucky'?100:50;
-  const cols=type==='epic'?['#FFD000','#ff6600','#fff','#ff00ff','#00ffff','#f00']:
-             type==='lucky'?['#FFD000','#FFC000','#fff','#f90']:['#FFD000','#FFC000','#fff'];
-  cfPcs=Array.from({length:n},()=>({x:Math.random()*cv.width,y:-20,w:5+Math.random()*8,h:8+Math.random()*6,c:cols[Math.floor(Math.random()*cols.length)],vx:(Math.random()-.5)*5,vy:2+Math.random()*(type==='epic'?7:4),rot:Math.random()*360,vr:(Math.random()-.5)*10}));
-  function fr(){
-    ctx.clearRect(0,0,cv.width,cv.height);let alive=false;
-    cfPcs.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=.06;if(p.y<cv.height+20)alive=true;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
-    if(alive)cfAnim=requestAnimationFrame(fr);else stopConfetti();
+const MM = [1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
+function buildDays() {
+  const g = document.getElementById('dg');
+  if (!g) return;
+  const lb = ['Д1','Д2','Д3','Д4','Д5','Д6+'];
+  const ml = ['×1.0','×1.1','×1.2','×1.3','×1.4','×1.5'];
+  g.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('div');
+    d.className = 'db' + (i === S.ciDay-1 ? ' td' : i < S.ciDay-1 ? ' dn' : ' lk');
+    d.innerHTML = '<div class="dl">' + lb[i] + '</div><div class="dm">' + ml[i] + '</div>';
+    g.appendChild(d);
   }
-  if(cfAnim)cancelAnimationFrame(cfAnim);cfAnim=requestAnimationFrame(fr);
-}
-function stopConfetti(){if(cfAnim)cancelAnimationFrame(cfAnim);const c=document.getElementById('cfc');c.getContext('2d').clearRect(0,0,c.width,c.height);c.style.display='none';}
-function coins(){for(let i=0;i<10;i++){setTimeout(()=>{const c=document.createElement('div');c.className='coin';c.textContent='🪙';c.style.left=Math.random()*80+10+'%';c.style.top=Math.random()*50+25+'%';document.body.appendChild(c);setTimeout(()=>c.remove(),1400);},i*120);}}
-
-// ══ FRIENDS ══
-function copyRef(){navigator.clipboard?.writeText('https://t.me/'+BOT+'?start='+S.refCode).catch(()=>{});toast(t('copied'),'g');}
-function shareRef(){
-  const link='https://t.me/'+BOT+'?start='+S.refCode;
-  const txt=S.lang==='ru'?'🖤 Присоединяйся к Platform BLACK!':'🖤 Join Platform BLACK!';
-  if(window.Telegram?.WebApp) window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(txt));
-  else{navigator.clipboard?.writeText(link).catch(()=>{});toast(t('copied'),'g');}
 }
 
-// ══ LEADERBOARD ══
-let lbTab='pvp';
-function openLB(){document.getElementById('lbSh').classList.add('show');renderLB();}
-function closeLB(){document.getElementById('lbSh').classList.remove('show');}
-function closeLBBg(e){if(e.target===document.getElementById('lbSh'))closeLB();}
-function setLBT(tab){
-  lbTab=tab;
-  document.getElementById('lbTP').classList.toggle('on',tab==='pvp');
-  document.getElementById('lbTA').classList.toggle('on',tab==='ad');
-  renderLB();
-}
-function renderLB(){
-  const scr=document.getElementById('lbScr');
-  let data=[];
-  if(lbTab==='pvp'){
-    const map={};
-    S.hist.forEach(h=>{if(!map[h.name])map[h.name]={name:h.name,init:h.init,photo:h.photo,val:0};map[h.name].val+=h.arc;});
-    data=Object.values(map).sort((a,b)=>b.val-a.val);
+function updateCIBtn() {
+  const b = document.getElementById('cib');
+  if (!b) return;
+  if (S.ciDone) {
+    b.textContent = t('ciD');
+    b.className = 'cib dne';
   } else {
-    if(S.adViews>0) data=[{name:S.user,init:S.init,photo:S.photo,val:S.adViews}];
+    b.textContent = t('ciR');
+    b.className = 'cib rdy';
   }
-  if(!data.length){scr.innerHTML=`<div class="lb-emp">${t('lbEmp')}</div>`;return;}
-  const rc=['🥇','🥈','🥉'];
-  const mi=data.findIndex(d=>d.name===S.user);
-  let html=data.slice(0,50).map((d,i)=>{
-    const isMe=d.name===S.user;
-    const av=d.photo?`<img src="${d.photo}" alt=""/>`:d.init;
-    return `<div class="lbi${isMe?' me':''}"><div class="lbr">${i<3?rc[i]:i+1}</div><div class="lbav" style="background:${COLS[i%COLS.length]}">${av}</div><div class="lbinf"><div class="lbnm">${d.name}${isMe?' 👈':''}</div><div class="lbsb">${lbTab==='pvp'?'ARC поставлено':'просмотров'}</div></div><div class="lbvl">${fmt(d.val)}</div></div>`;
-  }).join('');
-  if(mi>=50){const d=data[mi];html+=`<div class="lb-div">• • •</div><div class="lbi me"><div class="lbr">${mi+1}</div><div class="lbav" style="background:var(--yellow);color:#000">${d.init}</div><div class="lbinf"><div class="lbnm">${d.name} 👈</div><div class="lbsb">${lbTab==='pvp'?'ARC поставлено':'просмотров'}</div></div><div class="lbvl">${fmt(d.val)}</div></div>`;}
-  scr.innerHTML=html;
 }
 
-// ══ HISTORY ══
-function openHist(){document.getElementById('hiSh').classList.add('show');renderHist();}
-function closeHist(){document.getElementById('hiSh').classList.remove('show');}
-function closeHiBg(e){if(e.target===document.getElementById('hiSh'))closeHist();}
-function renderHist(){
-  const scr=document.getElementById('hiScr');
-  if(!S.hist.length){scr.innerHTML=`<div class="lb-emp">${t('lbEmp')}</div>`;return;}
-  scr.innerHTML=S.hist.map((h,i)=>{const av=h.photo?`<img src="${h.photo}" alt=""/>`:h.init;return `<div class="hi"><div style="font-size:12px;color:var(--t3);width:22px;text-align:center;font-weight:800">${i+1}</div><div class="hiav" style="background:${COLS[i%COLS.length]}">${av}</div><div class="hinf"><div class="hinm">🏆 ${h.name}</div><div class="himt">Шанс: ${h.pct}% · Round #${h.round}</div></div><div class="hiarc">+${fmt(h.arc)} ARC</div></div>`;}).join('');
+function doCI() {
+  if (S.ciDone) {
+    toast(t('ciDone'), 'r');
+    return;
+  }
+  S.ciDone = true;
+  const m = MM[Math.min(S.ciDay-1, 5)];
+  S.mult = m;
+  buildDays();
+  updateCIBtn();
+  renderAll();
+  saveData();
+  toast(t('ciOk').replace('{m}', '×' + m.toFixed(1)), 'g');
 }
 
-// ══ WALLET ══
-let tcUI=null;
-function initTC(){
-  try{
-    tcUI=new TON_CONNECT_UI.TonConnectUI({
-  manifestUrl:window.location.origin+'/tonconnect-manifest.json',
-  restoreConnection:true,
-  buttonRootId:null,
-});
-    tcUI.onStatusChange(wallet=>{
-      if(wallet){
+function buildTasks() {
+  const list = document.getElementById('tlist');
+  if (!list) return;
+  list.innerHTML = '';
+  TASKS.forEach(task => {
+    const done = S.tasks.has(task.id);
+    const el = document.createElement('div');
+    el.className = 'ti' + (done ? ' dn' : '');
+    let nm = '', ds = '';
+    if (task.type === 'ch') {
+      nm = t('tCh');
+      ds = t('tChD');
+    } else {
+      nm = t('tr' + task.req);
+      ds = S.lang === 'ru' ? 'Рефералов: ' + S.friends.length + '/' + task.req : 'Referrals: ' + S.friends.length + '/' + task.req;
+    }
+    let rb = '';
+    if (done) {
+      rb = '<span style="font-size:20px">✅</span>';
+    } else if (task.type === 'ch') {
+      rb = '<div class="tbtns"><button class="tb2 y" onclick="goChannel()">' + t('go') + '</button><button class="tb2" onclick="checkCh(\'' + task.id + '\',' + task.rew + ')">' + t('chk') + '</button></div>';
+    } else {
+      rb = '<button class="tb2" onclick="checkRef(\'' + task.id + '\',' + task.req + ',' + task.rew + ')">' + t('chk') + '</button>';
+    }
+    el.innerHTML = '<div class="tico">' + task.ico + '</div><div class="tinf"><div class="tnm">' + nm + '</div><div class="tds">' + ds + '</div></div><div style="display:flex;align-items:center;gap:8px">' + (!done ? '<div class="trew">+' + task.rew + ' ARC</div>' : '') + rb + '</div>';
+    list.appendChild(el);
+  });
+}
+
+function goChannel() {
+  if (window.Telegram?.WebApp) window.Telegram.WebApp.openTelegramLink('https://t.me/' + CH);
+  else window.open('https://t.me/' + CH, '_blank');
+}
+
+async function checkCh(id, rew) {
+  if (S.tasks.has(id)) {
+    toast(t('tDone'), 'r');
+    return;
+  }
+  try {
+    const r = await fetch('/api/check-subscription', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ telegram_id: S.tgId, channel: CH })
+    });
+    const d = await r.json();
+    if (d.subscribed) doneTask(id, rew);
+    else toast(t('noSub'), 'r');
+  } catch(e) {
+    doneTask(id, rew);
+  }
+}
+
+function checkRef(id, req, rew) {
+  if (S.tasks.has(id)) {
+    toast(t('tDone'), 'r');
+    return;
+  }
+  if (S.friends.length < req) {
+    toast(t('noRef').replace('{c}', S.friends.length).replace('{r}', req), 'r');
+    return;
+  }
+  doneTask(id, rew);
+}
+
+function doneTask(id, rew) {
+  S.tasks.add(id);
+  S.arc += rew;
+  renderAll();
+  saveData();
+  toast(t('refOk').replace('{n}', rew), 'g');
+}
+
+const PROMOS = { 'BLACK100': 100, 'ARC500': 500, 'LAUNCH50': 50 };
+function redeemPromo() {
+  const c = document.getElementById('promoInp').value.trim().toUpperCase();
+  if (!c) return;
+  if (S.usedPromos.has(c) || !PROMOS[c]) {
+    toast(t('promoFail'), 'r');
+    return;
+  }
+  S.usedPromos.add(c);
+  S.arc += PROMOS[c];
+  renderAll();
+  saveData();
+  document.getElementById('promoInp').value = '';
+  toast(t('promoOk').replace('{n}', PROMOS[c]), 'g');
+}
+
+let spinning = false;
+let currentWinnerShown = null;
+
+async function loadPvpState() {
+  try {
+    const r = await fetch('/api/pvp/state');
+    const d = await r.json();
+    if (!d) return;
+    document.getElementById('pvpRound').textContent = 'ROUND #' + d.roundId;
+    if (d.countdown !== null && d.countdown > 0) {
+      document.getElementById('cd').style.display = 'block';
+      document.getElementById('cdn').textContent = d.countdown;
+      document.getElementById('whlC').textContent = d.countdown + ' сек';
+    } else {
+      document.getElementById('cd').style.display = 'none';
+      if (d.status === 'waiting') document.getElementById('whlC').textContent = 'Ожидание';
+      if (d.status === 'spinning') document.getElementById('whlC').textContent = 'Розыгрыш';
+    }
+    if (d.players && d.players.length) {
+      const total = d.totalPool;
+      let html = '';
+      for (let i = 0; i < d.players.length; i++) {
+        const p = d.players[i];
+        const pct = p.chance;
+        const col = COLS[i % COLS.length];
+        const isMe = String(p.telegram_id) === String(S.tgId);
+        html += '<div class="ppt"><div class="ppav" style="background:' + col + '">' + (p.username ? p.username[0].toUpperCase() : 'P') + '</div><div style="flex:1"><div class="ppnm">' + p.username + (isMe ? ' (вы)' : '') + '</div><div class="ppch" style="color:' + col + '">' + pct + '% Шанс</div></div><div class="ppbt">' + fmt(p.bet) + ' ARC</div></div>';
+      }
+      document.getElementById('pvpParts').innerHTML = html;
+      document.getElementById('pvpTot').textContent = fmt(total) + ' ARC';
+      document.getElementById('pvpPool').textContent = fmt(total) + ' ARC';
+    }
+    if (d.winner && currentWinnerShown !== d.winner.telegram_id + '_' + d.roundId) {
+      currentWinnerShown = d.winner.telegram_id + '_' + d.roundId;
+      showWB(d.winner.username, d.winner.amount, d.winner.chance);
+    }
+    if (d.status === 'spinning' && !spinning) {
+      doSpin();
+    }
+  } catch(e) {}
+}
+
+let spinAnim = null;
+function doSpin() {
+  if (spinning) return;
+  spinning = true;
+  const cv = document.getElementById('wc');
+  let angle = 0;
+  const dur = 5000;
+  const start = Date.now();
+  spinAnim = setInterval(() => {
+    const elapsed = Date.now() - start;
+    const prog = 1 - Math.pow(1 - elapsed / dur, 3);
+    angle = prog * 2200;
+    cv.style.transform = 'rotate(' + angle + 'deg)';
+    if (elapsed >= dur) {
+      clearInterval(spinAnim);
+      spinning = false;
+    }
+  }, 16);
+}
+
+function showWB(name, amount, chance) {
+  const banner = document.getElementById('wban');
+  document.getElementById('wbT').innerHTML = '🏆 ' + name + ' выиграл +' + fmt(amount) + ' ARC';
+  document.getElementById('wbS').innerHTML = 'Шанс: ' + chance + '% · Новый раунд через 4 сек';
+  banner.style.display = 'block';
+  banner.classList.add('show');
+  setTimeout(() => closeWB(), 4000);
+}
+
+function closeWB() {
+  const banner = document.getElementById('wban');
+  banner.classList.remove('show');
+  setTimeout(() => banner.style.display = 'none', 300);
+}
+
+function drawWheel() {
+  const cv = document.getElementById('wc');
+  const ctx = cv.getContext('2d');
+  const W = 260, cx = 130, cy = 130, r = 120;
+  ctx.clearRect(0, 0, W, W);
+  for (let i = 0; i < 8; i++) {
+    const a1 = (i / 8) * Math.PI * 2 - Math.PI / 2;
+    const a2 = ((i + 1) / 8) * Math.PI * 2 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, a1, a2);
+    ctx.closePath();
+    ctx.fillStyle = i % 2 ? '#e8e8e8' : '#d0d0d0';
+    ctx.fill();
+  }
+}
+
+function setB(v) {
+  document.getElementById('pbi').value = v;
+}
+
+async function placeBet() {
+  if (!S.tgId) {
+    toast('No user', 'r');
+    return;
+  }
+  const amt = parseInt(document.getElementById('pbi').value) || 0;
+  if (amt < 10) {
+    toast(t('bMin'), 'r');
+    return;
+  }
+  if (amt > 5000) {
+    toast(t('bMax'), 'r');
+    return;
+  }
+  if (amt > S.arc) {
+    toast(t('bInsuf'), 'r');
+    return;
+  }
+  try {
+    const r = await fetch('/api/pvp/join', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ telegram_id: S.tgId, bet: amt })
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      toast(d.error || 'PvP error', 'r');
+      return;
+    }
+    await loadData();
+    renderAll();
+    toast(t('bOk'), 'g');
+  } catch(e) {
+    toast('PvP error', 'r');
+  }
+}
+
+async function addBet() {
+  if (!S.tgId) {
+    toast('No user', 'r');
+    return;
+  }
+  const ex = parseInt(document.getElementById('pbi').value) || 0;
+  if (ex < 1) {
+    toast('Минимум 1 ARC', 'r');
+    return;
+  }
+  if (ex > S.arc) {
+    toast(t('bInsuf'), 'r');
+    return;
+  }
+  try {
+    const r = await fetch('/api/pvp/join', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ telegram_id: S.tgId, bet: ex })
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      toast(d.error || 'PvP error', 'r');
+      return;
+    }
+    await loadData();
+    renderAll();
+    toast('+' + fmt(ex) + ' ARC', 'g');
+  } catch(e) {
+    toast('PvP error', 'r');
+  }
+}
+
+function copyRef() {
+  navigator.clipboard?.writeText('https://t.me/' + BOT + '?start=' + S.refCode).catch(() => {});
+  toast(t('copied'), 'g');
+}
+
+function shareRef() {
+  const link = 'https://t.me/' + BOT + '?start=' + S.refCode;
+  const txt = S.lang === 'ru' ? '🖤 Присоединяйся к Platform BLACK!' : '🖤 Join Platform BLACK!';
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(txt));
+  } else {
+    navigator.clipboard?.writeText(link).catch(() => {});
+    toast(t('copied'), 'g');
+  }
+  }
+      toast(t('bOk'), 'g');
+  } catch(e) {
+    toast('PvP error', 'r');
+  }
+}
+
+async function addBet() {
+  if (!S.tgId) {
+    toast('No user', 'r');
+    return;
+  }
+  const ex = parseInt(document.getElementById('pbi').value) || 0;
+  if (ex < 1) {
+    toast('Минимум 1 ARC', 'r');
+    return;
+  }
+  if (ex > S.arc) {
+    toast(t('bInsuf'), 'r');
+    return;
+  }
+  try {
+    const r = await fetch('/api/pvp/join', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ telegram_id: S.tgId, bet: ex })
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      toast(d.error || 'PvP error', 'r');
+      return;
+    }
+    await loadData();
+    renderAll();
+    toast('+' + fmt(ex) + ' ARC', 'g');
+  } catch(e) {
+    toast('PvP error', 'r');
+  }
+}
+
+function copyRef() {
+  navigator.clipboard?.writeText('https://t.me/' + BOT + '?start=' + S.refCode);
+  toast(t('copied'), 'g');
+}
+
+function shareRef() {
+  const link = 'https://t.me/' + BOT + '?start=' + S.refCode;
+  const txt = S.lang === 'ru' ? '🖤 Присоединяйся к Platform BLACK!' : '🖤 Join Platform BLACK!';
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(txt));
+  } else {
+    navigator.clipboard?.writeText(link);
+    toast(t('copied'), 'g');
+  }
+}
+
+let tcUI = null;
+
+function initTC() {
+  try {
+    tcUI = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: window.location.origin + '/tonconnect-manifest.json',
+      restoreConnection: true,
+      buttonRootId: null
+    });
+    tcUI.onStatusChange(wallet => {
+      if (wallet) {
         const raw = wallet.account.address;
-
-const friendly =
-window.TON_CONNECT_UI?.toUserFriendlyAddress
-? window.TON_CONNECT_UI.toUserFriendlyAddress(raw)
-: raw;
-
-S.wallet = raw;
-showWC(friendly);
+        S.wallet = raw;
+        showWC(raw);
         saveData();
-        toast(t('wOk'),'g');
+        toast(t('wOk'), 'g');
       } else {
         discWalletUI();
       }
     });
-  }catch(e){}
+  } catch(e) {}
 }
-function showWC(addr){
-  const d=addr;
-  document.getElementById('wDisc').style.display='none';
-  document.getElementById('wConn').style.display='block';
-  document.getElementById('wAddr').textContent=d;
+
+function showWC(addr) {
+  document.getElementById('wDisc').style.display = 'none';
+  document.getElementById('wConn').style.display = 'block';
+  document.getElementById('wAddr').textContent = addr.slice(0, 6) + '...' + addr.slice(-4);
   document.getElementById('hDot').classList.add('on');
-  document.getElementById('hWallet').textContent=d;
-}
-async function connectWallet(){if(tcUI){try{await tcUI.openModal();}catch(e){toast('Ошибка','r');}}}
-async function disconnectWallet(){if(tcUI){try{await tcUI.disconnect();}catch(e){}}discWalletUI();}
-function discWalletUI(){
-  S.wallet='';
-  document.getElementById('wDisc').style.display='block';
-  document.getElementById('wConn').style.display='none';
-  document.getElementById('hDot').classList.remove('on');
-  document.getElementById('hWallet').textContent=t('wNC');
-  saveData();toast(t('wDis'),'r');
+  document.getElementById('hWallet').textContent = addr.slice(0, 6) + '...' + addr.slice(-4);
 }
 
-// ══ EXCHANGE ══
-function calcExc(){
-  const v=parseFloat(document.getElementById('excInp')?.value)||0;
-  const el=document.getElementById('excRes');if(!el)return;
-  if(!v){el.textContent=S.lang==='ru'?'Введи сумму TON':'Enter TON amount';el.style.color='var(--t3)';return;}
-  const rem=5-S.excToday;
-  if(v<0.1){el.textContent=t('excMin');el.style.color='var(--red)';return;}
-  if(v>5){el.textContent=t('excMax');el.style.color='var(--red)';return;}
-  if(v>rem){el.textContent=t('excLim');el.style.color='var(--red)';return;}
-  if(v>S.ton){el.textContent=t('excInsuf')+` (${S.ton.toFixed(3)} TON)`;el.style.color='var(--red)';return;}
-  el.style.color='var(--green)';
-  el.textContent=t('excRes').replace('{n}',Math.floor(v*arc4ton()).toLocaleString());
-}
-
-async function doExchange(){
-  if(!S.wallet){toast(t('noW'),'r');return;}
-  const v=parseFloat(document.getElementById('excInp')?.value)||0;
-  if(!v||v<0.1){toast(t('excFail'),'r');return;}
-  if(v>5-S.excToday){toast(t('excLim'),'r');return;}
-  if(v>S.ton){toast(t('excInsuf'),'r');return;}
-  try{
-    const r=await fetch('/api/exchange',{method:'POST',headers:authHeaders(),body:JSON.stringify({telegram_id:S.tgId,ton_amount:v})});
-    const d=await r.json();
-    if(d.ok){
-      S.arc+=d.arc_credited;S.ton-=v;S.excToday+=v;
-      addTx('exchange',d.arc_credited,'ARC');
-      renderAll();calcExc();saveData();
-      toast('+'+d.arc_credited.toLocaleString()+' ARC ✓','g');
-    } else {
-      toast('Exchange error','r');
+async function connectWallet() {
+  if (tcUI) {
+    try {
+      await tcUI.openModal();
+    } catch(e) {
+      toast('Ошибка', 'r');
     }
-  }catch(e){
-    toast('Exchange error','r');
   }
 }
 
-// ══ MODAL ══
-function openModal(type){
-  const mt=document.getElementById('mT'),mb=document.getElementById('mB');
-  if(type==='deposit'){
-    mt.textContent=t('depT');
-    mb.innerHTML=`<div class="mnote">${t('depN')}<br><br><span style="color:var(--red);font-weight:700">${t('depMin')}</span></div>
-      <input class="inp" style="margin-bottom:8px" type="number" id="dAmt" placeholder="0.1 TON" step="0.01" min="0.1" oninput="calcDep()"/>
-      <div id="dRes" style="font-size:13px;font-weight:800;color:var(--green);text-align:center;min-height:20px;margin-bottom:12px"></div>
-      <button class="btn btn-y btn-full" onclick="doDeposit()" style="padding:14px">Пополнить</button>`;
-  } else if(type==='withdraw'){
-    mt.textContent=t('witT');
-    mb.innerHTML=`<div class="mnote">${t('witN')}<br><br><span style="color:var(--red);font-weight:700">${t('witMin')}</span></div>
-      <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;font-weight:700">Баланс: ${S.ton.toFixed(3)} TON</div>
-      <input class="inp" style="margin-bottom:12px" type="number" id="wAmt" placeholder="0.1 TON" step="0.01" min="0.1"/>
-      <button class="btn btn-y btn-full" onclick="doWithdraw()" style="padding:14px">${t('witBtn')}</button>`;
-  } else if(type==='burn'){
-    mt.textContent=t('burnT');
-    mb.innerHTML=`<div class="mnote">${t('burnTx').replace(/\n/g,'<br>')}</div>`;
+async function disconnectWallet() {
+  if (tcUI) {
+    try {
+      await tcUI.disconnect();
+    } catch(e) {}
+  }
+  discWalletUI();
+}
+
+function discWalletUI() {
+  S.wallet = '';
+  document.getElementById('wDisc').style.display = 'block';
+  document.getElementById('wConn').style.display = 'none';
+  document.getElementById('hDot').classList.remove('on');
+  document.getElementById('hWallet').textContent = t('wNC');
+  saveData();
+  toast(t('wDis'), 'r');
+}
+
+function calcExc() {
+  const v = parseFloat(document.getElementById('excInp')?.value) || 0;
+  const el = document.getElementById('excRes');
+  if (!el) return;
+  if (v < 0.1) {
+    el.textContent = t('excMin');
+    return;
+  }
+  if (v > 5) {
+    el.textContent = t('excMax');
+    return;
+  }
+  if (v > 5 - S.excToday) {
+    el.textContent = t('excLim');
+    return;
+  }
+  if (v > S.ton) {
+    el.textContent = t('excInsuf');
+    return;
+  }
+  fetch('/api/ton-rate')
+    .then(r => r.json())
+    .then(data => {
+      const arcAmount = Math.floor(v * data.arc_per_ton);
+      el.textContent = t('excRes').replace('{n}', arcAmount.toLocaleString());
+    });
+}
+
+async function doExchange() {
+  if (!S.wallet) {
+    toast(t('noW'), 'r');
+    return;
+  }
+  const v = parseFloat(document.getElementById('excInp')?.value) || 0;
+  if (v < 0.1) {
+    toast(t('excFail'), 'r');
+    return;
+  }
+  if (v > 5 - S.excToday) {
+    toast(t('excLim'), 'r');
+    return;
+  }
+  if (v > S.ton) {
+    toast(t('excInsuf'), 'r');
+    return;
+  }
+  try {
+    const r = await fetch('/api/exchange', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ telegram_id: S.tgId, ton_amount: v })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      await loadData();
+      renderAll();
+      calcExc();
+      toast('+' + d.arc_credited.toLocaleString() + ' ARC ✓', 'g');
+    } else {
+      toast('Exchange error', 'r');
+    }
+  } catch(e) {
+    toast('Exchange error', 'r');
+  }
+}
+
+function openModal(type) {
+  const mt = document.getElementById('mT');
+  const mb = document.getElementById('mB');
+  if (type === 'deposit') {
+    mt.textContent = t('depT');
+    mb.innerHTML = '<div class="mnote">' + t('depN') + '<br><br><span style="color:var(--red);font-weight:700">' + t('depMin') + '</span></div><input class="inp" style="margin-bottom:8px" type="number" id="dAmt" placeholder="0.1 TON" step="0.01" min="0.1"/><button class="btn btn-y btn-full" onclick="doDeposit()" style="padding:14px">Пополнить</button>';
+  } else if (type === 'withdraw') {
+    mt.textContent = t('witT');
+    mb.innerHTML = '<div class="mnote">' + t('witN') + '<br><br><span style="color:var(--red);font-weight:700">' + t('witMin') + '</span></div><div style="background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;font-weight:700">Баланс: ' + S.ton.toFixed(3) + ' TON</div><input class="inp" style="margin-bottom:12px" type="number" id="wAmt" placeholder="0.1 TON" step="0.01" min="0.1"/><button class="btn btn-y btn-full" onclick="doWithdraw()" style="padding:14px">' + t('witBtn') + '</button>';
+  } else if (type === 'burn') {
+    mt.textContent = t('burnT');
+    mb.innerHTML = '<div class="mnote">' + t('burnTx').replace(/\n/g, '<br>') + '</div>';
   }
   document.getElementById('mbg').classList.add('show');
 }
 
-function calcDep(){
-  const v=parseFloat(document.getElementById('dAmt')?.value)||0;
-  const el=document.getElementById('dRes');if(!el)return;
-  if(v>=0.1) el.textContent='На баланс: +'+v.toFixed(3)+' TON → потом обменяй на ARC';
-  else el.textContent='';
+function closeModal() {
+  document.getElementById('mbg').classList.remove('show');
 }
 
-async function doDeposit(){
-  if(!S.wallet){toast(t('noW'),'r');closeModal();return;}
-  const v=parseFloat(document.getElementById('dAmt')?.value)||0;
-  if(!v||v<0.1){toast('Введи сумму (мин 0.1 TON)','r');return;}
-  if(tcUI){
-    try{
-      const commentText='black_dep_'+S.tgId;
-const body=TonCore.beginCell().storeUint(0,32).storeStringTail(commentText).endCell();
-const payloadB64=body.toBoc().toString('base64');
-const amountInNano=(BigInt(Math.floor(v*1e9))).toString();
-await tcUI.sendTransaction({
-  validUntil:Math.floor(Date.now()/1000)+600,
-  messages:[{address:PW,amount:amountInNano,payload:payloadB64}]
-});
-closeModal();
-toast(t('depSent'),'g');
-pollDep(v);
-    }catch(e){toast(t('depCancel'),'r');}
+function closeMBg(e) {
+  if (e.target === document.getElementById('mbg')) closeModal();
+}
+
+async function doDeposit() {
+  if (!S.wallet) {
+    toast(t('noW'), 'r');
+    closeModal();
+    return;
+  }
+  const v = parseFloat(document.getElementById('dAmt')?.value) || 0;
+  if (v < 0.1) {
+    toast('Минимум 0.1 TON', 'r');
+    return;
+  }
+  if (tcUI) {
+    try {
+      const commentText = 'black_dep_' + S.tgId;
+      const body = TonCore.beginCell().storeUint(0, 32).storeStringTail(commentText).endCell();
+      const payloadB64 = body.toBoc().toString('base64');
+      const amountInNano = (BigInt(Math.floor(v * 1e9))).toString();
+      await tcUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 600,
+        messages: [{ address: PW, amount: amountInNano, payload: payloadB64 }]
+      });
+      closeModal();
+      toast(t('depSent'), 'g');
+      let attempts = 0;
+      const poll = setInterval(async () => {
+        attempts++;
+        try {
+          const r = await fetch('/api/check-deposit', {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ telegram_id: S.tgId, expected_ton: v })
+          });
+          const d = await r.json();
+          if (d.confirmed) {
+            clearInterval(poll);
+            await loadData();
+            renderAll();
+            toast(t('depOk'), 'g');
+          }
+        } catch(e) {}
+        if (attempts >= 60) clearInterval(poll);
+      }, 5000);
+    } catch(e) {
+      toast(t('depCancel'), 'r');
+    }
   }
 }
 
-function pollDep(expected){
-  let att = 0;
-  const poll = setInterval(async () => {
-    att++;
-    try {
-      const r = await fetch('/api/check-deposit', {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({
-          telegram_id: S.tgId,
-          expected_ton: expected
-        })
-      });
-      const d = await r.json();
+async function doWithdraw() {
+  const v = parseFloat(document.getElementById('wAmt')?.value) || 0;
+  if (v < 0.1) {
+    toast('Минимум 0.1 TON', 'r');
+    return;
+  }
+  if (v > S.ton) {
+    toast(t('witInsuf'), 'r');
+    return;
+  }
+  if (!S.wallet) {
+    toast(t('noW'), 'r');
+    return;
+  }
+  try {
+    await fetch('/api/withdraw-request', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        telegram_id: S.tgId,
+        ton_amount: v,
+        wallet: S.wallet,
+        username: S.user
+      })
+    });
+    closeModal();
+    toast(t('witOk'), 'g');
+  } catch(e) {
+    closeModal();
+    toast('Ошибка', 'r');
+  }
+}
 
-      if (d.confirmed) {
-        clearInterval(poll);
-        await loadData();
-        renderAll();
-        toast(t('depOk'), 'g');
-        return;
-      }
-    } catch (e) {}
+let lbTab = 'pvp';
 
-    if (att >= 60) {
-      clearInterval(poll);
+function openLB() {
+  document.getElementById('lbSh').classList.add('show');
+  renderLB();
+}
+
+function closeLB() {
+  document.getElementById('lbSh').classList.remove('show');
+}
+
+function closeLBBg(e) {
+  if (e.target === document.getElementById('lbSh')) closeLB();
+}
+
+function setLBT(tab) {
+  lbTab = tab;
+  document.getElementById('lbTP').classList.toggle('on', tab === 'pvp');
+  document.getElementById('lbTA').classList.toggle('on', tab === 'ad');
+  renderLB();
+}
+
+async function renderLB() {
+  const scr = document.getElementById('lbScr');
+  try {
+    const r = await fetch('/api/leaderboard?type=' + lbTab);
+    const data = await r.json();
+    if (!data.length) {
+      scr.innerHTML = '<div class="lb-emp">' + t('lbEmp') + '</div>';
+      return;
     }
-  }, 5000);
-}
-async function doWithdraw(){
-  const v=parseFloat(document.getElementById('wAmt')?.value)||0;
-  if(!v||v<0.1){toast('Минимум 0.1 TON','r');return;}
-  if(v>S.ton){toast(t('witInsuf'),'r');return;}
-  if(!S.wallet){toast(t('noW'),'r');return;}
-  try{
-    await fetch('/api/withdraw-request',{method:'POST',headers:authHeaders(),body:JSON.stringify({telegram_id:S.tgId,ton_amount:v,wallet:S.wallet,username:S.user})});
-  }catch(e){}
-  closeModal();toast(t('witOk'),'g');
+    const rc = ['🥇', '🥈', '🥉'];
+    let html = '';
+    for (let i = 0; i < Math.min(data.length, 50); i++) {
+      const d = data[i];
+      const isMe = d.name === S.user;
+      const av = d.photo ? '<img src="' + d.photo + '"/>' : d.init;
+      html += '<div class="lbi' + (isMe ? ' me' : '') + '"><div class="lbr">' + (i < 3 ? rc[i] : (i + 1)) + '</div><div class="lbav" style="background:' + COLS[i % COLS.length] + '">' + av + '</div><div class="lbinf"><div class="lbnm">' + d.name + (isMe ? ' 👈' : '') + '</div><div class="lbsb">' + (lbTab === 'pvp' ? 'ARC поставлено' : 'просмотров') + '</div></div><div class="lbvl">' + fmt(d.val) + '</div></div>';
+    }
+    scr.innerHTML = html;
+  } catch(e) {
+    scr.innerHTML = '<div class="lb-emp">Ошибка</div>';
+  }
 }
 
-function closeModal(){document.getElementById('mbg').classList.remove('show');}
-function closeMBg(e){if(e.target===document.getElementById('mbg'))closeModal();}
+function openHist() {
+  document.getElementById('hiSh').classList.add('show');
+  renderHist();
+}
 
-// ══ TOAST ══
+function closeHist() {
+  document.getElementById('hiSh').classList.remove('show');
+}
+
+function closeHiBg(e) {
+  if (e.target === document.getElementById('hiSh')) closeHist();
+}
+
+async function renderHist() {
+  const scr = document.getElementById('hiScr');
+  try {
+    const r = await fetch('/api/pvp/history');
+    const data = await r.json();
+    if (!data.length) {
+      scr.innerHTML = '<div class="lb-emp">' + t('lbEmp') + '</div>';
+      return;
+    }
+    let html = '';
+    for (let i = 0; i < data.length; i++) {
+      const h = data[i];
+      html += '<div class="hi"><div style="font-size:12px;color:var(--t3);width:22px;text-align:center;font-weight:800">' + (i + 1) + '</div><div class="hiav" style="background:' + COLS[i % COLS.length] + '">' + (h.winner_name ? h.winner_name[0].toUpperCase() : 'W') + '</div><div class="hinf"><div class="hinm">🏆 ' + h.winner_name + '</div><div class="himt">Шанс: ' + (Math.round((h.winner_amount / h.total_pool) * 100)) + '% · Round #' + h.round_id + '</div></div><div class="hiarc">+' + fmt(h.winner_amount) + ' ARC</div></div>';
+    }
+    scr.innerHTML = html;
+  } catch(e) {
+    scr.innerHTML = '<div class="lb-emp">Ошибка</div>';
+  }
+}
+
 let toastT;
-function toast(msg,type=''){
-  const el=document.getElementById('toast');
-  el.textContent=msg;el.className='show '+(type||'');
-  clearTimeout(toastT);toastT=setTimeout(()=>el.className='',2700);
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + (type || '');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.className = '', 2700);
 }
 
-window.addEventListener('load',init);
+window.addEventListener('load', init);
 </script>
 </body>
-</html> 
+</html>
