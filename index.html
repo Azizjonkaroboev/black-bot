@@ -7,295 +7,332 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 <script src="https://unpkg.com/@ton/core@0.15.0/dist/index.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0d1117;
-  --card:#161b27;
-  --card2:#1c2333;
-  --border:#2a3347;
-  --yellow:#3b82f6;
-  --yellow2:#2563eb;
-  --ytext:#ffffff;
-  --text:#e8eaf0;
-  --t2:#8b95a8;
-  --t3:#4a5568;
-  --red:#ef4444;
-  --green:#22c55e;
-  --nav-h:60px;
+  --bg:#000000;
+  --bg2:#0a0a0a;
+  --card:#111111;
+  --card2:#181818;
+  --border:#262626;
+  --border2:#333333;
+  --acc:#ffffff;
+  --acc-d:#d4d4d4;
+  --text:#f5f5f5;
+  --t2:#9a9a9a;
+  --t3:#5a5a5a;
+  --red:#ff453a;
+  --green:#32d74b;
+  --gold:#ffd60a;
+  --nav-h:62px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{height:100%}
-body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden}
-#app{display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto}
-#screen{flex:1;overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nav-h) + 16px)}
+body{height:100%;background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;position:relative}
+#screen{flex:1;overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nav-h) + 18px)}
 #screen::-webkit-scrollbar{display:none}
-.page{display:none}
+.page{display:none;animation:fadeIn .25s ease}
 .page.active{display:block}
-.tb{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* top bar */
+.tb{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
 .tb-user{display:flex;align-items:center;gap:10px}
-.tb-av{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#1e40af);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--ytext);overflow:hidden;flex-shrink:0}
+.tb-av{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#2a2a2a,#000);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:var(--acc);overflow:hidden;flex-shrink:0}
 .tb-av img{width:100%;height:100%;object-fit:cover;border-radius:12px}
-.tb-name{font-size:14px;font-weight:700}
+.tb-name{font-size:14px;font-weight:700;letter-spacing:-.2px}
+.tb-bal{font-size:11px;color:var(--gold);font-weight:700;margin-top:1px}
 .lw{display:flex;background:var(--card2);border:1px solid var(--border);border-radius:20px;overflow:hidden;padding:2px}
-.lw button{padding:4px 11px;border:none;background:transparent;color:var(--t2);font-size:11px;font-weight:700;cursor:pointer;border-radius:16px;font-family:'Inter'}
-.lw button.on{background:var(--yellow);color:var(--ytext)}
-#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:var(--nav-h);background:#111827;border-top:1px solid var(--border);display:flex;align-items:center;z-index:100}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:6px 0;position:relative}
-.ni svg{width:22px;height:22px;stroke:var(--t3);fill:none;stroke-width:1.7;transition:.2s}
+.lw button{padding:5px 12px;border:none;background:transparent;color:var(--t2);font-size:11px;font-weight:700;cursor:pointer;border-radius:16px;font-family:'Sora'}
+.lw button.on{background:var(--acc);color:#000}
+
+/* nav */
+#nav{position:absolute;bottom:0;left:0;right:0;height:var(--nav-h);background:rgba(10,10,10,.92);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;align-items:center;z-index:100}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:7px 0;position:relative}
+.ni svg{width:23px;height:23px;stroke:var(--t3);fill:none;stroke-width:1.8;transition:.2s}
 .ni span{font-size:10px;color:var(--t3);font-weight:600;transition:.2s}
-.ni.on svg{stroke:#3b82f6}
-.ni.on span{color:#3b82f6}
-.ni.on::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:#3b82f6;border-radius:2px 2px 0 0}
-.btn{display:flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:13px;cursor:pointer;font-family:'Inter';font-weight:700;transition:.15s;outline:none;font-size:14px;padding:13px 20px}
-.btn-y{background:var(--yellow);color:var(--ytext)}
-.btn-y:active{background:var(--yellow2);transform:scale(.97)}
-.btn-w{background:var(--card);border:1.5px solid var(--border);color:var(--text)}
-.btn-w:active{background:var(--card2)}
-.btn-r{background:rgba(255,59,48,.08);border:1.5px solid rgba(255,59,48,.2);color:var(--red)}
+.ni.on svg{stroke:var(--acc)}
+.ni.on span{color:var(--acc)}
+.ni.on::after{content:'';position:absolute;top:0;left:30%;right:30%;height:2px;background:var(--acc);border-radius:0 0 2px 2px}
+
+/* buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:13px;cursor:pointer;font-family:'Sora';font-weight:700;transition:.15s;outline:none;font-size:14px;padding:13px 20px}
+.btn-y{background:var(--acc);color:#000}
+.btn-y:active{background:var(--acc-d);transform:scale(.97)}
+.btn-w{background:var(--card2);border:1px solid var(--border2);color:var(--text)}
+.btn-w:active{background:var(--card)}
+.btn-r{background:rgba(255,69,58,.1);border:1px solid rgba(255,69,58,.25);color:var(--red)}
 .btn-full{width:100%}
-.inp{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;color:var(--text);font-family:'Inter';font-size:14px;font-weight:500;outline:none}
-.inp:focus{border-color:var(--yellow)}
-.card{background:var(--card);border-radius:18px}
-.sp{height:12px}
-#toast{position:fixed;top:12px;left:50%;transform:translateX(-50%) translateY(-70px);background:#1c1c1e;color:#fff;border-radius:12px;padding:9px 18px;font-size:13px;font-weight:600;z-index:999;transition:.3s;white-space:nowrap;pointer-events:none}
+.inp{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:13px 14px;color:var(--text);font-family:'Sora';font-size:14px;font-weight:500;outline:none}
+.inp:focus{border-color:var(--acc)}
+.sp{height:14px}
+
+/* toast */
+#toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-80px);background:#1c1c1e;color:#fff;border:1px solid var(--border2);border-radius:13px;padding:11px 20px;font-size:13px;font-weight:600;z-index:999;transition:.3s;white-space:nowrap;pointer-events:none;max-width:90%}
 #toast.show{transform:translateX(-50%) translateY(0)}
-#toast.g{background:var(--green)}
-#toast.r{background:var(--red)}
-.hero{margin:12px;padding:20px;background:linear-gradient(135deg,#1e3a8a,#1e40af,#1d4ed8);border-radius:20px}
-.hero-plat{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--t3);text-transform:uppercase;margin-bottom:3px}
-.hero-ttl{font-size:30px;font-weight:900;letter-spacing:-.5px;margin-bottom:16px}
-.bals{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.bal{background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.15);border-radius:14px;padding:14px;text-align:center}
-.bal-n{font-size:22px;font-weight:900}
-.bal-l{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-top:3px}
-.wrow{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t2);margin-bottom:12px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+#toast.g{background:#0a2a14;border-color:var(--green);color:#7dffb0}
+#toast.r{background:#2a0a0a;border-color:var(--red);color:#ff9a92}
+
+/* HOME hero */
+.hero{margin:14px;padding:22px 20px;background:linear-gradient(155deg,#1a1a1a 0%,#000 70%);border:1px solid var(--border);border-radius:22px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;right:-20%;width:240px;height:240px;background:radial-gradient(circle,rgba(255,255,255,.06),transparent 70%);pointer-events:none}
+.hero-plat{font-size:10px;font-weight:700;letter-spacing:.28em;color:var(--t3);text-transform:uppercase;margin-bottom:2px}
+.hero-ttl{font-size:34px;font-weight:800;letter-spacing:-1px;margin-bottom:18px}
+.bals{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:14px}
+.bal{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:15px;padding:15px;text-align:center}
+.bal-n{font-size:24px;font-weight:800;letter-spacing:-.5px}
+.bal-l{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.wrow{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t2);margin-bottom:14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0}
 .dot.on{background:var(--green)}
-.mbadge{display:inline-flex;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:800;color:#fff}
-.earn-sec{padding:0 12px}
-.earn-h{display:flex;align-items:baseline;gap:8px;margin:14px 0 10px}
-.earn-h h3{font-size:16px;font-weight:900}
-.earn-h span{font-size:12px;color:var(--t3)}
-.adc{background:var(--card);border-radius:14px;margin-bottom:8px}
-.adi{display:flex;align-items:center;gap:12px;padding:14px;opacity:.45}
-.ad-ico{width:44px;height:44px;border-radius:12px;background:var(--bg);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.mbadge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,214,10,.1);border:1px solid rgba(255,214,10,.25);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--gold)}
+
+/* about */
+.about{margin:0 14px 16px;padding:18px;background:var(--card);border:1px solid var(--border);border-radius:18px}
+.about-t{font-size:14px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.about-x{font-size:13px;line-height:1.65;color:var(--t2)}
+.about-x b{color:var(--text);font-weight:700}
+
+/* section label */
+.slbl{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--t3);text-transform:uppercase;margin-bottom:11px}
+
+/* ads */
+.earn-sec{padding:0 14px}
+.earn-h{display:flex;align-items:baseline;justify-content:space-between;margin:4px 0 12px}
+.earn-h h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--t3);text-transform:uppercase}
+.earn-h span{font-size:11px;color:var(--t3);font-weight:600}
+.adc{background:var(--card);border:1px solid var(--border);border-radius:15px;margin-bottom:9px;transition:.15s}
+.adc.live{cursor:pointer;border-color:var(--border2)}
+.adc.live:active{transform:scale(.98)}
+.adi{display:flex;align-items:center;gap:13px;padding:15px}
+.adc:not(.live) .adi{opacity:.4}
+.ad-ico{width:46px;height:46px;border-radius:13px;background:var(--bg2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
 .ad-nm{font-size:14px;font-weight:700}
 .ad-sb{font-size:11px;color:var(--t3);margin-top:2px}
-.soon-b{background:var(--bg);border:1.5px solid var(--border);color:var(--t3);font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;white-space:nowrap}
-.ci-c{margin:12px;padding:18px;background:var(--card);border-radius:20px}
-.slbl{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--t3);text-transform:uppercase;margin-bottom:10px}
-.ci-st{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.ci-s{background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:14px;text-align:center}
-.ci-v{font-size:26px;font-weight:900}
-.ci-l{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;margin-top:2px}
-.dg{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:14px}
-.db{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:7px 2px;text-align:center}
-.db.dn{background:rgba(255,208,0,.12);border-color:var(--yellow)}
-.db.td{background:var(--yellow);border-color:var(--yellow)}
-.db.td .dl,.db.td .dm{color:var(--ytext)}
-.db.lk{opacity:.28}
+.ad-right{margin-left:auto}
+.soon-b{background:var(--bg2);border:1px solid var(--border2);color:var(--t3);font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;white-space:nowrap}
+.go-b{background:var(--acc);color:#000;font-size:12px;font-weight:800;padding:7px 15px;border-radius:20px;white-space:nowrap}
+
+/* check-in */
+.ci-c{margin:14px;padding:18px;background:var(--card);border:1px solid var(--border);border-radius:20px}
+.ci-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.ci-h{font-size:15px;font-weight:800}
+.ci-sub{font-size:11px;color:var(--t3);margin-bottom:14px}
+.ci-badge{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:5px 13px;font-size:12px;font-weight:700;color:var(--gold)}
+.dg{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:14px}
+.db{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:9px 2px;text-align:center}
+.db.dn{background:rgba(255,255,255,.05);border-color:var(--border2)}
+.db.td{background:var(--acc);border-color:var(--acc)}
+.db.td .dl,.db.td .dm{color:#000}
+.db.lk{opacity:.3}
 .dl{font-size:8px;color:var(--t3);font-weight:700;text-transform:uppercase}
-.dm{font-size:10px;font-weight:900;margin-top:2px}
-.cib{width:100%;padding:14px;border-radius:12px;border:none;font-family:'Inter';font-size:13px;font-weight:800;cursor:pointer}
-.cib.rdy{background:var(--yellow);color:var(--ytext)}
-.cib.rdy:active{background:var(--yellow2)}
-.cib.dne{background:var(--bg);border:1.5px solid var(--border);color:var(--t3);cursor:not-allowed}
-.promo-w{margin:0 12px 12px}
-.promo-r{display:flex;gap:8px}
-.tlist{margin:0 12px 12px;background:var(--card);border-radius:16px;overflow:hidden}
-.ti{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1.5px solid var(--bg)}
+.dm{font-size:11px;font-weight:800;margin-top:2px}
+.cib{width:100%;padding:15px;border-radius:13px;border:none;font-family:'Sora';font-size:14px;font-weight:800;cursor:pointer;transition:.15s}
+.cib.rdy{background:var(--acc);color:#000}
+.cib.rdy:active{transform:scale(.98)}
+.cib.dne{background:var(--bg2);border:1px solid var(--border2);color:var(--t3);cursor:not-allowed}
+
+/* promo */
+.promo-w{margin:0 14px 14px}
+.promo-r{display:flex;gap:9px}
+
+/* tasks */
+.tlist{margin:0 14px 14px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.ti{display:flex;align-items:center;gap:12px;padding:15px 16px;border-bottom:1px solid var(--bg2)}
 .ti:last-child{border-bottom:none}
-.ti.dn{opacity:.45}
-.tico{width:38px;height:38px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ti.dn{opacity:.4}
+.tico{width:40px;height:40px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
 .tinf{flex:1;min-width:0}
 .tnm{font-size:13px;font-weight:700}
 .tds{font-size:11px;color:var(--t3);margin-top:2px}
-.trew{font-size:13px;font-weight:900;white-space:nowrap}
-.tbtns{display:flex;gap:5px;flex-shrink:0}
-.tb2{font-size:11px;padding:6px 10px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;font-family:'Inter';font-weight:700;white-space:nowrap}
-.tb2.y{background:var(--yellow);border-color:var(--yellow);color:var(--ytext)}
-.pvp-hd{padding:14px 16px 8px;display:flex;align-items:flex-start;justify-content:space-between}
-.pvp-ttl{font-size:34px;font-weight:900;letter-spacing:-1px}
-.rb{background:var(--yellow);color:var(--ytext);padding:5px 13px;border-radius:20px;font-size:12px;font-weight:800}
-.pvp-bal{margin:0 12px 12px;background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
-.pvpbl{font-size:12px;color:var(--t2);font-weight:600}
-.pvpbv{font-size:22px;font-weight:900}
-.pvp-bans{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 12px 12px}
-.pvpb{background:var(--card);border-radius:14px;padding:12px}
-.pvpbl2{font-size:9px;font-weight:800;letter-spacing:.08em;color:var(--t3);text-transform:uppercase;margin-bottom:5px}
-.pvpbu{font-size:12px;font-weight:800}
-.pvpbv2{font-size:14px;font-weight:900;margin-top:2px}
-.pvpbv2.gr{color:var(--green)}
-.pvpbv2.yl{color:var(--yellow2)}
-.pvpbc{font-size:10px;color:var(--t3);margin-top:1px}
-.pvp-tot{text-align:center;margin:6px 0 12px}
-.pvp-tot-b{display:inline-block;background:var(--text);color:#fff;padding:7px 20px;border-radius:20px;font-size:13px;font-weight:800}
-.whl-w{display:flex;justify-content:center;margin:0 0 14px;position:relative}
-.whl-ptr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:22px;color:var(--yellow2)}
-#wc{border-radius:50%;display:block}
-.whl-ctr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;background:var(--card);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:var(--text);text-align:center;line-height:1.2;cursor:pointer}
-.pvp-bet{margin:0 12px 10px;background:var(--card);border-radius:16px;padding:16px}
-.pbl{font-size:11px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.pbr{display:flex;gap:8px;margin-bottom:8px}
-.pbi{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:12px;color:var(--text);font-size:22px;font-weight:900;outline:none;text-align:center;font-family:'Inter'}
-.pbi:focus{border-color:var(--yellow)}
-.presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.pre{padding:7px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:800;color:var(--t2);cursor:pointer}
-.pre.sel,.pre:active{border-color:var(--yellow);background:rgba(255,208,0,.1);color:var(--text)}
-.pnote{font-size:11px;color:var(--t3);line-height:1.5}
-.cd{text-align:center;margin:8px 0;display:none}
-.cdn{font-size:52px;font-weight:900}
+.trew{font-size:13px;font-weight:800;white-space:nowrap;color:var(--gold)}
+.tbtns{display:flex;gap:6px;flex-shrink:0}
+.tb2{font-size:11px;padding:7px 11px;border-radius:10px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);cursor:pointer;font-family:'Sora';font-weight:700;white-space:nowrap}
+.tb2.y{background:var(--acc);border-color:var(--acc);color:#000}
+.tempty{text-align:center;padding:22px;color:var(--t3);font-size:13px}
+
+/* PvP */
+.pvp-hd{padding:16px 16px 6px;display:flex;align-items:flex-start;justify-content:space-between}
+.pvp-lbl{font-size:10px;color:var(--t3);font-weight:700;letter-spacing:.16em}
+.pvp-ttl{font-size:32px;font-weight:800;letter-spacing:-1px;margin-top:2px}
+.rb{background:var(--card2);border:1px solid var(--border2);color:var(--text);padding:6px 13px;border-radius:20px;font-size:12px;font-weight:700}
+.pvp-status{margin:0 14px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 16px}
+.pvp-pool-l{font-size:10px;color:var(--t3);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.pvp-pool-v{font-size:24px;font-weight:800;letter-spacing:-.5px}
+.pvp-state-b{display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:7px 14px;font-size:13px;font-weight:700}
+.whl-w{display:flex;justify-content:center;align-items:center;margin:6px 0 16px;position:relative;height:280px}
+.whl-ptr{position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:20px;color:var(--acc);z-index:3;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+#wc{display:block;transition:none}
+.whl-ctr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:96px;height:96px;border-radius:50%;background:var(--bg);border:2px solid var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--text);text-align:center;line-height:1.2}
+.whl-ctr small{font-size:9px;color:var(--t3);font-weight:600;margin-top:2px}
+.cd{text-align:center;margin:6px 0;display:none}
+.cdn{font-size:54px;font-weight:800;letter-spacing:-2px}
 .cds{font-size:12px;color:var(--t3)}
-.abw{margin:0 12px 10px;display:none}
-.pvp-pts{margin:0 12px 10px;background:var(--card);border-radius:16px;overflow:hidden}
-.pvp-pts-h{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1.5px solid var(--bg)}
+.pvp-bet{margin:0 14px 12px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+.pbr{display:flex;gap:9px;margin-bottom:10px}
+.pbi{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:13px;color:var(--text);font-size:22px;font-weight:800;outline:none;text-align:center;font-family:'Sora'}
+.pbi:focus{border-color:var(--acc)}
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px}
+.pre{flex:1;padding:9px 0;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;text-align:center}
+.pre:active{border-color:var(--acc);color:var(--text)}
+.pnote{font-size:11px;color:var(--t3);line-height:1.5;text-align:center}
+.pvp-pts{margin:0 14px 12px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.pvp-pts-h{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid var(--bg2)}
 .pvp-pts-t{font-size:13px;font-weight:800}
-.pvp-gid{font-size:11px;color:var(--t3)}
-.pvp-pool{font-size:13px;font-weight:900}
-.ppt{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1.5px solid var(--bg)}
+.pvp-pool2{font-size:12px;font-weight:700;color:var(--t2)}
+.ppt{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--bg2)}
 .ppt:last-child{border-bottom:none}
 .ppav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;overflow:hidden;color:#fff}
 .ppav img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .ppnm{font-size:13px;font-weight:700}
-.ppch{font-size:12px;font-weight:800;margin-top:2px}
-.ppbt{font-size:15px;font-weight:900}
-.ppemp{text-align:center;padding:22px;color:var(--t3);font-size:13px}
-.hbtn{margin:0 12px 12px;padding:13px;background:var(--card);border:1.5px solid var(--border);border-radius:14px;color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;width:calc(100% - 24px);display:flex;align-items:center;justify-content:center;gap:8px}
-.fr-hero{margin:12px;background:var(--card);border-radius:20px;padding:18px}
-.fr-ttl{font-size:22px;font-weight:900;margin-bottom:4px}
-.fr-sub{font-size:12px;color:var(--t3);margin-bottom:16px}
-.fr-sts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.fr-st{background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:14px;text-align:center}
-.fr-sv{font-size:22px;font-weight:900}
-.fr-sl{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;margin-top:2px}
-.refb{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;font-size:12px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:10px;font-family:monospace;font-weight:700}
-.lv-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 12px 12px}
-.lvc{background:var(--card);border-radius:14px;padding:16px;text-align:center}
-.lvp{font-size:32px;font-weight:900;margin-bottom:3px}
-.lvl{font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.ppch{font-size:12px;font-weight:700;margin-top:2px}
+.ppbt{font-size:15px;font-weight:800;margin-left:auto}
+.ppemp{text-align:center;padding:24px;color:var(--t3);font-size:13px}
+.fair{margin:0 14px 12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 15px}
+.fair-h{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--t2);margin-bottom:7px}
+.fair-row{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;word-break:break-all;line-height:1.6;margin-bottom:3px}
+.fair-row b{color:var(--t2);font-family:'Sora';font-weight:700}
+.hbtn{margin:0 14px 14px;padding:13px;background:var(--card);border:1px solid var(--border);border-radius:14px;color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;width:calc(100% - 28px);display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* friends */
+.fr-hero{margin:14px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px}
+.fr-ttl{font-size:22px;font-weight:800;margin-bottom:4px;letter-spacing:-.5px}
+.fr-sub{font-size:12px;color:var(--t3);margin-bottom:18px}
+.fr-sts{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px}
+.fr-st{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:15px;text-align:center}
+.fr-sv{font-size:24px;font-weight:800}
+.fr-sl{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;margin-top:2px;letter-spacing:.05em}
+.refb{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;font-size:12px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:11px;font-family:'JetBrains Mono',monospace;font-weight:500}
+.lv-g{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:0 14px 14px}
+.lvc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:17px;text-align:center}
+.lvp{font-size:30px;font-weight:800;margin-bottom:3px}
+.lvl{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
 .lvd{font-size:11px;color:var(--t2);line-height:1.4}
-.fr-list{margin:0 12px 12px;background:var(--card);border-radius:16px;overflow:hidden}
-.fr-lh{padding:14px 16px;border-bottom:1.5px solid var(--bg)}
+.fr-list{margin:0 14px 14px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.fr-lh{padding:14px 16px;border-bottom:1px solid var(--bg2)}
 .fr-lt{font-size:13px;font-weight:800}
-.nofr{text-align:center;padding:24px;color:var(--t3);font-size:13px}
-.pr-hero{margin:12px;background:var(--card);border-radius:20px;padding:20px;text-align:center}
-.prav{width:74px;height:74px;border-radius:22px;background:linear-gradient(135deg,#3b82f6,#1e40af);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:#fff;margin:0 auto 12px;border:3px solid rgba(59,130,246,0.3);overflow:hidden}
-.prav img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.prnm{font-size:18px;font-weight:900;margin-bottom:14px}
-.pr-sts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.pr-st{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:12px;text-align:center}
-.pr-sv{font-size:16px;font-weight:900}
-.pr-sl{font-size:9px;color:var(--t3);font-weight:800;text-transform:uppercase;margin-top:2px}
-.wc2{margin:0 12px 10px;background:var(--card);border-radius:16px;padding:16px}
-.wlbl{font-size:11px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
-.wsr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.waddrb{background:var(--bg);border:1.5px solid var(--border);border-radius:11px;padding:11px 13px;font-family:monospace;font-size:14px;font-weight:800;margin-bottom:12px}
-.exc-c{margin:0 12px 10px;background:var(--card);border-radius:16px;padding:16px}
-.exc-rate{background:linear-gradient(135deg,#1e3a8a,#2563eb);border-radius:12px;padding:13px 15px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
-.erl{font-size:12px;font-weight:700;color:rgba(255,255,255,0.7)}
-.err{font-size:17px;font-weight:900;color:#fff}
-.exc-lim{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px}
+.fri{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--bg2)}
+.fri:last-child{border-bottom:none}
+.friav{width:38px;height:38px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;overflow:hidden;flex-shrink:0;color:#fff}
+.friav img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.frinm{font-size:13px;font-weight:700}
+.frilv{font-size:10px;color:var(--t3);margin-top:1px}
+.friearn{font-size:13px;font-weight:800;color:var(--green);margin-left:auto}
+.nofr{text-align:center;padding:26px;color:var(--t3);font-size:13px}
+
+/* profile */
+.pr-hero{margin:14px;background:linear-gradient(155deg,#1a1a1a,#000 75%);border:1px solid var(--border);border-radius:20px;padding:22px;text-align:center}
+.prav{width:78px;height:78px;border-radius:24px;background:linear-gradient(135deg,#2a2a2a,#000);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;margin:0 auto 12px;overflow:hidden}
+.prav img{width:100%;height:100%;object-fit:cover;border-radius:24px}
+.prnm{font-size:18px;font-weight:800;margin-bottom:16px}
+.pr-sts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.pr-st{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:13px;padding:13px 6px;text-align:center}
+.pr-sv{font-size:17px;font-weight:800}
+.pr-sl{font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase;margin-top:2px}
+.wc2{margin:0 14px 12px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+.wsr{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.waddrb{background:var(--bg2);border:1px solid var(--border2);border-radius:11px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;margin-bottom:12px}
+.exc-c{margin:0 14px 12px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+.exc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:13px}
+.exc-card{background:var(--bg2);border:1px solid var(--border2);border-radius:13px;padding:13px}
+.exc-card.off{opacity:.5}
+.exc-card-l{font-size:10px;color:var(--t3);font-weight:700;margin-bottom:5px}
+.exc-card-v{font-size:15px;font-weight:800}
+.exc-card-s{font-size:10px;color:var(--t3);margin-top:3px}
+.exc-lim{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px}
 .elt{display:flex;justify-content:space-between;margin-bottom:8px}
 .ell{font-size:12px;color:var(--t2);font-weight:500}
 .elv{font-size:12px;font-weight:800}
-.elb{height:5px;background:var(--border);border-radius:3px}
-.elf{height:100%;background:#3b82f6;border-radius:3px;transition:.3s}
-.exc-inp-w{margin-bottom:8px}
-.exc-res{font-size:13px;font-weight:800;text-align:center;min-height:20px;margin-bottom:10px;color:var(--t3)}
-.dep-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.irows{margin:0 12px 12px;background:var(--card);border-radius:16px;overflow:hidden}
-.ir{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1.5px solid var(--bg);cursor:pointer}
+.elb{height:5px;background:var(--border2);border-radius:3px;overflow:hidden}
+.elf{height:100%;background:var(--acc);border-radius:3px;transition:.3s}
+.exc-res{font-size:13px;font-weight:700;text-align:center;min-height:20px;margin:10px 0;color:var(--t3)}
+.dep-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+.irows{margin:0 14px 12px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.ir{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid var(--bg2);cursor:pointer}
 .ir:last-child{border-bottom:none}
-.ir:active{background:var(--bg)}
-.irl{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
-.irico{width:32px;height:32px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.irr{font-size:14px;font-weight:800;color:var(--t2)}
-.tx-c{margin:0 12px 12px;background:var(--card);border-radius:16px;overflow:hidden}
-.tx-h{padding:14px 16px;border-bottom:1.5px solid var(--bg)}
+.ir:active{background:var(--bg2)}
+.irl{display:flex;align-items:center;gap:11px;font-size:13px;font-weight:600}
+.irico{width:34px;height:34px;background:var(--bg2);border:1px solid var(--border2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.irr{font-size:13px;font-weight:700;color:var(--t2)}
+.tx-c{margin:0 14px 12px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.tx-h{padding:14px 16px;border-bottom:1px solid var(--bg2)}
 .tx-ht{font-size:13px;font-weight:800}
-.txi{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1.5px solid var(--bg)}
+.txi{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--bg2)}
 .txi:last-child{border-bottom:none}
-.tx-ico{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
-.tx-ico.dep{background:rgba(52,199,89,.1)}
-.tx-ico.wit{background:rgba(255,59,48,.1)}
-.tx-ico.exc{background:rgba(255,208,0,.15)}
-.tx-inf{flex:1}
+.tx-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--bg2);border:1px solid var(--border2)}
+.tx-inf{flex:1;min-width:0}
 .tx-nm{font-size:13px;font-weight:700}
 .tx-dt{font-size:11px;color:var(--t3);margin-top:2px}
-.tx-am{font-size:14px;font-weight:900}
+.tx-am{font-size:14px;font-weight:800;margin-left:auto;white-space:nowrap}
 .tx-am.pl{color:var(--green)}
 .tx-am.mn{color:var(--red)}
-.tx-emp{text-align:center;padding:24px;color:var(--t3);font-size:13px}
-.shbg{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.tx-emp{text-align:center;padding:26px;color:var(--t3);font-size:13px}
+
+/* sheets / modals */
+.shbg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:300;display:none;align-items:flex-end;justify-content:center}
 .shbg.show{display:flex}
-.shbox{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-width:430px;max-height:86vh;overflow:hidden;display:flex;flex-direction:column;animation:sup .25s ease}
+.shbox{background:var(--card);border:1px solid var(--border2);border-bottom:none;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:86vh;overflow:hidden;display:flex;flex-direction:column;animation:sup .28s cubic-bezier(.2,.8,.2,1)}
 @keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.shhdl{width:38px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0}
-.shhd{padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--bg)}
-.shttl{font-size:18px;font-weight:900}
-.shcl{width:30px;height:30px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:800}
-.lb-tabs{display:flex;background:var(--bg);border-radius:12px;overflow:hidden;margin:0 14px 12px;padding:3px;gap:3px}
-.lbt{flex:1;padding:9px;border:none;background:transparent;color:var(--t2);font-size:13px;font-weight:800;cursor:pointer;border-radius:10px;font-family:'Inter'}
-.lbt.on{background:#3b82f6;color:#fff}
-.shscr{flex:1;overflow-y:scroll;padding:0 14px 20px}
+.shhdl{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 0}
+.shhd{padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bg2)}
+.shttl{font-size:18px;font-weight:800}
+.shcl{width:32px;height:32px;border-radius:50%;background:var(--bg2);border:1px solid var(--border2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text)}
+.lb-tabs{display:flex;background:var(--bg2);border-radius:12px;overflow:hidden;margin:14px 16px 12px;padding:3px;gap:3px}
+.lbt{flex:1;padding:10px;border:none;background:transparent;color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;border-radius:10px;font-family:'Sora'}
+.lbt.on{background:var(--acc);color:#000}
+.shscr{flex:1;overflow-y:scroll;padding:0 16px 22px}
 .shscr::-webkit-scrollbar{display:none}
-.lbi{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;margin-bottom:5px;background:var(--bg)}
-.lbi.me{background:rgba(59,130,246,0.12);border:1.5px solid #3b82f6}
-.lbr{font-size:14px;font-weight:900;width:24px;text-align:center;flex-shrink:0}
-.lbav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;overflow:hidden;color:#fff}
+.lbi{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:13px;margin-bottom:6px;background:var(--bg2);border:1px solid transparent}
+.lbi.me{background:rgba(255,255,255,.06);border-color:var(--border2)}
+.lbr{font-size:14px;font-weight:800;width:26px;text-align:center;flex-shrink:0}
+.lbav{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;overflow:hidden;color:#fff;background:var(--card2)}
 .lbav img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.lbinf{flex:1}
+.lbinf{flex:1;min-width:0}
 .lbnm{font-size:13px;font-weight:700}
 .lbsb{font-size:10px;color:var(--t3);margin-top:1px}
-.lbvl{font-size:13px;font-weight:900}
-.lb-div{text-align:center;padding:8px;color:var(--t3);font-size:13px}
-.lb-emp{text-align:center;padding:32px;color:var(--t3);font-size:14px;font-weight:600}
-.hi{display:flex;align-items:center;gap:12px;padding:13px;border-bottom:1.5px solid var(--bg)}
+.lbvl{font-size:13px;font-weight:800;margin-left:auto}
+.lb-emp{text-align:center;padding:34px;color:var(--t3);font-size:14px;font-weight:600}
+.hi{display:flex;align-items:center;gap:12px;padding:13px;border-bottom:1px solid var(--bg2)}
 .hi:last-child{border-bottom:none}
-.hiav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;overflow:hidden;color:#fff}
-.hiav img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.hinf{flex:1}
+.hiav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;overflow:hidden;color:#fff;flex-shrink:0}
+.hinf{flex:1;min-width:0}
 .hinm{font-size:13px;font-weight:700}
-.himt{font-size:11px;color:var(--t3);margin-top:1px}
-.hiarc{font-size:13px;font-weight:900;color:var(--green)}
-#mbg{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:400;display:none;align-items:flex-end;justify-content:center}
+.himt{font-size:10px;color:var(--t3);margin-top:1px;font-family:'JetBrains Mono',monospace;word-break:break-all}
+.hiarc{font-size:13px;font-weight:800;color:var(--green);margin-left:auto;white-space:nowrap}
+#mbg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:400;display:none;align-items:flex-end;justify-content:center}
 #mbg.show{display:flex}
-.msh{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-width:430px;padding:6px 0 32px;animation:sup .25s ease}
-.mhdl{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
-.mttl{font-size:18px;font-weight:900;padding:0 20px 14px}
+.msh{background:var(--card);border:1px solid var(--border2);border-bottom:none;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:6px 0 34px;animation:sup .28s cubic-bezier(.2,.8,.2,1)}
+.mhdl{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px}
+.mttl{font-size:18px;font-weight:800;padding:0 20px 14px}
 .mbody{padding:0 20px}
 .mnote{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:14px}
-#pvpr{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);z-index:350;display:none;align-items:center;justify-content:center}
+#pvpr{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);z-index:350;display:none;align-items:center;justify-content:center}
 #pvpr.show{display:flex}
-.pvpr-in{background:var(--card);border-radius:24px;padding:28px 24px;max-width:320px;width:88%;text-align:center;position:relative}
-.pvpr-cl{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:800}
-.pvpr-em{font-size:66px;margin-bottom:10px;display:block}
-.pvpr-av{width:78px;height:78px;border-radius:50%;margin:0 auto 12px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;background:linear-gradient(135deg,#3b82f6,#1e40af);color:#fff;border:3px solid rgba(59,130,246,0.3)}
+.pvpr-in{background:var(--card);border:1px solid var(--border2);border-radius:26px;padding:30px 24px;max-width:330px;width:88%;text-align:center;position:relative;animation:fadeIn .3s ease}
+.pvpr-cl{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--bg2);border:1px solid var(--border2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text)}
+.pvpr-em{font-size:60px;margin-bottom:8px;display:block}
+.pvpr-av{width:76px;height:76px;border-radius:50%;margin:0 auto 12px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;background:var(--card2);color:#fff}
 .pvpr-av img{width:100%;height:100%;object-fit:cover}
-.pvpr-nm{font-size:18px;font-weight:900;margin-bottom:5px}
-.pvpr-tt{font-size:30px;font-weight:900;margin-bottom:8px}
-.pvpr-tt.win{color:var(--text)}
-.pvpr-tt.lose{color:var(--red)}
-.pvpr-am{font-size:30px;font-weight:900;margin-bottom:5px}
+.pvpr-nm{font-size:18px;font-weight:800;margin-bottom:6px}
+.pvpr-tt{font-size:26px;font-weight:800;margin-bottom:8px}
+.pvpr-tt.win{color:var(--green)}
+.pvpr-tt.lose{color:var(--t2)}
+.pvpr-am{font-size:30px;font-weight:800;margin-bottom:6px}
 .pvpr-am.pl{color:var(--green)}
-.pvpr-am.mn{color:var(--red)}
 .pvpr-mt{font-size:12px;color:var(--t3);margin-bottom:22px;line-height:1.7}
-#wban{position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-100px);max-width:400px;width:92%;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:12px 16px;z-index:200;transition:.3s;display:none}
+#wban{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-120px);max-width:440px;width:92%;background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:13px 16px;z-index:200;transition:.35s;display:none}
 #wban.show{transform:translateX(-50%) translateY(0);display:block}
 .wbin{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.wbcl{width:26px;height:26px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-weight:800}
-#cfc{position:fixed;inset:0;pointer-events:none;z-index:340;display:none}
-.coin{position:fixed;pointer-events:none;z-index:360;font-size:22px;animation:cf 1.3s ease-out forwards}
-@keyframes cf{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-140px) scale(.2);opacity:0}}
+.wbcl{width:26px;height:26px;border-radius:50%;background:var(--bg2);border:1px solid var(--border2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text);flex-shrink:0}
 </style>
-</head
-  <body>
+</head>
+<body>
 <div id="app">
 <div class="tb">
   <div class="tb-user">
     <div class="tb-av" id="topAv">B</div>
-    <div class="tb-name" id="topName">@username</div>
+    <div><div class="tb-name" id="topName">@username</div><div class="tb-bal" id="topBal">0 ARC</div></div>
   </div>
   <div class="lw">
     <button id="btnRU" class="on" onclick="setLang('ru')">RU</button>
@@ -303,95 +340,98 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
   </div>
 </div>
 <div id="screen">
+
+<!-- HOME -->
 <div class="page active" id="page-home">
   <div class="hero">
     <div class="hero-plat">Platform</div>
-    <div class="hero-ttl">BLACK 🖤</div>
+    <div class="hero-ttl">BLACK</div>
     <div class="bals">
       <div class="bal"><div class="bal-n" id="hArc">0</div><div class="bal-l">ARC</div></div>
       <div class="bal"><div class="bal-n" id="hTon">0.000</div><div class="bal-l">TON</div></div>
     </div>
     <div class="wrow"><div class="dot" id="hDot"></div><span id="hWallet">Кошелёк не подключён</span></div>
-    <span class="mbadge" id="hMult">× 1.0 Множитель</span>
+    <span class="mbadge" id="hMult">⚡ ×1.0 множитель</span>
+  </div>
+  <div class="about">
+    <div class="about-t" id="aboutT">🖤 О платформе</div>
+    <div class="about-x" id="aboutX"></div>
   </div>
   <div class="earn-sec">
-    <div class="earn-h"><h3 id="earnTitle">РЕКЛАМА</h3><span id="earnSub">Скоро</span></div>
-    <div class="adc"><div class="adi"><div class="ad-ico">📺</div><div><div class="ad-nm" id="adN1">Реклама 1</div><div class="ad-sb" id="adL1">Лимит 50/день</div></div><div style="margin-left:auto"><div class="soon-b">Скоро</div></div></div></div>
-    <div class="adc"><div class="adi"><div class="ad-ico">📺</div><div><div class="ad-nm" id="adN2">Реклама 2</div><div class="ad-sb" id="adL2">Лимит 50/день</div></div><div style="margin-left:auto"><div class="soon-b">Скоро</div></div></div></div>
-    <div class="adc"><div class="adi"><div class="ad-ico">📺</div><div><div class="ad-nm" id="adN3">Реклама 3</div><div class="ad-sb" id="adL3">Лимит 30/день</div></div><div style="margin-left:auto"><div class="soon-b">Скоро</div></div></div></div>
-    <div class="adc"><div class="adi"><div class="ad-ico">📺</div><div><div class="ad-nm" id="adN4">Реклама 4</div><div class="ad-sb" id="adL4">Лимит 30/день</div></div><div style="margin-left:auto"><div class="soon-b">Скоро</div></div></div></div>
-    <div class="adc"><div class="adi"><div class="ad-ico">📺</div><div><div class="ad-nm" id="adN5">Реклама 5</div><div class="ad-sb" id="adL5">Лимит 30/день</div></div><div style="margin-left:auto"><div class="soon-b">Скоро</div></div></div></div>
+    <div class="earn-h"><h3 id="earnTitle">Реклама</h3><span id="earnSub">Скоро</span></div>
+    <div id="adList"></div>
   </div>
   <div class="sp"></div>
 </div>
+
+<!-- TASKS -->
 <div class="page" id="page-tasks">
   <div class="ci-c">
-    <div class="slbl" id="ciTitle">Чек-ин</div>
-    <div class="ci-st">
-      <div class="ci-s"><div class="ci-v" id="ciDay">1</div><div class="ci-l" id="ciDL">День</div></div>
-      <div class="ci-s"><div class="ci-v" id="ciM">×1.0</div><div class="ci-l" id="ciML">Множитель</div></div>
-    </div>
+    <div class="ci-top"><div class="ci-h" id="ciTitle">Ежедневный чек-ин</div><div class="ci-badge" id="ciBadge">День 1</div></div>
+    <div class="ci-sub" id="ciSub">×1.0 множитель рекламы</div>
     <div class="dg" id="dg"></div>
-    <button class="cib dne" id="cib" onclick="doCI()">✓ Получено</button>
+    <button class="cib rdy" id="cib" onclick="doCI()">🌟 Получить</button>
   </div>
   <div class="promo-w">
-    <div class="slbl" id="promoTitle">Промо-код</div>
+    <div class="slbl" id="promoTitle">Промокод</div>
     <div class="promo-r">
-      <input class="inp" id="promoInp" placeholder="Введи промо-код..."/>
-      <button class="btn btn-y" style="padding:12px 16px;border-radius:12px;white-space:nowrap" onclick="redeemPromo()" id="promoBtn">Применить</button>
+      <input class="inp" id="promoInp" placeholder="Введи промокод..."/>
+      <button class="btn btn-y" style="padding:13px 18px;white-space:nowrap" onclick="redeemPromo()" id="promoBtn">Применить</button>
     </div>
   </div>
-  <div style="margin:0 12px 10px"><div class="slbl" id="tasksTitle">Задания</div></div>
-  <div class="tlist" id="tlist"></div>
+  <div style="margin:0 14px 11px"><div class="slbl" id="tasksTitle">Задания</div></div>
+  <div class="tlist" id="tlist"><div class="tempty" id="tEmpty">Нет заданий</div></div>
   <div class="sp"></div>
 </div>
+
+<!-- PvP -->
 <div class="page" id="page-pvp">
   <div class="pvp-hd">
-    <div><div style="font-size:11px;color:var(--t3);font-weight:800" id="pvpLbl">⚔️ АРЕНА</div><div class="pvp-ttl">PvP</div></div>
-    <div class="rb" id="pvpRound">ROUND #1</div>
+    <div><div class="pvp-lbl" id="pvpLbl">⚔️ АРЕНА</div><div class="pvp-ttl">PvP</div></div>
+    <div class="rb" id="pvpRound">#1</div>
   </div>
-  <div class="pvp-bal">
-    <div class="pvpbl" id="pvpBL">Мой баланс ARC</div>
-    <div class="pvpbv" id="pvpBV">0 ARC</div>
+  <div class="pvp-status">
+    <div><div class="pvp-pool-l" id="pvpPoolL">Банк</div><div class="pvp-pool-v"><span id="pvpTot">0</span> ARC</div></div>
+    <div class="pvp-state-b" id="pvpStateB"><span id="pvpPlayers">0/10</span> · <span id="pvpStateTxt">⏳ Ожидание</span></div>
   </div>
-  <div class="pvp-bans">
-    <div class="pvpb"><div class="pvpbl2">ПРЕД. ИГРА</div><div class="pvpbu" id="prevU">—</div><div class="pvpbv2 gr" id="prevV">—</div><div class="pvpbc" id="prevC"></div></div>
-    <div class="pvpb"><div class="pvpbl2">ТОП ИГРА</div><div class="pvpbu" id="topU">—</div><div class="pvpbv2 yl" id="topV">—</div><div class="pvpbc" id="topC"></div></div>
-  </div>
-  <div class="pvp-tot"><div class="pvp-tot-b">POOL <span id="pvpTot">0 ARC</span></div></div>
   <div class="whl-w">
     <div class="whl-ptr">▼</div>
-    <canvas id="wc" width="260" height="260"></canvas>
-    <div class="whl-ctr" id="whlC">Ожидание</div>
+    <canvas id="wc" width="280" height="280"></canvas>
+    <div class="whl-ctr" id="whlC">Ожидание<small id="whlCs">ждём игроков</small></div>
   </div>
   <div class="cd" id="cd"><div class="cdn" id="cdn">15</div><div class="cds" id="cds">Раунд начался!</div></div>
   <div class="pvp-bet">
-    <div class="pbl" id="pvpBetLbl">Ставка (мин 10, макс 5000 ARC)</div>
     <div class="pbr">
-      <input class="pbi" type="number" id="pbi" value="10" min="10" max="5000"/>
-      <button class="btn btn-y" onclick="placeBet()" id="pvpBetBtn">Ставить</button>
+      <input class="pbi" type="number" id="pbi" value="10" min="10" max="1000"/>
+      <button class="btn btn-y" onclick="placeBet()" id="pvpBetBtn" style="padding:0 22px">⚔️ Ставить</button>
     </div>
     <div class="presets">
       <div class="pre" onclick="setB(10)">10</div>
       <div class="pre" onclick="setB(50)">50</div>
       <div class="pre" onclick="setB(100)">100</div>
       <div class="pre" onclick="setB(500)">500</div>
-      <div class="pre" onclick="setB(1000)">1K</div>
-      <div class="pre" onclick="setB(5000)">5K</div>
+      <div class="pre" onclick="setB(1000)">1000</div>
     </div>
-    <div class="pnote" id="pvpNote">10% комиссия · 2-10 игроков · Возврат если нет соперника за 1 мин</div>
+    <div class="pnote" id="pvpNote">Ставка 10–1000 ARC · комиссия 10% · до 10 игроков · возврат если нет соперника за 60 сек</div>
   </div>
-  <div class="abw" id="abw"><button class="btn btn-y btn-full" onclick="addBet()">+ Добавить в PvP</button></div>
   <div class="pvp-pts">
     <div class="pvp-pts-h">
-      <div><div class="pvp-pts-t" id="pvpPL">Участники</div><div class="pvp-gid" id="pvpGID">ИГРА #1</div></div>
-      <div class="pvp-pool">POOL: <span id="pvpPool">0 ARC</span></div>
+      <div class="pvp-pts-t" id="pvpPL">Участники</div>
+      <div class="pvp-pool2">POOL: <span id="pvpPool">0 ARC</span></div>
     </div>
-    <div id="pvpParts"><div class="ppemp">Будь первым — сделай ставку!</div></div>
+    <div id="pvpParts"><div class="ppemp" id="pvpEmp">Будь первым — сделай ставку!</div></div>
+  </div>
+  <div class="fair" id="fairBox">
+    <div class="fair-h">🔒 <span id="fairTitle">Честность раунда (provably fair)</span></div>
+    <div class="fair-row"><b id="fairHashL">Hash:</b> <span id="fairHash">—</span></div>
+    <div class="fair-row" id="fairSeedRow" style="display:none"><b id="fairSeedL">Seed:</b> <span id="fairSeed">—</span></div>
+    <div class="fair-row" style="color:var(--t3);font-family:'Sora'" id="fairNote">Хэш показан до розыгрыша. Seed раскрывается после — можно проверить честность.</div>
   </div>
   <button class="hbtn" onclick="openHist()"><span>📋</span><span id="pvpHistLbl">История 30 игр</span></button>
   <div class="sp"></div>
 </div>
+
+<!-- FRIENDS -->
 <div class="page" id="page-friends">
   <div class="fr-hero">
     <div class="fr-ttl" id="frTitle">Пригласи и заработай</div>
@@ -400,22 +440,24 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
       <div class="fr-st"><div class="fr-sv" id="frCnt">0</div><div class="fr-sl" id="frIL">Приглашено</div></div>
       <div class="fr-st"><div class="fr-sv" id="frEarn">0</div><div class="fr-sl" id="frAL">ARC с рефералов</div></div>
     </div>
-    <div class="refb" id="refBox">t.me/black_tonbot?start=...</div>
-    <div style="display:flex;gap:8px">
+    <div class="refb" id="refBox">t.me/...</div>
+    <div style="display:flex;gap:9px">
       <button class="btn btn-w btn-full" onclick="copyRef()" id="copyBtn">🔗 Скопировать</button>
       <button class="btn btn-y btn-full" onclick="shareRef()" id="shareBtn">📤 Поделиться</button>
     </div>
   </div>
   <div class="lv-g">
-    <div class="lvc"><div class="lvp">20%</div><div class="lvl" id="lv1l">Уровень 1</div><div class="lvd" id="lv1d">С рекламы прямых рефералов</div></div>
-    <div class="lvc"><div class="lvp" style="color:var(--t3)">5%</div><div class="lvl" id="lv2l">Уровень 2</div><div class="lvd" id="lv2d">С рекламы их рефералов</div></div>
+    <div class="lvc"><div class="lvp">20%</div><div class="lvl" id="lv1l">Уровень 1</div><div class="lvd" id="lv1d">С рекламного дохода прямых рефералов</div></div>
+    <div class="lvc"><div class="lvp">10%</div><div class="lvl" id="lv2l">Уровень 2</div><div class="lvd" id="lv2d">С дохода рефералов твоих друзей</div></div>
   </div>
   <div class="fr-list">
     <div class="fr-lh"><div class="fr-lt" id="frListT">Мои друзья</div></div>
-    <div id="frList"><div class="nofr">👥 Пока нет друзей</div></div>
+    <div id="frList"><div class="nofr" id="noFr">👥 Пока нет друзей</div></div>
   </div>
   <div class="sp"></div>
 </div>
+
+<!-- PROFILE -->
 <div class="page" id="page-profile">
   <div class="pr-hero">
     <div class="prav" id="prAv">B</div>
@@ -423,46 +465,42 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
     <div class="pr-sts">
       <div class="pr-st"><div class="pr-sv" id="prArc">0</div><div class="pr-sl">ARC</div></div>
       <div class="pr-st"><div class="pr-sv" id="prTon">0.000</div><div class="pr-sl">TON</div></div>
-      <div class="pr-st"><div class="pr-sv" id="prMlt">×1.0</div><div class="pr-sl" id="prML">Множитель</div></div>
+      <div class="pr-st"><div class="pr-sv" id="prMlt">×1.0</div><div class="pr-sl" id="prML">Множ.</div></div>
     </div>
   </div>
   <div class="wc2">
-    <div class="wlbl" id="wLbl">TON Кошелёк</div>
+    <div class="slbl" id="wLbl">TON Кошелёк</div>
     <div id="wDisc">
-      <div class="wsr"><div class="dot"></div><span style="font-size:14px;font-weight:800" id="wNC">Не подключён</span></div>
-      <button class="btn btn-y btn-full" onclick="connectWallet()" id="wBtn">💎 Подключить кошелёк</button>
+      <div class="wsr"><div class="dot"></div><span style="font-size:14px;font-weight:700" id="wNC">Не подключён</span></div>
+      <button class="btn btn-y btn-full" onclick="connectWallet()" id="wBtn">💎 Подключить</button>
     </div>
     <div id="wConn" style="display:none">
-      <div class="wsr"><div class="dot on"></div><span style="font-size:14px;font-weight:800;color:var(--green)" id="wCT">Подключён</span></div>
-      <div class="waddrb" id="wAddr">UQ...????</div>
-      <button class="btn btn-r btn-full" onclick="disconnectWallet()" id="wDiscBtn">Отключить</button>
+      <div class="waddrb" id="wAddr">UQ...</div>
+      <div class="dep-btns">
+        <button class="btn btn-w" onclick="openModal('deposit')" id="depBtn">↓ Депозит</button>
+        <button class="btn btn-w" onclick="openModal('withdraw')" id="withBtn">↑ Вывод</button>
+      </div>
+      <button class="btn btn-r btn-full" style="margin-top:9px" onclick="disconnectWallet()" id="wDiscBtn">Отключить</button>
     </div>
   </div>
   <div class="exc-c">
-    <div class="slbl" id="exchTitle">Обмен TON → ARC</div>
-    <div class="exc-rate">
-      <span class="erl">1 TON =</span>
-      <span class="err" id="excRate">... ARC</span>
+    <div class="slbl" id="exchTitle">Обмен</div>
+    <div class="exc-grid">
+      <div class="exc-card"><div class="exc-card-l">TON → ARC</div><div class="exc-card-v"><span id="excRate">—</span></div><div class="exc-card-s" id="excLimL">Лимит 5 TON/день</div></div>
+      <div class="exc-card off"><div class="exc-card-l">ARC → TON</div><div class="exc-card-v" id="arcTonV">Недоступен</div><div class="exc-card-s" id="arcTonS">Откроется позже</div></div>
     </div>
     <div class="exc-lim">
-      <div class="elt"><span class="ell" id="excLL">Лимит сегодня</span><span class="elv" id="excLV">0 / 5 TON</span></div>
+      <div class="elt"><span class="ell" id="excLL">Обменяно сегодня</span><span class="elv" id="excLV">0 / 5 TON</span></div>
       <div class="elb"><div class="elf" id="excLF" style="width:0%"></div></div>
     </div>
-    <div class="exc-inp-w">
-      <input class="inp" style="margin-bottom:8px" type="number" placeholder="0.1 — 5 TON" id="excInp" oninput="calcExc()" step="0.01" min="0.1" max="5"/>
-      <div class="exc-res" id="excRes">Введи сумму TON</div>
-      <button class="btn btn-y btn-full" onclick="doExchange()">Обменять</button>
-    </div>
-    <div class="dep-btns">
-      <button class="btn btn-w" onclick="openModal('deposit')" id="depBtn">↓ Депозит</button>
-      <button class="btn btn-w" onclick="openModal('withdraw')" id="withBtn">↑ Вывод</button>
-    </div>
+    <input class="inp" type="number" placeholder="0.1 — 5 TON" id="excInp" oninput="calcExc()" step="0.01" min="0.1" max="5"/>
+    <div class="exc-res" id="excRes">Введи сумму TON</div>
+    <button class="btn btn-y btn-full" onclick="doExchange()" id="excBtn">Обменять</button>
   </div>
   <div class="irows">
     <div class="ir" onclick="openLB()"><div class="irl"><div class="irico">🏆</div><span id="lbIL">Лидерборд</span></div><div class="irr">›</div></div>
     <div class="ir"><div class="irl"><div class="irico">📅</div><span id="ciIL">Серия чек-ин</span></div><div class="irr" id="ciIV">День 1 · ×1.0</div></div>
     <div class="ir"><div class="irl"><div class="irico">👥</div><span id="refIL">Рефералов</span></div><div class="irr" id="refIV">0</div></div>
-    <div class="ir" onclick="openModal('burn')"><div class="irl"><div class="irico">🔥</div><span id="burnIL">Сжигание ARC</span></div><div class="irr">›</div></div>
   </div>
   <div class="tx-c">
     <div class="tx-h"><div class="tx-ht" id="txTitle">История транзакций</div></div>
@@ -470,18 +508,19 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
   </div>
   <div class="sp"></div>
 </div>
+
 </div>
 <nav id="nav">
   <div class="ni" onclick="gp('pvp',this)">
-    <svg viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/><path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"/><path d="M15.5 9H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5S16.33 9 15.5 9z"/><path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"/><path d="M8.5 15H10v-1.5c0-.83-.67-1.5-1.5-1.5S7 12.67 7 13.5 7.67 15 8.5 15z"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M6 3l4 4M3 6l4 4M14.5 9.5l5-5M19 3h2v2M16 8l3 3M9.5 14.5l-6 6M3 19v2h2"/><path d="M14 10l7 7-2 2-7-7"/></svg>
     <span id="nPvp">PvP</span>
   </div>
   <div class="ni" onclick="gp('tasks',this)">
-    <svg viewBox="0 0 24 24"><rect x="9" y="11" width="12" height="2" rx="1"/><rect x="9" y="7" width="12" height="2" rx="1"/><rect x="9" y="15" width="12" height="2" rx="1"/><circle cx="5" cy="8" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="5" cy="16" r="1.5"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
     <span id="nTasks">Задания</span>
   </div>
   <div class="ni on" onclick="gp('home',this)">
-    <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
     <span id="nHome">Главная</span>
   </div>
   <div class="ni" onclick="gp('friends',this)">
@@ -494,7 +533,8 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
   </div>
 </nav>
 </div>
-<canvas id="cfc"></canvas>
+
+<!-- overlays -->
 <div id="pvpr">
   <div class="pvpr-in">
     <button class="pvpr-cl" onclick="closePR()">×</button>
@@ -504,12 +544,12 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
     <div class="pvpr-tt" id="prTt">ПОБЕДА</div>
     <div class="pvpr-am" id="prAm"></div>
     <div class="pvpr-mt" id="prMt"></div>
-    <button class="btn btn-y btn-full" onclick="closePR()" style="padding:14px;font-size:15px">Awesome! 🎉</button>
+    <button class="btn btn-y btn-full" onclick="closePR()" style="padding:14px;font-size:15px" id="prOk">Отлично! 🎉</button>
   </div>
 </div>
 <div id="wban">
   <div class="wbin">
-    <div><div style="font-size:13px;font-weight:800" id="wbT">🏆</div><div style="font-size:11px;color:var(--t3);margin-top:2px" id="wbS"></div></div>
+    <div><div style="font-size:13px;font-weight:700" id="wbT">🏆</div><div style="font-size:11px;color:var(--t3);margin-top:2px" id="wbS"></div></div>
     <button class="wbcl" onclick="closeWB()">×</button>
   </div>
 </div>
@@ -525,7 +565,7 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
   <div class="shbox">
     <div class="shhdl"></div>
     <div class="shhd"><div class="shttl" id="hiTitle">История PvP</div><button class="shcl" onclick="closeHist()">×</button></div>
-    <div class="shscr" id="hiScr"></div>
+    <div class="shscr" id="hiScr" style="padding-top:10px"></div>
   </div>
 </div>
 <div id="mbg" onclick="closeMBg(event)">
@@ -537,1418 +577,687 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans
 </div>
 <div id="toast"></div>
 <script>
-  const PW = 'UQAG8cx9dXAWIfcoNUkdyki-Un9QzJxw3_xU8624H6OnZFMb';
-const BOT = 'black_tonbot';
-const CH = 'blackt_channel';
-const COLS = ['#3498db','#e74c3c','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#e91e63','#00bcd4','#ff5722'];
+/* ============ BLACK Mini App — clean frontend ============ */
+const PW = 'UQAG8cx9dXAWIfcoNUkdyki-Un9QzJxw3_xU8624H6OnZFMb';
+let BOT = 'black_tonbot';
+let CH  = 'blackt_channel';
+const COLS = ['#3b82f6','#ef4444','#22c55e','#f59e0b','#a855f7','#06b6d4','#ec4899','#84cc16','#f97316','#14b8a6'];
 
 const S = {
-  tgId: null, user: '@user', init: 'U', photo: null,
-  arc: 0, ton: 0, mult: 1.0,
-  ciDay: 1, ciDone: false,
-  wallet: '', lang: 'ru',
-  tasks: new Set(),
-  pvpRound: 1,
-  refCode: '', friends: [],
-  excToday: 0, tonRate: 0,
-  txs: [],
-  usedPromos: new Set(),
-  initData: ''
+  tgId:null, user:'@user', init:'U', photo:null,
+  arc:0, ton:0, mult:1.0,
+  ciDay:1, ciDone:false,
+  wallet:'', lang:'ru',
+  doneTasks:new Set(),
+  refCode:'', friends:[], directCount:0,
+  excToday:0, arcPerTon:0, tonRate:0,
+  txs:[], serverTasks:[],
+  initData:''
 };
 
-const TASKS = [
-  {id:'ch',ico:'📣',rew:5,type:'ch'},
-  {id:'r1',ico:'👥',rew:5,type:'r',req:1},
-  {id:'r3',ico:'👥',rew:15,type:'r',req:3},
-  {id:'r5',ico:'👥',rew:30,type:'r',req:5},
-  {id:'r10',ico:'👥',rew:70,type:'r',req:10},
-  {id:'r20',ico:'👥',rew:150,type:'r',req:20},
-  {id:'r50',ico:'👥',rew:400,type:'r',req:50}
-];
+/* ---------- check-in ---------- */
+const MML=['×1.0','×1.1','×1.2','×1.3','×1.4','×1.5'];
+function buildDays(){
+  const g=document.getElementById('dg'); if(!g)return;
+  const lb=['Д1','Д2','Д3','Д4','Д5','Д6']; const en=['D1','D2','D3','D4','D5','D6'];
+  g.innerHTML='';
+  for(let i=0;i<6;i++){
+    const d=document.createElement('div');
+    d.className='db'+(i===S.ciDay-1?' td':i<S.ciDay-1?' dn':' lk');
+    d.innerHTML='<div class="dl">'+(S.lang==='ru'?lb[i]:en[i])+'</div><div class="dm">'+MML[i]+'</div>';
+    g.appendChild(d);
+  }
+}
+function updateCIBtn(){
+  const b=document.getElementById('cib'); if(!b)return;
+  if(S.ciDone){ b.textContent=t('ciD'); b.className='cib dne'; }
+  else { b.textContent=t('ciR'); b.className='cib rdy'; }
+}
+async function doCI(){
+  if(S.ciDone){ toast(t('ciDone'),'r'); return; }
+  try{
+    const r=await fetch('/api/checkin',{method:'POST',headers:authHeaders(),body:JSON.stringify({})});
+    const d=await r.json();
+    if(d.ok){ await loadData(); renderAll(); toast(t('ciOk').replace('{m}',d.multiplier.toFixed(1)),'g'); }
+    else toast(d.error==='already_done'?t('ciDone'):(d.error||t('err')),'r');
+  }catch(e){ toast(t('err'),'r'); }
+}
 
+/* ---------- promo ---------- */
+async function redeemPromo(){
+  const inp=document.getElementById('promoInp'); const c=inp.value.trim();
+  if(!c) return;
+  try{
+    const r=await fetch('/api/promo/use',{method:'POST',headers:authHeaders(),body:JSON.stringify({code:c})});
+    const d=await r.json();
+    if(d.ok){ inp.value=''; await loadData(); renderAll(); toast(t('promoOk').replace('{n}',d.arc_amount),'g'); }
+    else toast(d.error||t('err'),'r');
+  }catch(e){ toast(t('err'),'r'); }
+}
+
+/* ---------- tasks (server + base) ---------- */
+function buildTasks(){
+  const list=document.getElementById('tlist'); if(!list)return;
+  let html='';
+  S.serverTasks.forEach(task=>{
+    const done=S.doneTasks.has(String(task.id));
+    const isSub=task.task_type==='subscribe';
+    const ico=isSub?'📣':'🔗';
+    let rb;
+    if(done) rb='<span style="font-size:20px">✅</span>';
+    else if(isSub) rb='<div class="tbtns"><button class="tb2 y" onclick="goTaskLink(\''+(task.channel_username||'')+'\',true)">'+t('go')+'</button><button class="tb2" onclick="completeTask('+task.id+')">'+t('chk')+'</button></div>';
+    else rb='<div class="tbtns"><button class="tb2 y" onclick="goTaskLink(\''+encodeURIComponent(task.link||'')+'\',false)">'+t('go')+'</button><button class="tb2" onclick="completeTask('+task.id+')">'+t('chk')+'</button></div>';
+    html+='<div class="ti'+(done?' dn':'')+'"><div class="tico">'+ico+'</div><div class="tinf"><div class="tnm">'+esc(task.title)+'</div><div class="tds">'+(isSub?t('subTask'):t('linkTask'))+'</div></div><div style="display:flex;align-items:center;gap:9px;margin-left:auto">'+(!done?'<div class="trew">+'+task.arc_reward+' ARC</div>':'')+rb+'</div></div>';
+  });
+  if(!html) html='<div class="tempty">'+t('tEmpty')+'</div>';
+  list.innerHTML=html;
+}
+function esc(s){ return String(s||'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+function goTaskLink(target,isChannel){
+  let url;
+  if(isChannel) url='https://t.me/'+String(target).replace('@','');
+  else url=decodeURIComponent(target);
+  if(window.Telegram?.WebApp){
+    if(url.includes('t.me')) window.Telegram.WebApp.openTelegramLink(url);
+    else window.Telegram.WebApp.openLink(url);
+  } else window.open(url,'_blank');
+}
+
+async function completeTask(taskId){
+  if(S.doneTasks.has(String(taskId))){ toast(t('tDone'),'r'); return; }
+  try{
+    const r=await fetch('/api/task/complete',{method:'POST',headers:authHeaders(),body:JSON.stringify({task_id:taskId})});
+    const d=await r.json();
+    if(d.ok){ S.doneTasks.add(String(taskId)); await loadData(); renderAll(); toast(t('taskOk').replace('{n}',d.arc_reward),'g'); }
+    else toast(d.error||t('noSub'),'r');
+  }catch(e){ toast(t('err'),'r'); }
+}
+
+/* ---------- friends ---------- */
+function renderFriends(){
+  const el=document.getElementById('frList'); if(!el)return;
+  if(!S.friends.length){ el.innerHTML='<div class="nofr">'+t('noFr')+'</div>'; return; }
+  el.innerHTML=S.friends.map(f=>{
+    const av=f.photo?'<img src="'+f.photo+'"/>':(f.username?f.username[0].toUpperCase():'U');
+    return '<div class="fri"><div class="friav">'+av+'</div><div><div class="frinm">@'+esc(f.username)+'</div><div class="frilv">'+(S.lang==='ru'?'Уровень ':'Level ')+(f.level||1)+'</div></div><div class="friearn">+'+fmt(f.earned_arc)+' ARC</div></div>';
+  }).join('');
+}
+function copyRef(){
+  const link='https://t.me/'+BOT+'?start=ref_'+S.refCode;
+  navigator.clipboard?.writeText(link).catch(()=>{});
+  toast(t('copied'),'g');
+}
+function shareRef(){
+  const link='https://t.me/'+BOT+'?start=ref_'+S.refCode;
+  const txt=S.lang==='ru'?'🖤 Залетай в BLACK — зарабатывай ARC и выводи в TON!':'🖤 Join BLACK — earn ARC and withdraw in TON!';
+  if(window.Telegram?.WebApp) window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(txt));
+  else { navigator.clipboard?.writeText(link); toast(t('copied'),'g'); }
+}
+
+/* ---------- transactions ---------- */
+function renderTx(){
+  const el=document.getElementById('txList'); if(!el)return;
+  if(!S.txs.length){ el.innerHTML='<div class="tx-emp">'+t('txEmp')+'</div>'; return; }
+  el.innerHTML=S.txs.map(tx=>{
+    let ico='💫',nm=tx.type,ac='pl',unit='ARC';
+    const amt=+tx.amount||0;
+    if(tx.type==='deposit'){ico='⬇️';nm=t('txDep');unit='TON';}
+    else if(tx.type==='withdraw'){ico='⬆️';nm=t('txWit');ac='mn';unit='TON';}
+    else if(tx.type==='exchange'){ico='🔄';nm=t('txExc');}
+    else if(tx.type==='pvp_win'){ico='🏆';nm=t('txPvpW');}
+    else if(tx.type==='ad_reward'){ico='📺';nm=t('txAd');}
+    else if(tx.type==='promo'){ico='🎁';nm=t('txPromo');}
+    else if(tx.type==='task'){ico='✅';nm=t('txTask');}
+    else if(tx.type==='decay'){ico='📉';nm=t('txDecay');ac='mn';}
+    const sign=amt<0?'':'+';
+    return '<div class="txi"><div class="tx-ico">'+ico+'</div><div class="tx-inf"><div class="tx-nm">'+nm+'</div><div class="tx-dt">'+new Date(tx.created_at).toLocaleString(S.lang==='ru'?'ru-RU':'en-US')+'</div></div><div class="tx-am '+ac+'">'+sign+amt+' '+unit+'</div></div>';
+  }).join('');
+}
+
+/* ---------- PvP ---------- */
+let spinning=false, lastWinnerKey=null, lastStatus='';
+async function loadPvpState(){
+  try{
+    const r=await fetch('/api/pvp/state'); const d=await r.json(); if(!d)return;
+    document.getElementById('pvpRound').textContent='#'+d.roundId;
+    document.getElementById('pvpTot').textContent=fmt(d.totalPool);
+    document.getElementById('pvpPool').textContent=fmt(d.totalPool)+' ARC';
+    document.getElementById('pvpPlayers').textContent=(d.players?d.players.length:0)+'/'+(d.maxPlayers||10);
+    let st=t('stWait');
+    if(d.status==='countdown') st=t('stCount');
+    else if(d.status==='spinning') st=t('stSpin');
+    else if(d.status==='finished') st=t('stDone');
+    document.getElementById('pvpStateTxt').textContent=st;
+    const cd=document.getElementById('cd'); const whlC=document.getElementById('whlC');
+    if(d.countdown!=null && d.countdown>0){
+      cd.style.display='block'; document.getElementById('cdn').textContent=d.countdown;
+      whlC.innerHTML=d.countdown+'<small>'+t('whlCountS')+'</small>';
+    } else {
+      cd.style.display='none';
+      if(d.status==='waiting') whlC.innerHTML=t('whlWait')+'<small>'+t('whlWaitS')+'</small>';
+      else if(d.status==='spinning') whlC.innerHTML=t('whlSpin')+'<small>...</small>';
+    }
+    const parts=document.getElementById('pvpParts');
+    if(d.players && d.players.length){
+      parts.innerHTML=d.players.map((p,i)=>{
+        const col=p.color||COLS[i%COLS.length];
+        const isMe=String(p.telegram_id)===String(S.tgId);
+        const av=p.photo?'<img src="'+p.photo+'"/>':(p.username?p.username[0].toUpperCase():'P');
+        return '<div class="ppt"><div class="ppav" style="background:'+col+'">'+av+'</div><div><div class="ppnm">@'+esc(p.username)+(isMe?(S.lang==='ru'?' (вы)':' (you)'):'')+'</div><div class="ppch" style="color:'+col+'">'+p.chance+'%</div></div><div class="ppbt">'+fmt(p.bet)+' ARC</div></div>';
+      }).join('');
+      drawWheel(d.players);
+    } else {
+      parts.innerHTML='<div class="ppemp">'+t('pvpEmp')+'</div>';
+      drawWheel([]);
+    }
+    if(d.fairHash){ document.getElementById('fairHash').textContent=d.fairHash; }
+    const seedRow=document.getElementById('fairSeedRow');
+    if(d.fairSeed){ seedRow.style.display='block'; document.getElementById('fairSeed').textContent=d.fairSeed; }
+    else seedRow.style.display='none';
+    if(d.status==='spinning' && !spinning) doSpin(d);
+    if(d.winner && lastWinnerKey!==d.winner.telegram_id+'_'+d.roundId){
+      lastWinnerKey=d.winner.telegram_id+'_'+d.roundId;
+      setTimeout(()=>showWinner(d.winner), spinning?4600:0);
+    }
+    lastStatus=d.status;
+  }catch(e){}
+}
+
+function setB(v){ document.getElementById('pbi').value=v; }
+
+async function placeBet(){
+  if(!S.tgId){ toast(t('err'),'r'); return; }
+  const amt=parseInt(document.getElementById('pbi').value)||0;
+  if(amt<10){ toast(t('bMin'),'r'); return; }
+  if(amt>1000){ toast(t('bMax'),'r'); return; }
+  if(amt>S.arc){ toast(t('bInsuf'),'r'); return; }
+  try{
+    const r=await fetch('/api/pvp/join',{method:'POST',headers:authHeaders(),body:JSON.stringify({bet:amt})});
+    const d=await r.json();
+    if(!r.ok){ toast(d.error||t('err'),'r'); return; }
+    await loadData(); renderAll(); toast(t('bOk'),'g');
+  }catch(e){ toast(t('err'),'r'); }
+}
+
+function drawWheel(players){
+  const cv=document.getElementById('wc'); if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const W=280,cx=140,cy=140,r=128;
+  ctx.clearRect(0,0,W,W);
+  if(!players || !players.length){
+    for(let i=0;i<10;i++){
+      const a1=(i/10)*Math.PI*2-Math.PI/2, a2=((i+1)/10)*Math.PI*2-Math.PI/2;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,a1,a2); ctx.closePath();
+      ctx.fillStyle=i%2?'#1a1a1a':'#141414'; ctx.fill();
+      ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.stroke();
+    }
+    return;
+  }
+  const total=players.reduce((a,p)=>a+p.bet,0)||1;
+  let ang=-Math.PI/2;
+  players.forEach((p,i)=>{
+    const slice=(p.bet/total)*Math.PI*2;
+    const col=p.color||COLS[i%COLS.length];
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,ang,ang+slice); ctx.closePath();
+    ctx.fillStyle=col; ctx.fill(); ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.stroke();
+    ang+=slice;
+  });
+}
+
+let spinAnim=null;
+function doSpin(d){
+  if(spinning)return; spinning=true;
+  const cv=document.getElementById('wc');
+  const dur=4500, start=Date.now();
+  let target=2160+Math.random()*360;
+  spinAnim=setInterval(()=>{
+    const el=Date.now()-start; const prog=Math.min(1,el/dur);
+    const eased=1-Math.pow(1-prog,3);
+    cv.style.transform='rotate('+(eased*target)+'deg)';
+    if(prog>=1){ clearInterval(spinAnim); spinning=false; }
+  },16);
+}
+
+function showWinner(w){
+  const isMe=String(w.telegram_id)===String(S.tgId);
+  const pr=document.getElementById('pvpr');
+  document.getElementById('prEm').textContent=isMe?'🏆':'🎰';
+  const av=document.getElementById('prAv2');
+  av.innerHTML = w.photo?'<img src="'+w.photo+'"/>':(w.username?w.username[0].toUpperCase():'W');
+  document.getElementById('prNm2').textContent='@'+(w.username||'player');
+  const tt=document.getElementById('prTt');
+  tt.textContent=isMe?t('win'):t('lose'); tt.className='pvpr-tt '+(isMe?'win':'lose');
+  document.getElementById('prAm').textContent='+'+fmt(w.amount)+' ARC';
+  document.getElementById('prAm').className='pvpr-am pl';
+  document.getElementById('prMt').textContent=(S.lang==='ru'?'Шанс: ':'Chance: ')+w.chance+'% · '+(S.lang==='ru'?'новый раунд через 4 сек':'new round in 4s');
+  pr.classList.add('show');
+  if(isMe){ loadData().then(renderAll); }
+  setTimeout(()=>closePR(),4000);
+}
+function closePR(){ document.getElementById('pvpr').classList.remove('show'); }
+
+function showWB(name,amount,chance){
+  const b=document.getElementById('wban');
+  document.getElementById('wbT').textContent='🏆 @'+name+' +'+fmt(amount)+' ARC';
+  document.getElementById('wbS').textContent=(S.lang==='ru'?'Шанс ':'Chance ')+chance+'%';
+  b.style.display='block'; b.classList.add('show');
+  setTimeout(()=>closeWB(),4000);
+}
+function closeWB(){ const b=document.getElementById('wban'); b.classList.remove('show'); setTimeout(()=>b.style.display='none',300); }
+
+/* ---------- history ---------- */
+function openHist(){ document.getElementById('hiSh').classList.add('show'); renderHist(); }
+function closeHist(){ document.getElementById('hiSh').classList.remove('show'); }
+function closeHiBg(e){ if(e.target===document.getElementById('hiSh')) closeHist(); }
+async function renderHist(){
+  const scr=document.getElementById('hiScr');
+  try{
+    const r=await fetch('/api/pvp/history'); const data=await r.json();
+    if(!data.length){ scr.innerHTML='<div class="lb-emp">'+t('lbEmp')+'</div>'; return; }
+    scr.innerHTML=data.map((h,i)=>{
+      const chance=h.total_pool?Math.round((h.winner_amount/(h.total_pool*0.9))*100):0;
+      const hash=h.result_hash||h.server_seed_hash||'';
+      return '<div class="hi"><div class="hiav" style="background:'+COLS[i%COLS.length]+'">'+(h.winner_name?h.winner_name[0].toUpperCase():'W')+'</div><div class="hinf"><div class="hinm">🏆 @'+esc(h.winner_name)+' · #'+h.round_id+'</div><div class="himt">'+(hash?'🔒 '+hash.slice(0,32)+'…':'')+'</div></div><div class="hiarc">+'+fmt(h.winner_amount)+' ARC</div></div>';
+    }).join('');
+  }catch(e){ scr.innerHTML='<div class="lb-emp">'+t('err')+'</div>'; }
+}
+
+/* ---------- leaderboard ---------- */
+let lbTab='pvp';
+function openLB(){ document.getElementById('lbSh').classList.add('show'); renderLB(); }
+function closeLB(){ document.getElementById('lbSh').classList.remove('show'); }
+function closeLBBg(e){ if(e.target===document.getElementById('lbSh')) closeLB(); }
+function setLBT(tab){ lbTab=tab; document.getElementById('lbTP').classList.toggle('on',tab==='pvp'); document.getElementById('lbTA').classList.toggle('on',tab==='ad'); renderLB(); }
+async function renderLB(){
+  const scr=document.getElementById('lbScr');
+  try{
+    const r=await fetch('/api/leaderboard?type='+lbTab+'&tg_id='+(S.tgId||''));
+    const res=await r.json(); const data=res.top||[];
+    if(!data.length){ scr.innerHTML='<div class="lb-emp">'+t('lbEmp')+'</div>'; return; }
+    const rc=['🥇','🥈','🥉'];
+    let html=data.map((d,i)=>{
+      const isMe=String(d.tid)===String(S.tgId);
+      const av=d.photo?'<img src="'+d.photo+'"/>':(d.name?d.name[0].toUpperCase():'U');
+      return '<div class="lbi'+(isMe?' me':'')+'"><div class="lbr">'+(i<3?rc[i]:(i+1))+'</div><div class="lbav">'+av+'</div><div class="lbinf"><div class="lbnm">@'+esc(d.name)+(isMe?' 👈':'')+'</div><div class="lbsb">'+(lbTab==='pvp'?(S.lang==='ru'?'ARC поставлено':'ARC bet'):(S.lang==='ru'?'просмотров':'views'))+'</div></div><div class="lbvl">'+fmt(d.val)+'</div></div>';
+    }).join('');
+    if(res.me && !data.some(d=>String(d.tid)===String(S.tgId))){
+      html+='<div class="lb-emp" style="padding:8px">···</div><div class="lbi me"><div class="lbr">'+res.me.rank+'</div><div class="lbav">'+S.init+'</div><div class="lbinf"><div class="lbnm">'+S.user+' 👈</div></div><div class="lbvl">'+fmt(res.me.val)+'</div></div>';
+    }
+    scr.innerHTML=html;
+  }catch(e){ scr.innerHTML='<div class="lb-emp">'+t('err')+'</div>'; }
+}
+
+/* ---------- wallet (TonConnect) ---------- */
+let tcUI=null;
+function initTC(){
+  try{
+    tcUI=new TON_CONNECT_UI.TonConnectUI({ manifestUrl:window.location.origin+'/tonconnect-manifest.json', restoreConnection:true });
+    tcUI.onStatusChange(async w=>{
+      if(w){ const raw=w.account.address; S.wallet=raw; showWC(raw);
+        await fetch('/api/wallet/connect',{method:'POST',headers:authHeaders(),body:JSON.stringify({wallet_addr:raw})}).catch(()=>{});
+        toast(t('wOk'),'g');
+      } else discWalletUI();
+    });
+  }catch(e){}
+}
+function showWC(addr){
+  document.getElementById('wDisc').style.display='none';
+  document.getElementById('wConn').style.display='block';
+  const short=addr.slice(0,6)+'...'+addr.slice(-4);
+  document.getElementById('wAddr').textContent=short;
+  document.getElementById('hDot').classList.add('on');
+  document.getElementById('hWallet').textContent=short;
+}
+async function connectWallet(){ if(tcUI){ try{ await tcUI.openModal(); }catch(e){ toast(t('err'),'r'); } } }
+async function disconnectWallet(){ if(tcUI){ try{ await tcUI.disconnect(); }catch(e){} } discWalletUI(); }
+function discWalletUI(){
+  S.wallet='';
+  document.getElementById('wDisc').style.display='block';
+  document.getElementById('wConn').style.display='none';
+  document.getElementById('hDot').classList.remove('on');
+  document.getElementById('hWallet').textContent=t('wNC');
+  fetch('/api/wallet/disconnect',{method:'POST',headers:authHeaders(),body:JSON.stringify({})}).catch(()=>{});
+  toast(t('wDis'),'r');
+}
+
+/* ---------- exchange ---------- */
+function calcExc(){
+  const v=parseFloat(document.getElementById('excInp')?.value)||0;
+  const el=document.getElementById('excRes'); if(!el)return;
+  if(!v){ el.textContent=t('excEnter'); return; }
+  if(v<0.1){ el.textContent=t('excMin'); return; }
+  if(v>5){ el.textContent=t('excMax'); return; }
+  if(v>5-S.excToday){ el.textContent=t('excLim'); return; }
+  if(v>S.ton){ el.textContent=t('excInsuf'); return; }
+  const arc=Math.floor(v*(S.arcPerTon||0));
+  el.textContent=t('excRes').replace('{n}',arc.toLocaleString());
+}
+async function doExchange(){
+  const v=parseFloat(document.getElementById('excInp')?.value)||0;
+  if(v<0.1){ toast(t('excMin'),'r'); return; }
+  if(v>5-S.excToday){ toast(t('excLim'),'r'); return; }
+  if(v>S.ton){ toast(t('excInsuf'),'r'); return; }
+  try{
+    const r=await fetch('/api/exchange',{method:'POST',headers:authHeaders(),body:JSON.stringify({ton_amount:v})});
+    const d=await r.json();
+    if(d.ok){ document.getElementById('excInp').value=''; await loadData(); renderAll(); calcExc(); toast(t('excOk').replace('{n}',d.arc_credited.toLocaleString()),'g'); }
+    else toast(d.error||t('err'),'r');
+  }catch(e){ toast(t('err'),'r'); }
+}
+
+/* ---------- deposit / withdraw modals ---------- */
+function openModal(type){
+  const mt=document.getElementById('mT'), mb=document.getElementById('mB');
+  if(type==='deposit'){
+    mt.textContent=t('depT');
+    mb.innerHTML='<div class="mnote">'+t('depN')+'<br><br><b style="color:var(--gold)">'+t('depMin')+'</b></div><input class="inp" style="margin-bottom:10px" type="number" id="dAmt" placeholder="0.1 TON" step="0.01" min="0.1"/><button class="btn btn-y btn-full" onclick="doDeposit()" style="padding:14px">'+t('depBtn2')+'</button>';
+  } else if(type==='withdraw'){
+    mt.textContent=t('witT');
+    mb.innerHTML='<div class="mnote">'+t('witN')+'<br><br><b style="color:var(--gold)">'+t('witMin')+'</b></div><div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;font-weight:700">'+(S.lang==='ru'?'Баланс: ':'Balance: ')+S.ton.toFixed(3)+' TON</div><input class="inp" style="margin-bottom:12px" type="number" id="wAmt" placeholder="0.1 TON" step="0.01" min="0.1"/><button class="btn btn-y btn-full" onclick="doWithdraw()" style="padding:14px">'+t('witBtn')+'</button>';
+  }
+  document.getElementById('mbg').classList.add('show');
+}
+function closeModal(){ document.getElementById('mbg').classList.remove('show'); }
+function closeMBg(e){ if(e.target===document.getElementById('mbg')) closeModal(); }
+
+async function doDeposit(){
+  if(!S.wallet){ toast(t('noW'),'r'); closeModal(); return; }
+  const v=parseFloat(document.getElementById('dAmt')?.value)||0;
+  if(v<0.1){ toast(t('depMin'),'r'); return; }
+  if(!tcUI) return;
+  try{
+    const comment='black_dep_'+S.tgId;
+    const body=TonCore.beginCell().storeUint(0,32).storeStringTail(comment).endCell();
+    const payload=body.toBoc().toString('base64');
+        const nano=(BigInt(Math.floor(v*1e9))).toString();
+    await tcUI.sendTransaction({ validUntil:Math.floor(Date.now()/1000)+600, messages:[{address:PW,amount:nano,payload}] });
+    closeModal(); toast(t('depSent'),'g');
+    let n=0; const poll=setInterval(async()=>{
+      n++;
+      try{
+        const r=await fetch('/api/check-deposit',{method:'POST',headers:authHeaders(),body:JSON.stringify({expected_ton:v})});
+        const d=await r.json();
+        if(d.confirmed){ clearInterval(poll); await loadData(); renderAll(); toast(t('depOk'),'g'); }
+      }catch(e){}
+      if(n>=60) clearInterval(poll);
+    },5000);
+  }catch(e){ toast(t('depCancel'),'r'); }
+}
+async function doWithdraw(){
+  const v=parseFloat(document.getElementById('wAmt')?.value)||0;
+  if(v<0.1){ toast(t('witMin'),'r'); return; }
+  if(v>S.ton){ toast(t('witInsuf'),'r'); return; }
+  if(!S.wallet){ toast(t('noW'),'r'); return; }
+  try{
+    const r=await fetch('/api/withdraw-request',{method:'POST',headers:authHeaders(),body:JSON.stringify({ton_amount:v,wallet:S.wallet})});
+    const d=await r.json();
+    closeModal();
+    if(d.ok){ await loadData(); renderAll(); toast(t('witOk'),'g'); }
+    else toast(d.error||t('err'),'r');
+  }catch(e){ closeModal(); toast(t('err'),'r'); }
+}
+
+/* ---------- nav + lang ---------- */
+const PGS=['pvp','tasks','home','friends','profile'];
+function gp(name,btn){
+  PGS.forEach(p=>document.getElementById('page-'+p)?.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('page-'+name)?.classList.add('active');
+  btn?.classList.add('on');
+  document.getElementById('screen').scrollTop=0;
+}
+function setLang(l){
+  S.lang=l;
+  document.getElementById('btnRU').classList.toggle('on',l==='ru');
+  document.getElementById('btnEN').classList.toggle('on',l==='en');
+  applyLang();
+}
+function applyLang(){
+  const ids=['aboutT','earnTitle','earnSub','ciTitle','promoTitle','promoBtn','tasksTitle',
+    'pvpLbl','pvpBetBtn','pvpPoolL','pvpNote','pvpPL','pvpHistLbl','fairTitle','fairNote',
+    'frTitle','frSub','frIL','frAL','copyBtn','shareBtn','lv1l','lv1d','lv2l','lv2d','frListT',
+    'wLbl','wNC','wBtn','wDiscBtn','exchTitle','excLL','excLimL','arcTonV','arcTonS','excBtn','depBtn','withBtn',
+    'lbIL','ciIL','refIL','lbTitle','hiTitle','txTitle','nPvp','nTasks','nHome','nFr','nPr','prML'];
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el && L[S.lang][id]!=null) el.textContent=L[S.lang][id]; });
+  document.getElementById('aboutX').innerHTML=t('aboutX');
+  document.getElementById('fairHashL').textContent='Hash:';
+  document.getElementById('fairSeedL').textContent='Seed:';
+  buildAds(); renderAll();
+}
+
+/* ---------- i18n ---------- */
 const L = {
-ru: {
-  earnTitle:'РЕКЛАМА', earnSub:'Скоро',
-  adN1:'Реклама 1', adN2:'Реклама 2', adN3:'Реклама 3', adN4:'Реклама 4', adN5:'Реклама 5',
-  adL1:'Лимит 50/день', adL2:'Лимит 50/день', adL3:'Лимит 30/день', adL4:'Лимит 30/день', adL5:'Лимит 30/день',
-  ciTitle:'Чек-ин', ciDL:'День', ciML:'Множитель',
-  ciR:'🌟 Получить чек-ин', ciD:'✓ Уже получено',
-  promoTitle:'Промо-код', promoBtn:'Применить', tasksTitle:'Задания',
-  tCh:'Подписаться на канал', tChD:'@blackt_channel',
-  tr1:'Пригласи 1 друга', tr3:'Пригласи 3 друзей', tr5:'Пригласи 5 друзей',
-  tr10:'Пригласи 10 друзей', tr20:'Пригласи 20 друзей', tr50:'Пригласи 50 друзей',
+ru:{
+  aboutT:'🖤 О платформе',
+  aboutX:'BLACK — это арена, где ты превращаешь активность в реальную крипту. Зарабатывай <b>ARC</b> за рекламу, задания и победы в PvP, приглашай друзей и получай процент с их дохода навсегда. Накопил — обменял ARC на <b>TON</b> и вывел на свой кошелёк. Чем активнее играешь, тем больше зарабатываешь.',
+  earnTitle:'Реклама', earnSub:'Скоро',
+  ciTitle:'Ежедневный чек-ин', ciSub:'×{m} множитель рекламы',
+  ciR:'🌟 Получить', ciD:'✓ Получено сегодня',
+  promoTitle:'Промокод', promoBtn:'Применить', tasksTitle:'Задания', tEmpty:'Нет заданий',
   chk:'Проверить', go:'Перейти',
-  pvpLbl:'⚔️ АРЕНА', pvpBetLbl:'Ставка (мин 10, макс 5000 ARC)', pvpBetBtn:'Ставить',
-  pvpNote:'10% комиссия · 2-10 игроков · Возврат через 1 мин',
-  pvpPL:'Участники', pvpHistLbl:'История 30 игр', pvpBL:'Мой баланс ARC',
-  pvpW:'ПОБЕДА', pvpL:'ПОРАЖЕНИЕ', cds:'Раунд начался!',
+  pvpLbl:'⚔️ АРЕНА', pvpBetBtn:'⚔️ Ставить', pvpPoolL:'Банк',
+  pvpNote:'Ставка 10–1000 ARC · комиссия 10% · до 10 игроков · возврат если нет соперника за 60 сек',
+  pvpPL:'Участники', pvpHistLbl:'История 30 игр', pvpEmp:'Будь первым — сделай ставку!',
+  fairTitle:'Честность раунда (provably fair)', fairNote:'Хэш показан до розыгрыша. Seed раскрывается после — можно проверить честность.',
+  stWait:'⏳ Ожидание', stCount:'⏱️ Отсчёт', stSpin:'🎰 Розыгрыш', stDone:'🏆 Победитель',
+  whlWait:'Ожидание', whlWaitS:'ждём игроков', whlSpin:'Крутим', whlCountS:'до старта',
   frTitle:'Пригласи и заработай', frSub:'20% с рекламы друга — навсегда',
   frIL:'Приглашено', frAL:'ARC с рефералов',
   copyBtn:'🔗 Скопировать', shareBtn:'📤 Поделиться',
-  lv1l:'Уровень 1', lv1d:'С рекламы прямых рефералов',
-  lv2l:'Уровень 2', lv2d:'С рекламы их рефералов',
-  frListT:'Мои друзья',
-  wLbl:'TON Кошелёк', wNC:'Не подключён', wCT:'Подключён',
-  wBtn:'💎 Подключить кошелёк', wDiscBtn:'Отключить',
-  exchTitle:'Обмен TON → ARC', excLL:'Лимит сегодня',
+  lv1l:'Уровень 1', lv1d:'С рекламного дохода прямых рефералов',
+  lv2l:'Уровень 2', lv2d:'С дохода рефералов твоих друзей',
+  frListT:'Мои друзья', noFr:'👥 Пока нет друзей',
+  wLbl:'TON Кошелёк', wNC:'Не подключён', wBtn:'💎 Подключить', wDiscBtn:'Отключить',
+  exchTitle:'Обмен', excLL:'Обменяно сегодня', excLimL:'Лимит 5 TON/день',
+  arcTonV:'Недоступен', arcTonS:'Откроется позже', excBtn:'Обменять',
   depBtn:'↓ Депозит', withBtn:'↑ Вывод',
-  lbIL:'Лидерборд', ciIL:'Серия чек-ин', refIL:'Рефералов', burnIL:'Сжигание ARC',
+  lbIL:'Лидерборд', ciIL:'Серия чек-ин', refIL:'Рефералов',
   lbTitle:'Лидерборд', hiTitle:'История PvP', txTitle:'История транзакций',
-  nPvp:'PvP', nTasks:'Задания', nHome:'Главная', nFr:'Друзья', nPr:'Профиль', prML:'Множитель',
-  burnT:'Сжигание ARC 🔥',
-  burnTx:'PvP: 10% банка сжигается каждый раунд.\n\nНеактивность: 7 дней без входа → -20% ARC.\nПотом -5% каждый день.',
-  depT:'Депозит TON',
-  depN:'Введи сумму и нажми "Пополнить" — тебя перекинет в Tonkeeper.',
-  depMin:'Минимум 0.1 TON',
-  witT:'Вывод TON',
-  witN:'Укажи сумму TON. Администратор отправит на твой кошелёк в течение 24 часов.',
-  witMin:'Минимум 0.1 TON · Лимит 50 TON в день',
-  witBtn:'Отправить заявку',
+  nPvp:'PvP', nTasks:'Задания', nHome:'Главная', nFr:'Друзья', nPr:'Профиль', prML:'Множ.',
+  depT:'Депозит TON', depN:'Введи сумму и подтверди — откроется кошелёк. Зачисление автоматическое.', depMin:'Минимум 0.1 TON', depBtn2:'Пополнить',
+  witT:'Вывод TON', witN:'Укажи сумму. Администратор отправит TON на твой кошелёк в течение 24 часов.', witMin:'Минимум 0.1 TON', witBtn:'Отправить заявку',
   copied:'Ссылка скопирована',
-  promoOk:'+{n} ARC промо применён 🎉', promoFail:'Неверный промо-код',
-  ciOk:'Множитель {m} получен ✓', ciDone:'Уже получено сегодня',
-  bMin:'Минимум 10 ARC', bMax:'Максимум 5000 ARC', bInsuf:'Недостаточно ARC',
-  bOk:'Ставка принята! Ждём соперника...',
-  pvpRet:'Ставка возвращена — нет соперника',
-  wOk:'Кошелёк подключён 💎', wDis:'Кошелёк отключён',
-  noW:'Сначала подключи кошелёк',
-  excFail:'Введи сумму', excInsuf:'Недостаточно TON',
-  excMin:'Минимум 0.1 TON', excMax:'Максимум 5 TON в день',
-  excLim:'Лимит обмена исчерпан',
-  excRes:'Получишь: {n} ARC',
-  excOk:'Обмен выполнен ✓',
-  noSub:'Не подписан на канал',
-  subOk:'+{n} ARC ✓',
-  noRef:'Нужно {r} рефералов (у тебя {c})',
-  refOk:'+{n} ARC ✓',
-  tDone:'Уже выполнено',
-  witInsuf:'Недостаточно TON',
-  witOk:'Заявка отправлена ✓',
-  depSent:'Транзакция отправлена...',
-  depCancel:'Транзакция отменена',
-  depOk:'TON зачислен на баланс ✓',
-  lbEmp:'Пока нет игроков',
-  txEmp:'Транзакций пока нет',
-  txDep:'Депозит TON', txWit:'Вывод TON', txExc:'Обмен TON→ARC'
+  promoOk:'+{n} ARC · промокод применён 🎉', ciOk:'Множитель ×{m} получен ✓', ciDone:'Уже получено сегодня',
+  bMin:'Минимум 10 ARC', bMax:'Максимум 1000 ARC', bInsuf:'Недостаточно ARC', bOk:'Ставка принята!',
+  wOk:'Кошелёк подключён 💎', wDis:'Кошелёк отключён', noW:'Сначала подключи кошелёк',
+  excMin:'Минимум 0.1 TON', excMax:'Максимум 5 TON в день', excLim:'Дневной лимит исчерпан',
+  excInsuf:'Недостаточно TON', excRes:'Получишь: {n} ARC', excOk:'+{n} ARC ✓', excEnter:'Введи сумму TON',
+  noSub:'Ты не подписан на канал', taskOk:'+{n} ARC ✓', tDone:'Уже выполнено',
+  witInsuf:'Недостаточно TON', witOk:'Заявка отправлена ✓',
+  depSent:'Транзакция отправлена...', depCancel:'Транзакция отменена', depOk:'TON зачислен ✓',
+  lbEmp:'Пока нет игроков', txEmp:'Транзакций пока нет', err:'Ошибка',
+  txDep:'Депозит TON', txWit:'Вывод TON', txExc:'Обмен TON→ARC', txPvpW:'PvP победа',
+  txAd:'Реклама', txPromo:'Промокод', txTask:'Задание', txDecay:'Штраф',
+  win:'ПОБЕДА', lose:'Розыгрыш завершён', subTask:'Подписка', linkTask:'Переход'
 },
-en: {
-  earnTitle:'ADS', earnSub:'Soon',
-  adN1:'Ad 1', adN2:'Ad 2', adN3:'Ad 3', adN4:'Ad 4', adN5:'Ad 5',
-  adL1:'Limit 50/day', adL2:'Limit 50/day', adL3:'Limit 30/day', adL4:'Limit 30/day', adL5:'Limit 30/day',
-  ciTitle:'Check-In', ciDL:'Day', ciML:'Multiplier',
-  ciR:'🌟 Get Check-In', ciD:'✓ Already claimed',
-  promoTitle:'Promo Code', promoBtn:'Apply', tasksTitle:'Tasks',
-  tCh:'Subscribe to channel', tChD:'@blackt_channel',
-  tr1:'Invite 1 friend', tr3:'Invite 3 friends', tr5:'Invite 5 friends',
-  tr10:'Invite 10 friends', tr20:'Invite 20 friends', tr50:'Invite 50 friends',
+en:{
+  aboutT:'🖤 About',
+  aboutX:'BLACK is an arena where your activity turns into real crypto. Earn <b>ARC</b> from ads, tasks and PvP wins, invite friends and get a cut of their income forever. Stack it up — swap ARC for <b>TON</b> and withdraw to your wallet. The more you play, the more you earn.',
+  earnTitle:'Ads', earnSub:'Soon',
+  ciTitle:'Daily check-in', ciSub:'×{m} ads multiplier',
+  ciR:'🌟 Claim', ciD:'✓ Claimed today',
+  promoTitle:'Promo code', promoBtn:'Apply', tasksTitle:'Tasks', tEmpty:'No tasks',
   chk:'Check', go:'Go',
-  pvpLbl:'⚔️ ARENA', pvpBetLbl:'Bet (min 10, max 5000 ARC)', pvpBetBtn:'Bet',
-  pvpNote:'10% fee · 2-10 players · Refund in 1 min',
-  pvpPL:'Participants', pvpHistLbl:'Last 30 games', pvpBL:'My ARC Balance',
-  pvpW:'YOU WIN', pvpL:'YOU LOSE', cds:'Round started!',
-  frTitle:'Invite & Earn', frSub:"20% from friend's ads — forever",
+  pvpLbl:'⚔️ ARENA', pvpBetBtn:'⚔️ Bet', pvpPoolL:'Pool',
+  pvpNote:'Bet 10–1000 ARC · 10% fee · up to 10 players · refund if no opponent in 60s',
+  pvpPL:'Participants', pvpHistLbl:'Last 30 games', pvpEmp:'Be first — place a bet!',
+  fairTitle:'Provably fair', fairNote:'Hash shown before the spin. Seed revealed after — you can verify fairness.',
+  stWait:'⏳ Waiting', stCount:'⏱️ Countdown', stSpin:'🎰 Spinning', stDone:'🏆 Winner',
+  whlWait:'Waiting', whlWaitS:'for players', whlSpin:'Spinning', whlCountS:'to start',
+  frTitle:'Invite & earn', frSub:"20% from friend's ads — forever",
   frIL:'Invited', frAL:'ARC from refs',
   copyBtn:'🔗 Copy', shareBtn:'📤 Share',
-  lv1l:'Level 1', lv1d:"From direct referrals' ads",
-  lv2l:'Level 2', lv2d:"From their referrals' ads",
-  frListT:'My Friends',
-  wLbl:'TON Wallet', wNC:'Not connected', wCT:'Connected',
-  wBtn:'💎 Connect Wallet', wDiscBtn:'Disconnect',
-  exchTitle:'Exchange TON → ARC', excLL:'Limit today',
+  lv1l:'Level 1', lv1d:"From direct referrals' ad income",
+  lv2l:'Level 2', lv2d:"From your friends' referrals income",
+  frListT:'My friends', noFr:'👥 No friends yet',
+  wLbl:'TON Wallet', wNC:'Not connected', wBtn:'💎 Connect', wDiscBtn:'Disconnect',
+  exchTitle:'Exchange', excLL:'Exchanged today', excLimL:'Limit 5 TON/day',
+  arcTonV:'Unavailable', arcTonS:'Opens later', excBtn:'Exchange',
   depBtn:'↓ Deposit', withBtn:'↑ Withdraw',
-  lbIL:'Leaderboard', ciIL:'Check-In streak', refIL:'Referrals', burnIL:'ARC Burn',
-  lbTitle:'Leaderboard', hiTitle:'PvP History', txTitle:'Transaction History',
-  nPvp:'PvP', nTasks:'Tasks', nHome:'Home', nFr:'Friends', nPr:'Profile', prML:'Multiplier',
-  burnT:'ARC Burn 🔥',
-  burnTx:'PvP: 10% of pot burned each round.\n\nInactivity: 7 days → -20% ARC.\nThen -5% per day.',
-  depT:'TON Deposit',
-  depN:'Enter amount and tap Deposit — you will be redirected to Tonkeeper.',
-  depMin:'Minimum 0.1 TON',
-  witT:'TON Withdrawal',
-  witN:'Enter amount. Admin will send to your wallet within 24h.',
-  witMin:'Minimum 0.1 TON · Limit 50 TON per day',
-  witBtn:'Submit Request',
+  lbIL:'Leaderboard', ciIL:'Check-in streak', refIL:'Referrals',
+  lbTitle:'Leaderboard', hiTitle:'PvP History', txTitle:'Transactions',
+  nPvp:'PvP', nTasks:'Tasks', nHome:'Home', nFr:'Friends', nPr:'Profile', prML:'Mult.',
+  depT:'TON Deposit', depN:'Enter amount and confirm — wallet opens. Auto-credited.', depMin:'Minimum 0.1 TON', depBtn2:'Deposit',
+  witT:'TON Withdrawal', witN:'Enter amount. Admin sends TON to your wallet within 24h.', witMin:'Minimum 0.1 TON', witBtn:'Submit request',
   copied:'Link copied',
-  promoOk:'+{n} ARC promo applied 🎉', promoFail:'Invalid code',
-  ciOk:'Multiplier {m} set ✓', ciDone:'Already claimed today',
-  bMin:'Min 10 ARC', bMax:'Max 5000 ARC', bInsuf:'Insufficient ARC',
-  bOk:'Bet placed! Waiting...',
-  pvpRet:'Bet returned — no opponent',
-  wOk:'Wallet connected 💎', wDis:'Wallet disconnected',
-  noW:'Connect wallet first',
-  excFail:'Enter amount', excInsuf:'Insufficient TON',
-  excMin:'Min 0.1 TON', excMax:'Max 5 TON per day',
-  excLim:'Daily limit reached',
-  excRes:'You get: {n} ARC',
-  excOk:'Exchange done ✓',
-  noSub:'Not subscribed',
-  subOk:'+{n} ARC ✓',
-  noRef:'Need {r} referrals (you have {c})',
-  refOk:'+{n} ARC ✓',
-  tDone:'Already done',
-  witInsuf:'Insufficient TON',
-  witOk:'Request sent ✓',
-  depSent:'Transaction sent...',
-  depCancel:'Transaction cancelled',
-  depOk:'TON credited ✓',
-  lbEmp:'No players yet',
-  txEmp:'No transactions yet',
-  txDep:'TON Deposit', txWit:'TON Withdrawal', txExc:'Exchange TON→ARC'
-}
-};
-
+  promoOk:'+{n} ARC · promo applied 🎉', ciOk:'Multiplier ×{m} claimed ✓', ciDone:'Already claimed today',
+  bMin:'Min 10 ARC', bMax:'Max 1000 ARC', bInsuf:'Insufficient ARC', bOk:'Bet placed!',
+  wOk:'Wallet connected 💎', wDis:'Wallet disconnected', noW:'Connect wallet first',
+  excMin:'Min 0.1 TON', excMax:'Max 5 TON per day', excLim:'Daily limit reached',
+  excInsuf:'Insufficient TON', excRes:'You get: {n} ARC', excOk:'+{n} ARC ✓', excEnter:'Enter TON amount',
+  noSub:'Not subscribed', taskOk:'+{n} ARC ✓', tDone:'Already done',
+  witInsuf:'Insufficient TON', witOk:'Request sent ✓',
+  depSent:'Transaction sent...', depCancel:'Transaction cancelled', depOk:'TON credited ✓',
+  lbEmp:'No players yet', txEmp:'No transactions yet', err:'Error',
+  txDep:'TON Deposit', txWit:'TON Withdrawal', txExc:'Exchange TON→ARC', txPvpW:'PvP win',
+  txAd:'Ad', txPromo:'Promo', txTask:'Task', txDecay:'Penalty',
+  win:'YOU WIN', lose:'Round finished', subTask:'Subscribe', linkTask:'Link'
+}};
 const t = (k) => (L[S.lang][k] || k);
 
-async function init() {
-  buildDays();
-  buildTasks();
-  await new Promise(r => setTimeout(r, 300));
-  if (window.Telegram?.WebApp) {
+/* ---------- ad slots ---------- */
+const AD_SLOTS = [
+  {slot:1, name:'Adsgram',   ico:'📺', live:false, max:50},
+  {slot:2, name:'Richads',   ico:'📡', live:false, max:50},
+  {slot:3, name:'Реклама 3', ico:'🌐', live:false, max:30},
+  {slot:4, name:'Реклама 4', ico:'💫', live:false, max:30},
+  {slot:5, name:'Реклама 5', ico:'⚡', live:false, max:30}
+];
+
+/* ---------- init ---------- */
+async function init(){
+  buildDays(); buildAds();
+  if (window.Telegram?.WebApp){
     const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+    tg.ready(); tg.expand();
+    try{ tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000'); }catch(e){}
+    S.initData = tg.initData || '';
     const u = tg.initDataUnsafe?.user;
-    if (u) {
+    if (u){
       S.tgId = String(u.id);
       S.user = '@' + (u.username || u.first_name || 'user');
       S.init = (u.first_name || u.username || 'U')[0].toUpperCase();
       if (u.photo_url) S.photo = u.photo_url;
     }
-    if (!u && tg.initData) {
-      try {
-        const r = await fetch('/api/me', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData: tg.initData })
-        });
+    if (S.initData){
+      try{
+        const r = await fetch('/api/me',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:S.initData})});
         const d = await r.json();
-        if (d?.id) {
+        if (d?.id){
           S.tgId = String(d.id);
-          S.user = '@' + (d.username || d.first_name || 'user');
-          S.init = (d.first_name || d.username || 'U')[0].toUpperCase();
+          if (d.username) S.user = '@' + d.username;
           if (d.photo_url) S.photo = d.photo_url;
         }
-      } catch(e) {}
+      }catch(e){}
     }
-    S.initData = tg.initData || '';
   }
-  S.refCode = String(S.tgId || Math.random().toString(36).slice(2,10).toUpperCase());
+  S.refCode = S.tgId || '';
   await fetchRate();
-  setInterval(fetchRate, 10 * 60 * 1000);
-  if (S.tgId) {
-    await fetch('/api/user/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        telegram_id: S.tgId,
-        username: S.user.replace('@',''),
-        first_name: S.init
-      })
-    }).catch(() => {});
-    await loadData();
-  }
-  drawWheel();
-  renderAll();
-  applyLang();
-  initTC();
+  setInterval(fetchRate, 10*60*1000);
+  if (S.tgId){ await loadData(); await loadTasks(); }
+  drawWheel([]);
+  renderAll(); applyLang(); initTC();
   setInterval(loadPvpState, 1000);
 }
 
-function authHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    'x-telegram-init-data': S.initData || ''
-  };
-}
+function authHeaders(){ return {'Content-Type':'application/json','x-telegram-init-data':S.initData||''}; }
 
-async function loadData() {
+async function loadData(){
   if (!S.tgId) return;
-  try {
-    const r = await fetch('/api/user/' + S.tgId, { headers: authHeaders() });
-    if (r.ok) {
-      const d = await r.json();
-      if (d.arc_balance != null) S.arc = parseFloat(d.arc_balance) || 0;
-      if (d.ton_balance != null) S.ton = parseFloat(d.ton_balance) || 0;
-      if (d.multiplier != null) S.mult = parseFloat(d.multiplier) || 1.0;
-      if (d.checkin_day != null) S.ciDay = parseInt(d.checkin_day) || 1;
-      if (d.checkin_done != null) S.ciDone = !!d.checkin_done;
-      if (d.exc_today != null) S.excToday = parseFloat(d.exc_today) || 0;
-      if (d.done_tasks) S.tasks = new Set(d.done_tasks);
-      if (d.friends) S.friends = d.friends;
-      if (d.wallet_addr && d.wallet_addr) {
-        S.wallet = d.wallet_addr;
-        showWC(d.wallet_addr);
-      }
-      if (d.transactions) S.txs = d.transactions;
-      if (d.used_promos && Array.isArray(d.used_promos)) S.usedPromos = new Set(d.used_promos);
-    }
-  } catch(e) {}
-}
-
-async function saveData() {
-  if (!S.tgId) return;
-  try {
-    await fetch('/api/user/save', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({
-        telegram_id: S.tgId,
-        arc_balance: S.arc,
-        multiplier: S.mult,
-        checkin_day: S.ciDay,
-        checkin_done: S.ciDone,
-        exc_today: S.excToday,
-        done_tasks: [...S.tasks],
-        wallet_addr: S.wallet,
-        used_promos: [...S.usedPromos]
-      })
-    });
-  } catch(e) {}
-}
-
-async function fetchRate() {
-  try {
-    const r = await fetch('/api/ton-rate');
+  try{
+    const r = await fetch('/api/user/'+S.tgId,{headers:authHeaders()});
+    if (!r.ok) return;
     const d = await r.json();
-    if (d.arc_per_ton) {
-      document.getElementById('excRate').textContent = d.arc_per_ton.toLocaleString() + ' ARC';
+    S.arc = +d.arc_balance||0; S.ton = +d.ton_balance||0; S.mult = +d.multiplier||1.0;
+    S.ciDay = +d.checkin_day||1; S.ciDone = !!d.checkin_done; S.excToday = +d.exc_today||0;
+    S.friends = d.friends||[]; S.directCount = d.direct_count||0;
+    S.txs = d.transactions||[];
+    if (d.wallet_addr){ S.wallet = d.wallet_addr; showWC(d.wallet_addr); }
+    if (d.username) S.user = '@'+d.username;
+    if (d.photo_url) S.photo = d.photo_url;
+  }catch(e){}
+}
+
+async function loadTasks(){
+  try{
+    const r = await fetch('/api/tasks');
+    S.serverTasks = await r.json() || [];
+    if (S.tgId){
+      const rd = await fetch('/api/task-done/'+S.tgId);
+      const dd = await rd.json();
+      S.doneTasks = new Set((dd.done||[]).map(String));
     }
-  } catch(e) {}
+  }catch(e){ S.serverTasks=[]; }
+}
+
+async function fetchRate(){
+  try{
+    const r = await fetch('/api/ton-rate'); const d = await r.json();
+    if (d.arc_per_ton){ S.arcPerTon = d.arc_per_ton; S.tonRate = d.rate||0;
+      document.getElementById('excRate').textContent = d.arc_per_ton.toLocaleString()+' ARC'; }
+  }catch(e){}
   calcExc();
 }
 
-function renderAll() {
-  function setAv(id) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (S.photo) {
-      const img = new Image();
-      img.onload = () => { el.innerHTML = `<img src="${S.photo}" alt=""/>`; };
-      img.onerror = () => { el.textContent = S.init; };
-      img.src = S.photo;
-    } else {
-      el.textContent = S.init;
-    }
-  }
-  setAv('topAv');
-  setAv('prAv');
+function fmt(n){ n=+n||0; if(n>=1e6)return(n/1e6).toFixed(1)+'M'; if(n>=1e4)return(n/1e3).toFixed(1)+'K'; return Math.floor(n).toLocaleString(); }
+
+function renderAll(){
+  setAv('topAv'); setAv('prAv');
   document.getElementById('topName').textContent = S.user;
+  document.getElementById('topBal').textContent = fmt(S.arc)+' ARC';
   document.getElementById('prNm').textContent = S.user;
   document.getElementById('hArc').textContent = fmt(S.arc);
   document.getElementById('hTon').textContent = S.ton.toFixed(3);
-  document.getElementById('hMult').textContent = '× ' + S.mult.toFixed(1) + ' Множитель';
+  document.getElementById('hMult').textContent = '⚡ ×'+S.mult.toFixed(1)+' '+(S.lang==='ru'?'множитель':'multiplier');
   document.getElementById('prArc').textContent = fmt(S.arc);
   document.getElementById('prTon').textContent = S.ton.toFixed(3);
-  document.getElementById('prMlt').textContent = '×' + S.mult.toFixed(1);
-  document.getElementById('ciDay').textContent = S.ciDay;
-  document.getElementById('ciM').textContent = '×' + S.mult.toFixed(1);
-  document.getElementById('pvpRound').textContent = 'ROUND #' + S.pvpRound;
-  document.getElementById('pvpBV').textContent = fmt(S.arc) + ' ARC';
-  document.getElementById('refIV').textContent = S.friends.length;
-  document.getElementById('frCnt').textContent = S.friends.length;
-  document.getElementById('frEarn').textContent = fmt(S.friends.reduce((a,f) => a + (f.earned_arc || 0), 0));
-  document.getElementById('refBox').textContent = 't.me/' + BOT + '?start=' + S.refCode;
-  const pct = Math.min(100, (S.excToday / 5) * 100);
-  document.getElementById('excLV').textContent = S.excToday.toFixed(2) + ' / 5 TON';
-  document.getElementById('excLF').style.width = pct + '%';
-  updateCIBtn();
-  buildTasks();
-  renderTx();
+  document.getElementById('prMlt').textContent = '×'+S.mult.toFixed(1);
+  document.getElementById('ciBadge').textContent = (S.lang==='ru'?'День ':'Day ')+S.ciDay;
+  document.getElementById('ciSub').textContent = t('ciSub').replace('{m}',S.mult.toFixed(1));
+  document.getElementById('ciIV').textContent = (S.lang==='ru'?'День ':'Day ')+S.ciDay+' · ×'+S.mult.toFixed(1);
+  document.getElementById('refIV').textContent = S.directCount;
+  document.getElementById('frCnt').textContent = S.directCount;
+  document.getElementById('frEarn').textContent = fmt(S.friends.reduce((a,f)=>a+(+f.earned_arc||0),0));
+  document.getElementById('refBox').textContent = 't.me/'+BOT+'?start=ref_'+S.refCode;
+  const pct = Math.min(100,(S.excToday/5)*100);
+  document.getElementById('excLV').textContent = S.excToday.toFixed(2)+' / 5 TON';
+  document.getElementById('excLF').style.width = pct+'%';
+  updateCIBtn(); buildDays(); buildTasks(); renderFriends(); renderTx();
 }
 
-function fmt(n) {
-  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
-  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
-  return Math.floor(n).toString();
+function setAv(id){
+  const el = document.getElementById(id); if(!el) return;
+  if (S.photo){ const img=new Image(); img.onload=()=>{el.innerHTML='<img src="'+S.photo+'"/>';}; img.onerror=()=>{el.textContent=S.init;}; img.src=S.photo; }
+  else el.textContent = S.init;
 }
 
-function renderTx() {
-  const el = document.getElementById('txList');
-  if (!el) return;
-  if (!S.txs.length) {
-    el.innerHTML = '<div class="tx-emp">' + t('txEmp') + '</div>';
-    return;
-  }
-  el.innerHTML = S.txs.map(tx => {
-    let ico, cls, nm, ac, am;
-    if (tx.type === 'deposit') { ico = '⬇️'; cls = 'dep'; nm = t('txDep'); ac = 'pl'; am = '+' + tx.amount + ' TON'; }
-    else if (tx.type === 'withdraw') { ico = '⬆️'; cls = 'wit'; nm = t('txWit'); ac = 'mn'; am = '-' + tx.amount + ' TON'; }
-    else if (tx.type === 'exchange') { ico = '🔄'; cls = 'exc'; nm = t('txExc'); ac = 'pl'; am = '+' + tx.amount + ' ARC'; }
-    else if (tx.type === 'pvp_win') { ico = '🏆'; cls = 'exc'; nm = 'PvP победа'; ac = 'pl'; am = '+' + tx.amount + ' ARC'; }
-    else { ico = '💫'; cls = 'exc'; nm = tx.type || ''; ac = 'pl'; am = tx.amount; }
-    return '<div class="txi"><div class="tx-ico ' + cls + '">' + ico + '</div><div class="tx-inf"><div class="tx-nm">' + nm + '</div><div class="tx-dt">' + new Date(tx.created_at).toLocaleString() + '</div></div><div class="tx-am ' + ac + '">' + am + '</div></div>';
+function buildAds(){
+  const box = document.getElementById('adList'); if(!box) return;
+  box.innerHTML = AD_SLOTS.map(a=>{
+    const right = a.live ? '<div class="go-b">+5 ARC</div>' : '<div class="soon-b">'+(S.lang==='ru'?'Скоро':'Soon')+'</div>';
+    const onclk = a.live ? ' onclick="watchAd('+a.slot+')"' : '';
+    return '<div class="adc'+(a.live?' live':'')+'"'+onclk+'><div class="adi"><div class="ad-ico">'+a.ico+'</div><div><div class="ad-nm">'+a.name+'</div><div class="ad-sb">+5 ARC · '+(S.lang==='ru'?'лимит':'limit')+' '+a.max+'/'+(S.lang==='ru'?'день':'day')+'</div></div><div class="ad-right">'+right+'</div></div></div>';
   }).join('');
-  }
-  function setLang(l) {
-  S.lang = l;
-  document.getElementById('btnRU').classList.toggle('on', l === 'ru');
-  document.getElementById('btnEN').classList.toggle('on', l === 'en');
-  applyLang();
 }
 
-function applyLang() {
-  const ids = ['earnTitle','earnSub','adN1','adN2','adN3','adN4','adN5','adL1','adL2','adL3','adL4','adL5',
-    'ciTitle','ciDL','ciML','promoTitle','promoBtn','tasksTitle',
-    'pvpLbl','pvpBetLbl','pvpBetBtn','pvpNote','pvpPL','pvpHistLbl','pvpBL','cds',
-    'frTitle','frSub','frIL','frAL','copyBtn','shareBtn',
-    'lv1l','lv1d','lv2l','lv2d','frListT',
-    'wLbl','wNC','wCT','wBtn','wDiscBtn',
-    'exchTitle','excLL','depBtn','withBtn',
-    'lbIL','ciIL','refIL','burnIL','lbTitle','hiTitle','txTitle',
-    'nPvp','nTasks','nHome','nFr','nPr','prML'];
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el && L[S.lang][id]) el.textContent = L[S.lang][id];
-  });
-  updateCIBtn();
-  buildTasks();
-}
-
-const PGS = ['pvp','tasks','home','friends','profile'];
-function gp(name, btn) {
-  PGS.forEach(p => document.getElementById('page-' + p)?.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
-  document.getElementById('page-' + name)?.classList.add('active');
-  btn?.classList.add('on');
-  document.getElementById('screen').scrollTop = 0;
-}
-
-const MM = [1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
-function buildDays() {
-  const g = document.getElementById('dg');
-  if (!g) return;
-  const lb = ['Д1','Д2','Д3','Д4','Д5','Д6+'];
-  const ml = ['×1.0','×1.1','×1.2','×1.3','×1.4','×1.5'];
-  g.innerHTML = '';
-  for (let i = 0; i < 6; i++) {
-    const d = document.createElement('div');
-    d.className = 'db' + (i === S.ciDay-1 ? ' td' : i < S.ciDay-1 ? ' dn' : ' lk');
-    d.innerHTML = '<div class="dl">' + lb[i] + '</div><div class="dm">' + ml[i] + '</div>';
-    g.appendChild(d);
-  }
-}
-
-function updateCIBtn() {
-  const b = document.getElementById('cib');
-  if (!b) return;
-  if (S.ciDone) {
-    b.textContent = t('ciD');
-    b.className = 'cib dne';
-  } else {
-    b.textContent = t('ciR');
-    b.className = 'cib rdy';
-  }
-}
-
-function doCI() {
-  if (S.ciDone) {
-    toast(t('ciDone'), 'r');
-    return;
-  }
-  S.ciDone = true;
-  const m = MM[Math.min(S.ciDay-1, 5)];
-  S.mult = m;
-  buildDays();
-  updateCIBtn();
-  renderAll();
-  saveData();
-  toast(t('ciOk').replace('{m}', '×' + m.toFixed(1)), 'g');
-}
-
-function buildTasks() {
-  const list = document.getElementById('tlist');
-  if (!list) return;
-  list.innerHTML = '';
-  TASKS.forEach(task => {
-    const done = S.tasks.has(task.id);
-    const el = document.createElement('div');
-    el.className = 'ti' + (done ? ' dn' : '');
-    let nm = '', ds = '';
-    if (task.type === 'ch') {
-      nm = t('tCh');
-      ds = t('tChD');
-    } else {
-      nm = t('tr' + task.req);
-      ds = S.lang === 'ru' ? 'Рефералов: ' + S.friends.length + '/' + task.req : 'Referrals: ' + S.friends.length + '/' + task.req;
-    }
-    let rb = '';
-    if (done) {
-      rb = '<span style="font-size:20px">✅</span>';
-    } else if (task.type === 'ch') {
-      rb = '<div class="tbtns"><button class="tb2 y" onclick="goChannel()">' + t('go') + '</button><button class="tb2" onclick="checkCh(\'' + task.id + '\',' + task.rew + ')">' + t('chk') + '</button></div>';
-    } else {
-      rb = '<button class="tb2" onclick="checkRef(\'' + task.id + '\',' + task.req + ',' + task.rew + ')">' + t('chk') + '</button>';
-    }
-    el.innerHTML = '<div class="tico">' + task.ico + '</div><div class="tinf"><div class="tnm">' + nm + '</div><div class="tds">' + ds + '</div></div><div style="display:flex;align-items:center;gap:8px">' + (!done ? '<div class="trew">+' + task.rew + ' ARC</div>' : '') + rb + '</div>';
-    list.appendChild(el);
-  });
-}
-
-function goChannel() {
-  if (window.Telegram?.WebApp) window.Telegram.WebApp.openTelegramLink('https://t.me/' + CH);
-  else window.open('https://t.me/' + CH, '_blank');
-}
-
-async function checkCh(id, rew) {
-  if (S.tasks.has(id)) {
-    toast(t('tDone'), 'r');
-    return;
-  }
-  try {
-    const r = await fetch('/api/check-subscription', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ telegram_id: S.tgId, channel: CH })
-    });
+async function watchAd(slot){
+  try{
+    const r = await fetch('/api/ad/view',{method:'POST',headers:authHeaders(),body:JSON.stringify({ad_slot:slot})});
     const d = await r.json();
-    if (d.subscribed) doneTask(id, rew);
-    else toast(t('noSub'), 'r');
-  } catch(e) {
-    doneTask(id, rew);
-  }
-}
-
-function checkRef(id, req, rew) {
-  if (S.tasks.has(id)) {
-    toast(t('tDone'), 'r');
-    return;
-  }
-  if (S.friends.length < req) {
-    toast(t('noRef').replace('{c}', S.friends.length).replace('{r}', req), 'r');
-    return;
-  }
-  doneTask(id, rew);
-}
-
-function doneTask(id, rew) {
-  S.tasks.add(id);
-  S.arc += rew;
-  renderAll();
-  saveData();
-  toast(t('refOk').replace('{n}', rew), 'g');
-}
-
-const PROMOS = { 'BLACK100': 100, 'ARC500': 500, 'LAUNCH50': 50 };
-function redeemPromo() {
-  const c = document.getElementById('promoInp').value.trim().toUpperCase();
-  if (!c) return;
-  if (S.usedPromos.has(c) || !PROMOS[c]) {
-    toast(t('promoFail'), 'r');
-    return;
-  }
-  S.usedPromos.add(c);
-  S.arc += PROMOS[c];
-  renderAll();
-  saveData();
-  document.getElementById('promoInp').value = '';
-  toast(t('promoOk').replace('{n}', PROMOS[c]), 'g');
-}
-
-let spinning = false;
-let currentWinnerShown = null;
-
-async function loadPvpState() {
-  try {
-    const r = await fetch('/api/pvp/state');
-    const d = await r.json();
-    if (!d) return;
-    document.getElementById('pvpRound').textContent = 'ROUND #' + d.roundId;
-    if (d.countdown !== null && d.countdown > 0) {
-      document.getElementById('cd').style.display = 'block';
-      document.getElementById('cdn').textContent = d.countdown;
-      document.getElementById('whlC').textContent = d.countdown + ' сек';
-    } else {
-      document.getElementById('cd').style.display = 'none';
-      if (d.status === 'waiting') document.getElementById('whlC').textContent = 'Ожидание';
-      if (d.status === 'spinning') document.getElementById('whlC').textContent = 'Розыгрыш';
-    }
-    if (d.players && d.players.length) {
-      const total = d.totalPool;
-      let html = '';
-      for (let i = 0; i < d.players.length; i++) {
-        const p = d.players[i];
-        const pct = p.chance;
-        const col = COLS[i % COLS.length];
-        const isMe = String(p.telegram_id) === String(S.tgId);
-        html += '<div class="ppt"><div class="ppav" style="background:' + col + '">' + (p.username ? p.username[0].toUpperCase() : 'P') + '</div><div style="flex:1"><div class="ppnm">' + p.username + (isMe ? ' (вы)' : '') + '</div><div class="ppch" style="color:' + col + '">' + pct + '% Шанс</div></div><div class="ppbt">' + fmt(p.bet) + ' ARC</div></div>';
-      }
-      document.getElementById('pvpParts').innerHTML = html;
-      document.getElementById('pvpTot').textContent = fmt(total) + ' ARC';
-      document.getElementById('pvpPool').textContent = fmt(total) + ' ARC';
-    }
-    if (d.winner && currentWinnerShown !== d.winner.telegram_id + '_' + d.roundId) {
-      currentWinnerShown = d.winner.telegram_id + '_' + d.roundId;
-      showWB(d.winner.username, d.winner.amount, d.winner.chance);
-    }
-    if (d.status === 'spinning' && !spinning) {
-      doSpin();
-    }
-  } catch(e) {}
-}
-
-let spinAnim = null;
-function doSpin() {
-  if (spinning) return;
-  spinning = true;
-  const cv = document.getElementById('wc');
-  let angle = 0;
-  const dur = 5000;
-  const start = Date.now();
-  spinAnim = setInterval(() => {
-    const elapsed = Date.now() - start;
-    const prog = 1 - Math.pow(1 - elapsed / dur, 3);
-    angle = prog * 2200;
-    cv.style.transform = 'rotate(' + angle + 'deg)';
-    if (elapsed >= dur) {
-      clearInterval(spinAnim);
-      spinning = false;
-    }
-  }, 16);
-}
-
-function showWB(name, amount, chance) {
-  const banner = document.getElementById('wban');
-  document.getElementById('wbT').innerHTML = '🏆 ' + name + ' выиграл +' + fmt(amount) + ' ARC';
-  document.getElementById('wbS').innerHTML = 'Шанс: ' + chance + '% · Новый раунд через 4 сек';
-  banner.style.display = 'block';
-  banner.classList.add('show');
-  setTimeout(() => closeWB(), 4000);
-}
-
-function closeWB() {
-  const banner = document.getElementById('wban');
-  banner.classList.remove('show');
-  setTimeout(() => banner.style.display = 'none', 300);
-}
-
-function drawWheel() {
-  const cv = document.getElementById('wc');
-  const ctx = cv.getContext('2d');
-  const W = 260, cx = 130, cy = 130, r = 120;
-  ctx.clearRect(0, 0, W, W);
-  for (let i = 0; i < 8; i++) {
-    const a1 = (i / 8) * Math.PI * 2 - Math.PI / 2;
-    const a2 = ((i + 1) / 8) * Math.PI * 2 - Math.PI / 2;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, a1, a2);
-    ctx.closePath();
-    ctx.fillStyle = i % 2 ? '#e8e8e8' : '#d0d0d0';
-    ctx.fill();
-  }
-}
-
-function setB(v) {
-  document.getElementById('pbi').value = v;
-}
-
-async function placeBet() {
-  if (!S.tgId) {
-    toast('No user', 'r');
-    return;
-  }
-  const amt = parseInt(document.getElementById('pbi').value) || 0;
-  if (amt < 10) {
-    toast(t('bMin'), 'r');
-    return;
-  }
-  if (amt > 5000) {
-    toast(t('bMax'), 'r');
-    return;
-  }
-  if (amt > S.arc) {
-    toast(t('bInsuf'), 'r');
-    return;
-  }
-  try {
-    const r = await fetch('/api/pvp/join', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ telegram_id: S.tgId, bet: amt })
-    });
-    const d = await r.json();
-    if (!r.ok) {
-      toast(d.error || 'PvP error', 'r');
-      return;
-    }
-    await loadData();
-    renderAll();
-    toast(t('bOk'), 'g');
-  } catch(e) {
-    toast('PvP error', 'r');
-  }
-}
-
-async function addBet() {
-  if (!S.tgId) {
-    toast('No user', 'r');
-    return;
-  }
-  const ex = parseInt(document.getElementById('pbi').value) || 0;
-  if (ex < 1) {
-    toast('Минимум 1 ARC', 'r');
-    return;
-  }
-  if (ex > S.arc) {
-    toast(t('bInsuf'), 'r');
-    return;
-  }
-  try {
-    const r = await fetch('/api/pvp/join', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ telegram_id: S.tgId, bet: ex })
-    });
-    const d = await r.json();
-    if (!r.ok) {
-      toast(d.error || 'PvP error', 'r');
-      return;
-    }
-    await loadData();
-    renderAll();
-    toast('+' + fmt(ex) + ' ARC', 'g');
-  } catch(e) {
-    toast('PvP error', 'r');
-  }
-}
-
-function copyRef() {
-  navigator.clipboard?.writeText('https://t.me/' + BOT + '?start=' + S.refCode).catch(() => {});
-  toast(t('copied'), 'g');
-}
-
-function shareRef() {
-  const link = 'https://t.me/' + BOT + '?start=' + S.refCode;
-  const txt = S.lang === 'ru' ? '🖤 Присоединяйся к Platform BLACK!' : '🖤 Join Platform BLACK!';
-  if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(txt));
-  } else {
-    navigator.clipboard?.writeText(link).catch(() => {});
-    toast(t('copied'), 'g');
-  }
-             } 
-  function setLang(l) {
-  S.lang = l;
-  document.getElementById('btnRU').classList.toggle('on', l === 'ru');
-  document.getElementById('btnEN').classList.toggle('on', l === 'en');
-  applyLang();
-}
-
-function applyLang() {
-  const ids = ['earnTitle','earnSub','adN1','adN2','adN3','adN4','adN5','adL1','adL2','adL3','adL4','adL5',
-    'ciTitle','ciDL','ciML','promoTitle','promoBtn','tasksTitle',
-    'pvpLbl','pvpBetLbl','pvpBetBtn','pvpNote','pvpPL','pvpHistLbl','pvpBL','cds',
-    'frTitle','frSub','frIL','frAL','copyBtn','shareBtn',
-    'lv1l','lv1d','lv2l','lv2d','frListT',
-    'wLbl','wNC','wCT','wBtn','wDiscBtn',
-    'exchTitle','excLL','depBtn','withBtn',
-    'lbIL','ciIL','refIL','burnIL','lbTitle','hiTitle','txTitle',
-    'nPvp','nTasks','nHome','nFr','nPr','prML'];
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el && L[S.lang][id]) el.textContent = L[S.lang][id];
-  });
-  updateCIBtn();
-  buildTasks();
-}
-
-const PGS = ['pvp','tasks','home','friends','profile'];
-function gp(name, btn) {
-  PGS.forEach(p => document.getElementById('page-' + p)?.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
-  document.getElementById('page-' + name)?.classList.add('active');
-  btn?.classList.add('on');
-  document.getElementById('screen').scrollTop = 0;
-}
-
-const MM = [1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
-function buildDays() {
-  const g = document.getElementById('dg');
-  if (!g) return;
-  const lb = ['Д1','Д2','Д3','Д4','Д5','Д6+'];
-  const ml = ['×1.0','×1.1','×1.2','×1.3','×1.4','×1.5'];
-  g.innerHTML = '';
-  for (let i = 0; i < 6; i++) {
-    const d = document.createElement('div');
-    d.className = 'db' + (i === S.ciDay-1 ? ' td' : i < S.ciDay-1 ? ' dn' : ' lk');
-    d.innerHTML = '<div class="dl">' + lb[i] + '</div><div class="dm">' + ml[i] + '</div>';
-    g.appendChild(d);
-  }
-}
-
-function updateCIBtn() {
-  const b = document.getElementById('cib');
-  if (!b) return;
-  if (S.ciDone) {
-    b.textContent = t('ciD');
-    b.className = 'cib dne';
-  } else {
-    b.textContent = t('ciR');
-    b.className = 'cib rdy';
-  }
-}
-
-function doCI() {
-  if (S.ciDone) {
-    toast(t('ciDone'), 'r');
-    return;
-  }
-  S.ciDone = true;
-  const m = MM[Math.min(S.ciDay-1, 5)];
-  S.mult = m;
-  buildDays();
-  updateCIBtn();
-  renderAll();
-  saveData();
-  toast(t('ciOk').replace('{m}', '×' + m.toFixed(1)), 'g');
-}
-
-function buildTasks() {
-  const list = document.getElementById('tlist');
-  if (!list) return;
-  list.innerHTML = '';
-  TASKS.forEach(task => {
-    const done = S.tasks.has(task.id);
-    const el = document.createElement('div');
-    el.className = 'ti' + (done ? ' dn' : '');
-    let nm = '', ds = '';
-    if (task.type === 'ch') {
-      nm = t('tCh');
-      ds = t('tChD');
-    } else {
-      nm = t('tr' + task.req);
-      ds = S.lang === 'ru' ? 'Рефералов: ' + S.friends.length + '/' + task.req : 'Referrals: ' + S.friends.length + '/' + task.req;
-    }
-    let rb = '';
-    if (done) {
-      rb = '<span style="font-size:20px">✅</span>';
-    } else if (task.type === 'ch') {
-      rb = '<div class="tbtns"><button class="tb2 y" onclick="goChannel()">' + t('go') + '</button><button class="tb2" onclick="checkCh(\'' + task.id + '\',' + task.rew + ')">' + t('chk') + '</button></div>';
-    } else {
-      rb = '<button class="tb2" onclick="checkRef(\'' + task.id + '\',' + task.req + ',' + task.rew + ')">' + t('chk') + '</button>';
-    }
-    el.innerHTML = '<div class="tico">' + task.ico + '</div><div class="tinf"><div class="tnm">' + nm + '</div><div class="tds">' + ds + '</div></div><div style="display:flex;align-items:center;gap:8px">' + (!done ? '<div class="trew">+' + task.rew + ' ARC</div>' : '') + rb + '</div>';
-    list.appendChild(el);
-  });
-}
-
-function goChannel() {
-  if (window.Telegram?.WebApp) window.Telegram.WebApp.openTelegramLink('https://t.me/' + CH);
-  else window.open('https://t.me/' + CH, '_blank');
-}
-
-async function checkCh(id, rew) {
-  if (S.tasks.has(id)) {
-    toast(t('tDone'), 'r');
-    return;
-  }
-  try {
-    const r = await fetch('/api/check-subscription', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ telegram_id: S.tgId, channel: CH })
-    });
-    const d = await r.json();
-    if (d.subscribed) doneTask(id, rew);
-    else toast(t('noSub'), 'r');
-  } catch(e) {
-    doneTask(id, rew);
-  }
-}
-
-function checkRef(id, req, rew) {
-  if (S.tasks.has(id)) {
-    toast(t('tDone'), 'r');
-    return;
-  }
-  if (S.friends.length < req) {
-    toast(t('noRef').replace('{c}', S.friends.length).replace('{r}', req), 'r');
-    return;
-  }
-  doneTask(id, rew);
-}
-
-function doneTask(id, rew) {
-  S.tasks.add(id);
-  S.arc += rew;
-  renderAll();
-  saveData();
-  toast(t('refOk').replace('{n}', rew), 'g');
-}
-
-const PROMOS = { 'BLACK100': 100, 'ARC500': 500, 'LAUNCH50': 50 };
-function redeemPromo() {
-  const c = document.getElementById('promoInp').value.trim().toUpperCase();
-  if (!c) return;
-  if (S.usedPromos.has(c) || !PROMOS[c]) {
-    toast(t('promoFail'), 'r');
-    return;
-  }
-  S.usedPromos.add(c);
-  S.arc += PROMOS[c];
-  renderAll();
-  saveData();
-  document.getElementById('promoInp').value = '';
-  toast(t('promoOk').replace('{n}', PROMOS[c]), 'g');
-}
-
-let spinning = false;
-let currentWinnerShown = null;
-
-async function loadPvpState() {
-  try {
-    const r = await fetch('/api/pvp/state');
-    const d = await r.json();
-    if (!d) return;
-    document.getElementById('pvpRound').textContent = 'ROUND #' + d.roundId;
-    if (d.countdown !== null && d.countdown > 0) {
-      document.getElementById('cd').style.display = 'block';
-      document.getElementById('cdn').textContent = d.countdown;
-      document.getElementById('whlC').textContent = d.countdown + ' сек';
-    } else {
-      document.getElementById('cd').style.display = 'none';
-      if (d.status === 'waiting') document.getElementById('whlC').textContent = 'Ожидание';
-      if (d.status === 'spinning') document.getElementById('whlC').textContent = 'Розыгрыш';
-    }
-    if (d.players && d.players.length) {
-      const total = d.totalPool;
-      let html = '';
-      for (let i = 0; i < d.players.length; i++) {
-        const p = d.players[i];
-        const pct = p.chance;
-        const col = COLS[i % COLS.length];
-        const isMe = String(p.telegram_id) === String(S.tgId);
-        html += '<div class="ppt"><div class="ppav" style="background:' + col + '">' + (p.username ? p.username[0].toUpperCase() : 'P') + '</div><div style="flex:1"><div class="ppnm">' + p.username + (isMe ? ' (вы)' : '') + '</div><div class="ppch" style="color:' + col + '">' + pct + '% Шанс</div></div><div class="ppbt">' + fmt(p.bet) + ' ARC</div></div>';
-      }
-      document.getElementById('pvpParts').innerHTML = html;
-      document.getElementById('pvpTot').textContent = fmt(total) + ' ARC';
-      document.getElementById('pvpPool').textContent = fmt(total) + ' ARC';
-    }
-    if (d.winner && currentWinnerShown !== d.winner.telegram_id + '_' + d.roundId) {
-      currentWinnerShown = d.winner.telegram_id + '_' + d.roundId;
-      showWB(d.winner.username, d.winner.amount, d.winner.chance);
-    }
-    if (d.status === 'spinning' && !spinning) {
-      doSpin();
-    }
-  } catch(e) {}
-}
-
-let spinAnim = null;
-function doSpin() {
-  if (spinning) return;
-  spinning = true;
-  const cv = document.getElementById('wc');
-  let angle = 0;
-  const dur = 5000;
-  const start = Date.now();
-  spinAnim = setInterval(() => {
-    const elapsed = Date.now() - start;
-    const prog = 1 - Math.pow(1 - elapsed / dur, 3);
-    angle = prog * 2200;
-    cv.style.transform = 'rotate(' + angle + 'deg)';
-    if (elapsed >= dur) {
-      clearInterval(spinAnim);
-      spinning = false;
-    }
-  }, 16);
-}
-
-function showWB(name, amount, chance) {
-  const banner = document.getElementById('wban');
-  document.getElementById('wbT').innerHTML = '🏆 ' + name + ' выиграл +' + fmt(amount) + ' ARC';
-  document.getElementById('wbS').innerHTML = 'Шанс: ' + chance + '% · Новый раунд через 4 сек';
-  banner.style.display = 'block';
-  banner.classList.add('show');
-  setTimeout(() => closeWB(), 4000);
-}
-
-function closeWB() {
-  const banner = document.getElementById('wban');
-  banner.classList.remove('show');
-  setTimeout(() => banner.style.display = 'none', 300);
-}
-
-function drawWheel() {
-  const cv = document.getElementById('wc');
-  const ctx = cv.getContext('2d');
-  const W = 260, cx = 130, cy = 130, r = 120;
-  ctx.clearRect(0, 0, W, W);
-  for (let i = 0; i < 8; i++) {
-    const a1 = (i / 8) * Math.PI * 2 - Math.PI / 2;
-    const a2 = ((i + 1) / 8) * Math.PI * 2 - Math.PI / 2;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, a1, a2);
-    ctx.closePath();
-    ctx.fillStyle = i % 2 ? '#e8e8e8' : '#d0d0d0';
-    ctx.fill();
-  }
-}
-
-function setB(v) {
-  document.getElementById('pbi').value = v;
-}
-
-async function placeBet() {
-  if (!S.tgId) {
-    toast('No user', 'r');
-    return;
-  }
-  const amt = parseInt(document.getElementById('pbi').value) || 0;
-  if (amt < 10) {
-    toast(t('bMin'), 'r');
-    return;
-  }
-  if (amt > 5000) {
-    toast(t('bMax'), 'r');
-    return;
-  }
-  if (amt > S.arc) {
-    toast(t('bInsuf'), 'r');
-    return;
-  }
-  try {
-    const r = await fetch('/api/pvp/join', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ telegram_id: S.tgId, bet: amt })
-    });
-    const d = await r.json();
-    if (!r.ok) {
-      toast(d.error || 'PvP error', 'r');
-      return;
-    }
-    await loadData();
-    renderAll();
-    toast(t('bOk'), 'g');
-  } catch(e) {
-    toast('PvP error', 'r');
-  }
-}
-
-async function addBet() {
-  if (!S.tgId) {
-    toast('No user', 'r');
-    return;
-  }
-  const ex = parseInt(document.getElementById('pbi').value) || 0;
-  if (ex < 1) {
-    toast('Минимум 1 ARC', 'r');
-    return;
-  }
-  if (ex > S.arc) {
-    toast(t('bInsuf'), 'r');
-    return;
-  }
-  try {
-    const r = await fetch('/api/pvp/join', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ telegram_id: S.tgId, bet: ex })
-    });
-    const d = await r.json();
-    if (!r.ok) {
-      toast(d.error || 'PvP error', 'r');
-      return;
-    }
-    await loadData();
-    renderAll();
-    toast('+' + fmt(ex) + ' ARC', 'g');
-  } catch(e) {
-    toast('PvP error', 'r');
-  }
-}
-
-function copyRef() {
-  navigator.clipboard?.writeText('https://t.me/' + BOT + '?start=' + S.refCode).catch(() => {});
-  toast(t('copied'), 'g');
-}
-
-function shareRef() {
-  const link = 'https://t.me/' + BOT + '?start=' + S.refCode;
-  const txt = S.lang === 'ru' ? '🖤 Присоединяйся к Platform BLACK!' : '🖤 Join Platform BLACK!';
-  if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(txt));
-  } else {
-    navigator.clipboard?.writeText(link).catch(() => {});
-    toast(t('copied'), 'g');
-  }
-  }
-      toast(t('bOk'), 'g');
-  } catch(e) {
-    toast('PvP error', 'r');
-  }
-}
-
-async function addBet() {
-  if (!S.tgId) {
-    toast('No user', 'r');
-    return;
-  }
-  const ex = parseInt(document.getElementById('pbi').value) || 0;
-  if (ex < 1) {
-    toast('Минимум 1 ARC', 'r');
-    return;
-  }
-  if (ex > S.arc) {
-    toast(t('bInsuf'), 'r');
-    return;
-  }
-  try {
-    const r = await fetch('/api/pvp/join', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ telegram_id: S.tgId, bet: ex })
-    });
-    const d = await r.json();
-    if (!r.ok) {
-      toast(d.error || 'PvP error', 'r');
-      return;
-    }
-    await loadData();
-    renderAll();
-    toast('+' + fmt(ex) + ' ARC', 'g');
-  } catch(e) {
-    toast('PvP error', 'r');
-  }
-}
-
-function copyRef() {
-  navigator.clipboard?.writeText('https://t.me/' + BOT + '?start=' + S.refCode);
-  toast(t('copied'), 'g');
-}
-
-function shareRef() {
-  const link = 'https://t.me/' + BOT + '?start=' + S.refCode;
-  const txt = S.lang === 'ru' ? '🖤 Присоединяйся к Platform BLACK!' : '🖤 Join Platform BLACK!';
-  if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(txt));
-  } else {
-    navigator.clipboard?.writeText(link);
-    toast(t('copied'), 'g');
-  }
-}
-
-let tcUI = null;
-
-function initTC() {
-  try {
-    tcUI = new TON_CONNECT_UI.TonConnectUI({
-      manifestUrl: window.location.origin + '/tonconnect-manifest.json',
-      restoreConnection: true,
-      buttonRootId: null
-    });
-    tcUI.onStatusChange(wallet => {
-      if (wallet) {
-        const raw = wallet.account.address;
-        S.wallet = raw;
-        showWC(raw);
-        saveData();
-        toast(t('wOk'), 'g');
-      } else {
-        discWalletUI();
-      }
-    });
-  } catch(e) {}
-}
-
-function showWC(addr) {
-  document.getElementById('wDisc').style.display = 'none';
-  document.getElementById('wConn').style.display = 'block';
-  document.getElementById('wAddr').textContent = addr.slice(0, 6) + '...' + addr.slice(-4);
-  document.getElementById('hDot').classList.add('on');
-  document.getElementById('hWallet').textContent = addr.slice(0, 6) + '...' + addr.slice(-4);
-}
-
-async function connectWallet() {
-  if (tcUI) {
-    try {
-      await tcUI.openModal();
-    } catch(e) {
-      toast('Ошибка', 'r');
-    }
-  }
-}
-
-async function disconnectWallet() {
-  if (tcUI) {
-    try {
-      await tcUI.disconnect();
-    } catch(e) {}
-  }
-  discWalletUI();
-}
-
-function discWalletUI() {
-  S.wallet = '';
-  document.getElementById('wDisc').style.display = 'block';
-  document.getElementById('wConn').style.display = 'none';
-  document.getElementById('hDot').classList.remove('on');
-  document.getElementById('hWallet').textContent = t('wNC');
-  saveData();
-  toast(t('wDis'), 'r');
-}
-
-function calcExc() {
-  const v = parseFloat(document.getElementById('excInp')?.value) || 0;
-  const el = document.getElementById('excRes');
-  if (!el) return;
-  if (v < 0.1) {
-    el.textContent = t('excMin');
-    return;
-  }
-  if (v > 5) {
-    el.textContent = t('excMax');
-    return;
-  }
-  if (v > 5 - S.excToday) {
-    el.textContent = t('excLim');
-    return;
-  }
-  if (v > S.ton) {
-    el.textContent = t('excInsuf');
-    return;
-  }
-  fetch('/api/ton-rate')
-    .then(r => r.json())
-    .then(data => {
-      const arcAmount = Math.floor(v * data.arc_per_ton);
-      el.textContent = t('excRes').replace('{n}', arcAmount.toLocaleString());
-    });
-}
-
-async function doExchange() {
-  if (!S.wallet) {
-    toast(t('noW'), 'r');
-    return;
-  }
-  const v = parseFloat(document.getElementById('excInp')?.value) || 0;
-  if (v < 0.1) {
-    toast(t('excFail'), 'r');
-    return;
-  }
-  if (v > 5 - S.excToday) {
-    toast(t('excLim'), 'r');
-    return;
-  }
-  if (v > S.ton) {
-    toast(t('excInsuf'), 'r');
-    return;
-  }
-  try {
-    const r = await fetch('/api/exchange', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ telegram_id: S.tgId, ton_amount: v })
-    });
-    const d = await r.json();
-    if (d.ok) {
-      await loadData();
-      renderAll();
-      calcExc();
-      toast('+' + d.arc_credited.toLocaleString() + ' ARC ✓', 'g');
-    } else {
-      toast('Exchange error', 'r');
-    }
-  } catch(e) {
-    toast('Exchange error', 'r');
-  }
-}
-
-function openModal(type) {
-  const mt = document.getElementById('mT');
-  const mb = document.getElementById('mB');
-  if (type === 'deposit') {
-    mt.textContent = t('depT');
-    mb.innerHTML = '<div class="mnote">' + t('depN') + '<br><br><span style="color:var(--red);font-weight:700">' + t('depMin') + '</span></div><input class="inp" style="margin-bottom:8px" type="number" id="dAmt" placeholder="0.1 TON" step="0.01" min="0.1"/><button class="btn btn-y btn-full" onclick="doDeposit()" style="padding:14px">Пополнить</button>';
-  } else if (type === 'withdraw') {
-    mt.textContent = t('witT');
-    mb.innerHTML = '<div class="mnote">' + t('witN') + '<br><br><span style="color:var(--red);font-weight:700">' + t('witMin') + '</span></div><div style="background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;font-weight:700">Баланс: ' + S.ton.toFixed(3) + ' TON</div><input class="inp" style="margin-bottom:12px" type="number" id="wAmt" placeholder="0.1 TON" step="0.01" min="0.1"/><button class="btn btn-y btn-full" onclick="doWithdraw()" style="padding:14px">' + t('witBtn') + '</button>';
-  } else if (type === 'burn') {
-    mt.textContent = t('burnT');
-    mb.innerHTML = '<div class="mnote">' + t('burnTx').replace(/\n/g, '<br>') + '</div>';
-  }
-  document.getElementById('mbg').classList.add('show');
-}
-
-function closeModal() {
-  document.getElementById('mbg').classList.remove('show');
-}
-
-function closeMBg(e) {
-  if (e.target === document.getElementById('mbg')) closeModal();
-}
-
-async function doDeposit() {
-  if (!S.wallet) {
-    toast(t('noW'), 'r');
-    closeModal();
-    return;
-  }
-  const v = parseFloat(document.getElementById('dAmt')?.value) || 0;
-  if (v < 0.1) {
-    toast('Минимум 0.1 TON', 'r');
-    return;
-  }
-  if (tcUI) {
-    try {
-      const commentText = 'black_dep_' + S.tgId;
-      const body = TonCore.beginCell().storeUint(0, 32).storeStringTail(commentText).endCell();
-      const payloadB64 = body.toBoc().toString('base64');
-      const amountInNano = (BigInt(Math.floor(v * 1e9))).toString();
-      await tcUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [{ address: PW, amount: amountInNano, payload: payloadB64 }]
-      });
-      closeModal();
-      toast(t('depSent'), 'g');
-      let attempts = 0;
-      const poll = setInterval(async () => {
-        attempts++;
-        try {
-          const r = await fetch('/api/check-deposit', {
-            method: 'POST',
-            headers: authHeaders(),
-            body: JSON.stringify({ telegram_id: S.tgId, expected_ton: v })
-          });
-          const d = await r.json();
-          if (d.confirmed) {
-            clearInterval(poll);
-            await loadData();
-            renderAll();
-            toast(t('depOk'), 'g');
-          }
-        } catch(e) {}
-        if (attempts >= 60) clearInterval(poll);
-      }, 5000);
-    } catch(e) {
-      toast(t('depCancel'), 'r');
-    }
-  }
-}
-
-async function doWithdraw() {
-  const v = parseFloat(document.getElementById('wAmt')?.value) || 0;
-  if (v < 0.1) {
-    toast('Минимум 0.1 TON', 'r');
-    return;
-  }
-  if (v > S.ton) {
-    toast(t('witInsuf'), 'r');
-    return;
-  }
-  if (!S.wallet) {
-    toast(t('noW'), 'r');
-    return;
-  }
-  try {
-    await fetch('/api/withdraw-request', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({
-        telegram_id: S.tgId,
-        ton_amount: v,
-        wallet: S.wallet,
-        username: S.user
-      })
-    });
-    closeModal();
-    toast(t('witOk'), 'g');
-  } catch(e) {
-    closeModal();
-    toast('Ошибка', 'r');
-  }
-}
-
-let lbTab = 'pvp';
-
-function openLB() {
-  document.getElementById('lbSh').classList.add('show');
-  renderLB();
-}
-
-function closeLB() {
-  document.getElementById('lbSh').classList.remove('show');
-}
-
-function closeLBBg(e) {
-  if (e.target === document.getElementById('lbSh')) closeLB();
-}
-
-function setLBT(tab) {
-  lbTab = tab;
-  document.getElementById('lbTP').classList.toggle('on', tab === 'pvp');
-  document.getElementById('lbTA').classList.toggle('on', tab === 'ad');
-  renderLB();
-}
-
-async function renderLB() {
-  const scr = document.getElementById('lbScr');
-  try {
-    const r = await fetch('/api/leaderboard?type=' + lbTab);
-    const data = await r.json();
-    if (!data.length) {
-      scr.innerHTML = '<div class="lb-emp">' + t('lbEmp') + '</div>';
-      return;
-    }
-    const rc = ['🥇', '🥈', '🥉'];
-    let html = '';
-    for (let i = 0; i < Math.min(data.length, 50); i++) {
-      const d = data[i];
-      const isMe = d.name === S.user;
-      const av = d.photo ? '<img src="' + d.photo + '"/>' : d.init;
-      html += '<div class="lbi' + (isMe ? ' me' : '') + '"><div class="lbr">' + (i < 3 ? rc[i] : (i + 1)) + '</div><div class="lbav" style="background:' + COLS[i % COLS.length] + '">' + av + '</div><div class="lbinf"><div class="lbnm">' + d.name + (isMe ? ' 👈' : '') + '</div><div class="lbsb">' + (lbTab === 'pvp' ? 'ARC поставлено' : 'просмотров') + '</div></div><div class="lbvl">' + fmt(d.val) + '</div></div>';
-    }
-    scr.innerHTML = html;
-  } catch(e) {
-    scr.innerHTML = '<div class="lb-emp">Ошибка</div>';
-  }
-}
-
-function openHist() {
-  document.getElementById('hiSh').classList.add('show');
-  renderHist();
-}
-
-function closeHist() {
-  document.getElementById('hiSh').classList.remove('show');
-}
-
-function closeHiBg(e) {
-  if (e.target === document.getElementById('hiSh')) closeHist();
-}
-
-async function renderHist() {
-  const scr = document.getElementById('hiScr');
-  try {
-    const r = await fetch('/api/pvp/history');
-    const data = await r.json();
-    if (!data.length) {
-      scr.innerHTML = '<div class="lb-emp">' + t('lbEmp') + '</div>';
-      return;
-    }
-    let html = '';
-    for (let i = 0; i < data.length; i++) {
-      const h = data[i];
-      html += '<div class="hi"><div style="font-size:12px;color:var(--t3);width:22px;text-align:center;font-weight:800">' + (i + 1) + '</div><div class="hiav" style="background:' + COLS[i % COLS.length] + '">' + (h.winner_name ? h.winner_name[0].toUpperCase() : 'W') + '</div><div class="hinf"><div class="hinm">🏆 ' + h.winner_name + '</div><div class="himt">Шанс: ' + (Math.round((h.winner_amount / h.total_pool) * 100)) + '% · Round #' + h.round_id + '</div></div><div class="hiarc">+' + fmt(h.winner_amount) + ' ARC</div></div>';
-    }
-    scr.innerHTML = html;
-  } catch(e) {
-    scr.innerHTML = '<div class="lb-emp">Ошибка</div>';
-  }
+    if (d.ok){ await loadData(); renderAll(); toast('+'+d.arc_earned+' ARC ✓','g'); }
+    else toast(d.error||t('err'),'r');
+  }catch(e){ toast(t('err'),'r'); }
 }
 
 let toastT;
-function toast(msg, type = '') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'show ' + (type || '');
-  clearTimeout(toastT);
-  toastT = setTimeout(() => el.className = '', 2700);
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='show '+(type||'');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.className='',2800);
 }
 
-window.addEventListener('load', init);
+window.addEventListener('load',init);
 </script>
 </body>
 </html>
