@@ -3,7 +3,7 @@
 /* ============================================================
    BLACK — Telegram Mini App backend
    Node.js + Express + grammY + Supabase
-   Все секреты берутся из переменных окружения Amvera.
+   Все секреты берутся из переменных окружения хостинга.
    ============================================================ */
 
 const express = require('express');
@@ -66,6 +66,7 @@ function nowISO() { return new Date().toISOString(); }
 function notifyAdmin(text) {
   if (ADMIN_ID) bot.api.sendMessage(ADMIN_ID, text).catch(() => {});
 }
+function sha256(s) { return crypto.createHash('sha256').update(s).digest('hex'); }
 
 // ---------- AUTH ----------
 function verifyInitData(initData) {
@@ -91,16 +92,13 @@ function getUserFromInit(initData) {
 // Middleware: проверяет initData для защищённых маршрутов
 function auth(req, res, next) {
   const open = ['/api/pvp/state', '/api/ton-rate', '/api/exchange/status', '/api/tasks', '/api/leaderboard', '/api/pvp/history'];
-  if (open.includes(req.path) || req.method === 'GET' && req.path.startsWith('/api/user/')) {
-    // GET /api/user/:id тоже проверим мягко (нужен для отображения)
-  }
   if (open.includes(req.path)) return next();
+  if (req.method === 'GET' && (req.path.startsWith('/api/user/') || req.path.startsWith('/api/task-done/'))) return next();
   const initData = req.headers['x-telegram-init-data'] || req.body?.initData;
   if (!verifyInitData(initData)) return res.status(401).json({ error: 'auth' });
   const u = getUserFromInit(initData);
   if (!u) return res.status(401).json({ error: 'no user' });
   req.tgUser = u;
-  // Запрет действовать от чужого имени
   if (req.body?.telegram_id && String(req.body.telegram_id) !== String(u.id)) {
     return res.status(403).json({ error: 'id mismatch' });
   }
@@ -137,17 +135,14 @@ async function ensureUser(tgUser, startParam) {
       checkin_day: 1, checkin_done: false, last_checkin_date: '',
       last_app_open: nowISO(), last_decay_date: '', inactive_days: 0
     });
-    // Реферальная привязка
     if (startParam) {
       const refId = String(startParam).replace(/^ref_/, '');
       if (refId && refId !== tgId) {
         const { data: ref } = await supabase.from('users').select('telegram_id').eq('telegram_id', refId).single();
         if (ref) {
-          // уровень 1
           await supabase.from('referrals').insert({ referrer_id: refId, referred_id: tgId, level: 1, earned_arc: 0 });
           notifyAdmin(`👥 Новый реферал у ${refId}: @${tgUser.username || tgUser.first_name}`);
           bot.api.sendMessage(Number(refId), `👥 Новый реферал: @${tgUser.username || tgUser.first_name}!`).catch(() => {});
-          // уровень 2 — реферер того, кто пригласил
           const { data: up } = await supabase.from('referrals').select('referrer_id').eq('referred_id', refId).eq('level', 1).single();
           if (up && up.referrer_id && up.referrer_id !== tgId) {
             await supabase.from('referrals').insert({ referrer_id: up.referrer_id, referred_id: tgId, level: 2, earned_arc: 0 });
@@ -164,9 +159,7 @@ async function ensureUser(tgUser, startParam) {
   }
 }
 
-// Начисление реферальных бонусов с заработка на рекламе
 async function payReferralBonus(earnerId, baseArc) {
-  // L1
   const { data: r1 } = await supabase.from('referrals').select('referrer_id,earned_arc').eq('referred_id', earnerId).eq('level', 1).single();
   if (r1?.referrer_id) {
     const b1 = Math.floor(baseArc * REF_L1);
@@ -178,7 +171,6 @@ async function payReferralBonus(earnerId, baseArc) {
       }
     }
   }
-  // L2
   const { data: r2 } = await supabase.from('referrals').select('referrer_id,earned_arc').eq('referred_id', earnerId).eq('level', 2).single();
   if (r2?.referrer_id) {
     const b2 = Math.floor(baseArc * REF_L2);
@@ -193,13 +185,18 @@ async function payReferralBonus(earnerId, baseArc) {
 }
 
 // ============================================================
-//  PvP ENGINE
+//  PvP ENGINE  (с provably fair)
 // ============================================================
 const COLORS = ['#3b82f6','#ef4444','#22c55e','#f59e0b','#a855f7','#06b6d4','#ec4899','#84cc16','#f97316','#14b8a6'];
 
 let round = newRound(1);
 function newRound(id) {
-  return { id, status: 'waiting', players: [], totalPool: 0, countdownEnd: null, waitTimer: null, winner: null };
+  const serverSeed = crypto.randomBytes(32).toString('hex');
+  return {
+    id, status: 'waiting', players: [], totalPool: 0,
+    countdownEnd: null, waitTimer: null, winner: null,
+    serverSeed, serverSeedHash: sha256(serverSeed), resultHash: null
+  };
 }
 function assignColor(players) {
   const used = new Set(players.map(p => p.color));
@@ -212,11 +209,9 @@ function startWaitTimer() {
   round.waitTimer = setTimeout(async () => {
     if (round.players.length === 1 && round.status === 'waiting') {
       const solo = round.players[0];
-      // вернуть ставку
       const { data: u } = await supabase.from('users').select('arc_balance').eq('telegram_id', solo.telegram_id).single();
       if (u) await supabase.from('users').update({ arc_balance: Number(u.arc_balance) + solo.bet }).eq('telegram_id', solo.telegram_id);
       bot.api.sendMessage(Number(solo.telegram_id), '⏰ Ставка возвращена — соперник не пришёл за 60 секунд.').catch(() => {});
-      // СЧЁТЧИК НЕ ДВИГАЕМ — игры не было
       round = newRound(round.id);
     }
   }, WAIT_MS);
@@ -235,12 +230,21 @@ async function finishRound() {
   const total = round.totalPool;
   if (!total || round.players.length < 2) { round = newRound(round.id); return; }
 
-  // выбор победителя по весу ставки
-  let rnd = Math.random() * total, winner = null;
-  for (const p of round.players) { rnd -= p.bet; if (rnd <= 0) { winner = p; break; } }
+  // provably fair: победитель определяется хэшем server_seed + состава банка.
+  // Любой может пересчитать: result = HMAC_SHA256(serverSeed, "round|bet1|bet2|...")
+  const composition = round.id + '|' + round.players.map(p => p.telegram_id + ':' + p.bet).join('|') + '|' + total;
+  const resultHash = crypto.createHmac('sha256', round.serverSeed).update(composition).digest('hex');
+  round.resultHash = resultHash;
+  // первые 13 hex -> число [0,1)
+  const slice = resultHash.slice(0, 13);
+  const frac = parseInt(slice, 16) / Math.pow(16, 13);
+  let ticket = frac * total;
+
+  let winner = null;
+  for (const p of round.players) { ticket -= p.bet; if (ticket <= 0) { winner = p; break; } }
   if (!winner) winner = round.players[round.players.length - 1];
 
-  const fee = Math.floor(total * PVP_FEE);   // сгорает
+  const fee = Math.floor(total * PVP_FEE);
   const winAmount = total - fee;
   const chance = Number(((winner.bet / total) * 100).toFixed(2));
 
@@ -248,7 +252,6 @@ async function finishRound() {
   await supabase.from('users').update({ arc_balance: Number(wu?.arc_balance || 0) + winAmount }).eq('telegram_id', winner.telegram_id);
   await supabase.from('transactions').insert({ telegram_id: winner.telegram_id, type: 'pvp_win', amount: winAmount, currency: 'ARC', description: `PvP раунд #${round.id}`, created_at: nowISO() });
 
-  // total_pvp_bet для лидерборда
   for (const p of round.players) {
     const { data: pu } = await supabase.from('users').select('total_pvp_bet').eq('telegram_id', p.telegram_id).single();
     await supabase.from('users').update({ total_pvp_bet: Number(pu?.total_pvp_bet || 0) + p.bet }).eq('telegram_id', p.telegram_id);
@@ -257,15 +260,15 @@ async function finishRound() {
   await supabase.from('pvp_rounds').insert({
     round_id: round.id, winner_id: winner.telegram_id, winner_name: winner.username,
     winner_amount: winAmount, total_pool: total, fee,
-    players: round.players.map(p => ({ telegram_id: p.telegram_id, username: p.username, bet: p.bet }))
+    players: round.players.map(p => ({ telegram_id: p.telegram_id, username: p.username, bet: p.bet })),
+    server_seed: round.serverSeed, server_seed_hash: round.serverSeedHash, result_hash: resultHash
   });
 
   bot.api.sendMessage(Number(winner.telegram_id), `🏆 Победа в PvP #${round.id}! +${winAmount} ARC (шанс ${chance}%)`).catch(() => {});
 
-  round.winner = { telegram_id: winner.telegram_id, username: winner.username, amount: winAmount, chance };
+  round.winner = { telegram_id: winner.telegram_id, username: winner.username, photo: winner.photo || '', amount: winAmount, chance };
   round.status = 'finished';
 
-  // показываем 4 сек, потом новый раунд +1 (игра состоялась)
   const finishedId = round.id;
   setTimeout(() => { round = newRound(finishedId + 1); }, 4000);
 }
@@ -286,7 +289,10 @@ app.get('/api/pvp/state', (req, res) => {
       photo: p.photo || '',
       chance: Number(((p.bet / Math.max(round.totalPool, 1)) * 100).toFixed(2))
     })),
-    winner: round.winner
+    winner: round.winner,
+    fairHash: round.serverSeedHash,
+    fairSeed: round.status === 'finished' ? round.serverSeed : null,
+    fairResult: round.status === 'finished' ? round.resultHash : null
   });
 });
 
@@ -343,7 +349,6 @@ app.post('/api/me', async (req, res) => {
     const u = getUserFromInit(initData);
     const params = new URLSearchParams(initData);
     await ensureUser(u, params.get('start_param') || '');
-    // Вход в Mini App — сбрасываем счётчик неактивности
     await supabase.from('users').update({
       last_app_open: nowISO(), inactive_days: 0, last_decay_date: ''
     }).eq('telegram_id', String(u.id));
@@ -360,7 +365,6 @@ app.get('/api/user/:tgId', async (req, res) => {
     const today = moscowDate();
     const checkin_done = data.last_checkin_date === today;
 
-    // друзья (оба уровня) с заработком
     const { data: refs } = await supabase.from('referrals')
       .select('referred_id,earned_arc,level').eq('referrer_id', tgId).order('level', { ascending: true });
     let friends = [];
@@ -403,7 +407,7 @@ app.get('/api/user/:tgId', async (req, res) => {
 });
 
 // ============================================================
-//  CHECK-IN  (множитель на рекламу, раз в день по МСК)
+//  CHECK-IN
 // ============================================================
 app.post('/api/checkin', async (req, res) => {
   try {
@@ -415,7 +419,6 @@ app.post('/api/checkin', async (req, res) => {
     if (user.last_checkin_date === today) return res.status(400).json({ error: 'already_done' });
 
     let day = user.checkin_day || 1;
-    // если последний чек-ин был не вчера и не пусто — стрик сбрасывается
     if (user.last_checkin_date && user.last_checkin_date !== yesterdayMoscow()) day = 1;
 
     const multiplier = Math.min(1.0 + (day - 1) * 0.1, 1.5);
@@ -481,7 +484,6 @@ app.post('/api/promo/use', async (req, res) => {
     const { data: user } = await supabase.from('users').select('arc_balance').eq('telegram_id', tgId).single();
     if (!user) return res.status(400).json({ error: 'Не найден' });
 
-    // защита от гонки: вставляем использование (уникальный индекс)
     const { error: insErr } = await supabase.from('promo_uses').insert({ promo_code: code, telegram_id: tgId });
     if (insErr) return res.status(400).json({ error: 'Вы уже использовали этот код' });
 
@@ -602,7 +604,7 @@ app.post('/api/wallet/disconnect', async (req, res) => {
 });
 
 // ============================================================
-//  DEPOSIT (auto, via tx_hash) / WITHDRAW (manual)
+//  DEPOSIT (auto) / WITHDRAW (manual)
 // ============================================================
 app.post('/api/check-deposit', async (req, res) => {
   try {
@@ -637,7 +639,6 @@ async function monitorDeposits() {
       if (amt < 0.1) continue;
       const { data: user } = await supabase.from('users').select('ton_balance').eq('telegram_id', uid).single();
       if (!user) continue;
-      // вставка с хэшем — уникальный индекс не даст задвоить
       const { error: insErr } = await supabase.from('transactions').insert({ telegram_id: uid, type: 'deposit', amount: amt, currency: 'TON', tx_hash: txHash, description: `Депозит ${amt.toFixed(3)} TON`, created_at: nowISO() });
       if (insErr) continue;
       await supabase.from('users').update({ ton_balance: Number(user.ton_balance || 0) + amt }).eq('telegram_id', uid);
@@ -659,10 +660,10 @@ app.post('/api/withdraw-request', async (req, res) => {
     if (!user || Number(user.ton_balance) < amt) return res.status(400).json({ error: 'Недостаточно TON' });
 
     await supabase.from('users').update({ ton_balance: Number(user.ton_balance) - amt }).eq('telegram_id', tgId);
-    await supabase.from('transactions').insert({ telegram_id: tgId, type: 'withdraw', amount: amt, currency: 'TON', status: 'pending', wallet_addr: wallet || user.wallet_addr, description: `Вывод ${amt} TON`, created_at: nowISO() });
+    const { data: txRow } = await supabase.from('transactions').insert({ telegram_id: tgId, type: 'withdraw', amount: amt, currency: 'TON', status: 'pending', wallet_addr: wallet || user.wallet_addr, description: `Вывод ${amt} TON`, created_at: nowISO() }).select().single();
 
     const when = new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' });
-    notifyAdmin(`⬆️ ЗАЯВКА НА ВЫВОД\n👤 @${req.tgUser.username || req.tgUser.first_name}\n🆔 ${tgId}\n💎 ${amt} TON\n👛 ${wallet || user.wallet_addr}\n🕒 ${when} МСК\n⏳ Обработать в течение 24 часов`);
+    notifyAdmin(`⬆️ ЗАЯВКА НА ВЫВОД\n🆔 заявки: ${txRow?.id || '?'}\n👤 @${req.tgUser.username || req.tgUser.first_name}\n🆔 ${tgId}\n💎 ${amt} TON\n👛 ${wallet || user.wallet_addr}\n🕒 ${when} МСК\n⏳ Обработать в течение 24 часов\n\n✅ /paid ${txRow?.id || ''}   ❌ /reject ${txRow?.id || ''}`);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -679,7 +680,6 @@ app.get('/api/leaderboard', async (req, res) => {
       const all = (data || []).map((u, i) => ({ rank: i + 1, name: u.username, photo: u.photo_url, val: u.total_pvp_bet || 0, tid: u.telegram_id }));
       return res.json({ top: all.slice(0, 50), me: myId ? all.find(u => String(u.tid) === String(myId)) || null : null });
     }
-    // ads
     const { data: rows } = await supabase.from('ad_views').select('telegram_id,views_count');
     const map = {};
     (rows || []).forEach(v => map[v.telegram_id] = (map[v.telegram_id] || 0) + v.views_count);
@@ -716,7 +716,6 @@ bot.command('start', async (ctx) => {
 
 const isAdmin = ctx => ctx.from?.id === ADMIN_ID;
 
-// /addpromo КОД ARC ЛИМИТ [дни]
 bot.command('addpromo', async (ctx) => {
   if (!isAdmin(ctx)) return;
   const [code, arc, limit, days] = (ctx.match || '').trim().split(/\s+/);
@@ -742,8 +741,6 @@ bot.command('listpromos', async (ctx) => {
   ctx.reply(data.map(p => `📌 ${p.code} | ${p.arc_amount} ARC | ${p.current_uses}/${p.max_uses}${p.expires_at ? ' | до ' + new Date(p.expires_at).toLocaleDateString('ru-RU') : ''}`).join('\n'));
 });
 
-// /addtask подписка|Название|канал|ARC|лимит|[дни]
-// /addtask ссылка|Название|ссылка|ARC|лимит|[дни]
 bot.command('addtask', async (ctx) => {
   if (!isAdmin(ctx)) return;
   const parts = (ctx.match || '').trim().split('|');
@@ -786,7 +783,6 @@ bot.command('stats', async (ctx) => {
   ctx.reply(`📊 BLACK\n👥 Юзеров: ${users?.length || 0}\n🪙 ARC: ${Math.floor(totalArc)}\n💎 TON: ${totalTon.toFixed(3)}\n⚔️ Раундов: ${pvp?.[0]?.id || 0}`);
 });
 
-// approve/reject вывода
 bot.command('paid', async (ctx) => {
   if (!isAdmin(ctx)) return;
   const id = parseInt((ctx.match || '').trim());
@@ -822,17 +818,18 @@ bot.command('closeexchange', async (ctx) => {
   ctx.reply('🔒 Обмен закрыт');
 });
 
-// Ручной запуск проверки неактивности (для теста)
 bot.command('decaynow', async (ctx) => {
   if (!isAdmin(ctx)) return;
   await runInactivityDecay();
   ctx.reply('✅ Проверка неактивности выполнена');
 });
 
+bot.command('help', async (ctx) => {
+  if (!isAdmin(ctx)) return;
+  ctx.reply('🛠 Админ-команды BLACK:\n\n/addpromo КОД ARC ЛИМИТ [дни]\n/delpromo КОД\n/listpromos\n\n/addtask подписка|Назв|канал|ARC|лимит|[дни]\n/addtask ссылка|Назв|ссылка|ARC|лимит|[дни]\n/deltask ID\n/listtasks\n\n/paid ID — подтвердить вывод\n/reject ID — отклонить вывод\n/openexchange · /closeexchange\n/stats — статистика\n/decaynow — проверить неактивность');
+});
+
 // ---------- INACTIVITY DECAY ----------
-// Считаем дни с последнего входа в Mini App.
-// 5,6,7 день — предупреждение. 7 день — списываем -20%. 8+ день — -5%/день.
-// Списываем пока юзер не зайдёт (last_app_open обновится) или баланс не станет 0.
 function daysSince(ts) {
   if (!ts) return 0;
   const ms = Date.now() - new Date(ts).getTime();
@@ -846,10 +843,9 @@ async function runInactivityDecay() {
       .select('telegram_id,arc_balance,last_app_open,last_decay_date')
       .gt('arc_balance', 0);
     for (const u of users || []) {
-      if (u.last_decay_date === today) continue; // уже обработан сегодня
+      if (u.last_decay_date === today) continue;
       const days = daysSince(u.last_app_open);
 
-      // Предупреждения на 5,6,7 день
       if (days === 5 || days === 6 || days === 7) {
         const left = 7 - days;
         const warn = left > 0
@@ -860,8 +856,8 @@ async function runInactivityDecay() {
       }
 
       let penalty = 0, pct = 0;
-      if (days === 7) pct = 0.20;        // ровно на 7-й день -20%
-      else if (days >= 8) pct = 0.05;    // с 8-го дня -5% каждый день
+      if (days === 7) pct = 0.20;
+      else if (days >= 8) pct = 0.05;
 
       if (pct > 0) {
         const bal = Number(u.arc_balance);
@@ -876,7 +872,6 @@ async function runInactivityDecay() {
           `📉 Списано ${penalty} ARC (-${Math.round(pct*100)}%) за неактивность.\nБаланс: ${newBal} ARC\n\nOpen the app to stop losses 👇`;
         bot.api.sendMessage(Number(u.telegram_id), msg, { parse_mode: 'Markdown' }).catch(() => {});
       } else {
-        // отметим обработку дня, чтобы не слать варнинг повторно
         await supabase.from('users').update({ last_decay_date: today }).eq('telegram_id', u.telegram_id);
       }
     }
@@ -892,7 +887,7 @@ function scheduleMidnight() {
     await supabase.from('users').update({ exc_today: 0 }).neq('telegram_id', '');
     const today = moscowDate();
     await supabase.from('ad_views').delete().neq('view_date', today);
-    await runInactivityDecay();   // штрафы за неактивность раз в сутки
+    await runInactivityDecay();
     scheduleMidnight();
   }, next - msk);
 }
